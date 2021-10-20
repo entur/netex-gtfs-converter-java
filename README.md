@@ -1,7 +1,7 @@
 
 # NeTEx-to-GTFS Converter Java
 
-[![CircleCI](https://circleci.com/gh/entur/netex-gtfs-converter-java/tree/master.svg?style=svg)](https://circleci.com/gh/entur/netex-gtfs-converter-java/tree/master)
+[![CircleCI](https://circleci.com/gh/entur/netex-gtfs-converter-java/tree/main.svg?style=svg)](https://circleci.com/gh/entur/netex-gtfs-converter-java/tree/main)
 
 Converts NeTEX datasets into GTFS datasets.
 The input NeTEx datasets are required to follow the [Nordic NeTEx Profile](https://enturas.atlassian.net/wiki/spaces/PUBLIC/pages/728891481/Nordic+NeTEx+Profile).
