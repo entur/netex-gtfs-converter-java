@@ -63,8 +63,21 @@ public class DefaultRouteProducer implements RouteProducer {
 
 
         // route short and long names
+        // The NeTEx name hierarchy is: public code < short name < name
+        // The GTFS name hierarchy is: short name < long name
+        // the NeTEx public code becomes the GTFS short name
         route.setShortName(line.getPublicCode());
-        route.setLongName(line.getName().getValue());
+        // The NeTEx short name becomes the GTFS long name
+        if(line.getShortName() != null && line.getShortName().getValue() != null) {
+            route.setLongName(line.getShortName().getValue());
+        } else {
+            // If the NeTEx short name is missing, the NeTEx name becomes the GTFS long name
+            route.setLongName(line.getName().getValue());
+        }
+        // The long name is omitted if it is identical to the short name
+        if(route.getLongName() != null && route.getLongName().equals(route.getShortName())) {
+            route.setLongName(null);
+        }
 
         // route description
         if (line.getDescription() != null) {
