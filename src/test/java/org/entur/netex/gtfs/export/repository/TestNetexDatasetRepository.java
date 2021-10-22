@@ -54,6 +54,7 @@
 
 package org.entur.netex.gtfs.export.repository;
 
+import org.rutebanken.netex.model.DayType;
 import org.rutebanken.netex.model.Line;
 
 public class TestNetexDatasetRepository extends DefaultNetexDatasetRepository {
@@ -74,5 +75,12 @@ public class TestNetexDatasetRepository extends DefaultNetexDatasetRepository {
     @Override
     public String getQuayIdByScheduledStopPointId(String scheduledStopPointId) {
         return QUAY_ID;
+    }
+
+    @Override
+    public DayType getDayTypeById(String dayTypeId) {
+        DayType dayType = new DayType();
+        dayType.setId("ENT:DayType:1");
+        return dayType;
     }
 }
