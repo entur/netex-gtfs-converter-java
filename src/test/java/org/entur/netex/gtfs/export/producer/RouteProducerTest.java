@@ -73,6 +73,7 @@ class RouteProducerTest {
 
     private static final String LINE_ID = "Line-ID";
     private static final String LINE_NAME = "Line-Name";
+    private static final String LINE_SHORT_NAME = "Line-Short-Name";
 
 
     @Test
@@ -82,26 +83,74 @@ class RouteProducerTest {
         GtfsDatasetRepository gtfsDatasetRepository = new TestGtfsRepository();
 
         RouteProducer routeProducer = new DefaultRouteProducer(netexDatasetRepository, gtfsDatasetRepository);
-        Line line = new Line();
-        line.setId(LINE_ID);
-        MultilingualString lineName = new MultilingualString();
-        lineName.setValue(LINE_NAME);
-        line.setName(lineName);
-        line.setTransportMode(AllVehicleModesOfTransportEnumeration.BUS);
-        TransportSubmodeStructure transportSubmode = new TransportSubmodeStructure();
-        transportSubmode.setBusSubmode(BusSubmodeEnumeration.LOCAL_BUS);
-        line.setTransportSubmode(transportSubmode);
-        GroupOfLinesRefStructure groupOfLineRef = new GroupOfLinesRefStructure();
-        groupOfLineRef.setRef(TestNetexDatasetRepository.NETWORK_ID);
-        line.setRepresentedByGroupRef(groupOfLineRef);
+        Line line = createTestLine();
 
         Route route = routeProducer.produce(line);
 
         Assertions.assertNotNull(route);
         Assertions.assertNotNull(route.getId());
         Assertions.assertEquals(LINE_ID, route.getId().getId());
-        Assertions.assertEquals(LINE_NAME, route.getLongName());
+        Assertions.assertEquals(line.getPublicCode(), route.getShortName(), "The GTFS route short name should be the NeTEx Line public code");
+        Assertions.assertEquals(line.getShortName().getValue(), route.getLongName(), "The GTFS route long name should be the NeTEx Line short name");
+
         Assertions.assertEquals(GtfsRouteType.LOCAL_BUS_SERVICE.getValue(), route.getType());
 
+    }
+
+    @Test
+    void testRouteProducerWithoutShortName() {
+
+        NetexDatasetRepository netexDatasetRepository = new TestNetexDatasetRepository();
+        GtfsDatasetRepository gtfsDatasetRepository = new TestGtfsRepository();
+
+        RouteProducer routeProducer = new DefaultRouteProducer(netexDatasetRepository, gtfsDatasetRepository);
+        Line line = createTestLine();
+        line.setShortName(null);
+
+        Route route = routeProducer.produce(line);
+
+        Assertions.assertEquals(line.getPublicCode(), route.getShortName(), "The GTFS route short name should be the NeTEx Line public code");
+        Assertions.assertEquals(line.getName().getValue(), route.getLongName(), "The GTFS route long name should be the NeTEx Line name if the NeTEx Line short name is missing");
+    }
+
+    @Test
+    void testRouteProducerWithIdenticalPublicCodeAndShortName() {
+
+        NetexDatasetRepository netexDatasetRepository = new TestNetexDatasetRepository();
+        GtfsDatasetRepository gtfsDatasetRepository = new TestGtfsRepository();
+
+        RouteProducer routeProducer = new DefaultRouteProducer(netexDatasetRepository, gtfsDatasetRepository);
+        Line line = createTestLine();
+        line.setPublicCode(LINE_SHORT_NAME);
+
+        Route route = routeProducer.produce(line);
+
+        Assertions.assertEquals(line.getPublicCode(), route.getShortName(), "The GTFS route short name should be the NeTEx Line public code");
+        Assertions.assertNull(route.getLongName(), "The GTFS route long name is not set when NeTEx public code and short name are identical");
+    }
+
+
+    private Line createTestLine() {
+        Line line = new Line();
+        line.setId(LINE_ID);
+
+        MultilingualString lineName = new MultilingualString();
+        lineName.setValue(LINE_NAME);
+        line.setName(lineName);
+
+        MultilingualString lineShortName = new MultilingualString();
+        lineShortName.setValue(LINE_SHORT_NAME);
+        line.setShortName(lineShortName);
+
+        line.setTransportMode(AllVehicleModesOfTransportEnumeration.BUS);
+        TransportSubmodeStructure transportSubmode = new TransportSubmodeStructure();
+        transportSubmode.setBusSubmode(BusSubmodeEnumeration.LOCAL_BUS);
+        line.setTransportSubmode(transportSubmode);
+
+        GroupOfLinesRefStructure groupOfLineRef = new GroupOfLinesRefStructure();
+        groupOfLineRef.setRef(TestNetexDatasetRepository.NETWORK_ID);
+        line.setRepresentedByGroupRef(groupOfLineRef);
+
+        return line;
     }
 }
