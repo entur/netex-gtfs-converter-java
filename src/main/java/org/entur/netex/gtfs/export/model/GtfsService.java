@@ -65,4 +65,12 @@ public class GtfsService {
     public void setServiceCalendarPeriod(ServiceCalendarPeriod serviceCalendarPeriod) {
         this.serviceCalendarPeriod = serviceCalendarPeriod;
     }
+
+    public void removeIncludedDates(Set<LocalDateTime> removedIncludedDates) {
+        includedDates.removeAll(removedIncludedDates);
+    }
+
+    public void removeAllExcludedDates() {
+        excludedDates.clear();
+    }
 }
