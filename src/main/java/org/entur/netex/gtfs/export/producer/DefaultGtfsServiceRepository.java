@@ -140,24 +140,14 @@ public class DefaultGtfsServiceRepository implements GtfsServiceRepository {
                 .map(netexDatasetRepository::getDayTypeAssignmentsByDayType)
                 .flatMap(Collection::stream)
                 .forEach(dayTypeAssignment -> addIndividualDate(gtfsService, dayTypeAssignment));
-        return gtfsService;
-    }
 
-    private void addIndividualDate(GtfsService gtfsService, DayTypeAssignment dayTypeAssignment) {
-        LocalDateTime date;
-        if (dayTypeAssignment.getOperatingDayRef() != null) {
-            OperatingDay operatingDay = netexDatasetRepository.getOperatingDayByDayTypeAssignment(dayTypeAssignment);
-            date = operatingDay.getCalendarDate();
-        } else if (dayTypeAssignment.getDate() != null) {
-            date = dayTypeAssignment.getDate();
-        } else {
-            throw new GtfsExportException("Both Date and OperatingDay are undefined on DayTypeAssignment " + dayTypeAssignment.getId());
-        }
-        if (dayTypeAssignment.isIsAvailable() != null && !dayTypeAssignment.isIsAvailable()) {
-            gtfsService.addExcludedDate(date);
-        } else {
-            gtfsService.addIncludedDate(date);
-        }
+        // Remove the excluded dates from the included dates and remove all the excluded dates.
+        // Since there is no period but only individual dates, it is sufficient to list the included dates.
+        // Date exclusion has precedence over date inclusion.
+        gtfsService.removeIncludedDates(gtfsService.getExcludedDates());
+        gtfsService.removeAllExcludedDates();
+
+        return gtfsService;
     }
 
     private GtfsService createGtfsServiceForOnePeriodAndIndividualDates(Set<DayType> dayTypes, String serviceId) {
@@ -182,18 +172,11 @@ public class DefaultGtfsServiceRepository implements GtfsServiceRepository {
                 .filter(dta -> dta.getOperatingPeriodRef() == null)
                 .forEach(dayTypeAssignment -> addIndividualDate(gtfsService, dayTypeAssignment));
 
-        return gtfsService;
-    }
+        // Remove included dates that are also listed in the excluded dates
+        // Date exclusion has precedence over date inclusion.
+        gtfsService.removeIncludedDates(gtfsService.getExcludedDates());
 
-    private static List<DayOfWeekEnumeration> getNetexDaysOfWeek(DayType dayType) {
-        if (dayType.getProperties() != null && dayType.getProperties().getPropertyOfDay() != null) {
-            for (PropertyOfDay propertyOfDay : dayType.getProperties().getPropertyOfDay()) {
-                if (propertyOfDay.getDaysOfWeek() != null && !propertyOfDay.getDaysOfWeek().isEmpty()) {
-                    return propertyOfDay.getDaysOfWeek();
-                }
-            }
-        }
-        return null;
+        return gtfsService;
     }
 
     private GtfsService createGtfsServiceForMultiplePeriodsAndIndividualDates(Set<DayType> dayTypes, String serviceId) {
@@ -219,7 +202,41 @@ public class DefaultGtfsServiceRepository implements GtfsServiceRepository {
                 .filter(dta -> dta.getOperatingPeriodRef() == null)
                 .forEach(dayTypeAssignment -> addIndividualDate(gtfsService, dayTypeAssignment));
 
+        // remove the excluded dates from the included dates and remove all the excluded dates.
+        // Since there is no period but only individual dates, it is sufficient to list the included dates.
+        // Date exclusion has precedence over date inclusion.
+        gtfsService.removeIncludedDates(gtfsService.getExcludedDates());
+        gtfsService.removeAllExcludedDates();
+
         return gtfsService;
+    }
+
+    private void addIndividualDate(GtfsService gtfsService, DayTypeAssignment dayTypeAssignment) {
+        LocalDateTime date;
+        if (dayTypeAssignment.getOperatingDayRef() != null) {
+            OperatingDay operatingDay = netexDatasetRepository.getOperatingDayByDayTypeAssignment(dayTypeAssignment);
+            date = operatingDay.getCalendarDate();
+        } else if (dayTypeAssignment.getDate() != null) {
+            date = dayTypeAssignment.getDate();
+        } else {
+            throw new GtfsExportException("Both Date and OperatingDay are undefined on DayTypeAssignment " + dayTypeAssignment.getId());
+        }
+        if (dayTypeAssignment.isIsAvailable() != null && !dayTypeAssignment.isIsAvailable()) {
+            gtfsService.addExcludedDate(date);
+        } else {
+            gtfsService.addIncludedDate(date);
+        }
+    }
+
+    private static List<DayOfWeekEnumeration> getNetexDaysOfWeek(DayType dayType) {
+        if (dayType.getProperties() != null && dayType.getProperties().getPropertyOfDay() != null) {
+            for (PropertyOfDay propertyOfDay : dayType.getProperties().getPropertyOfDay()) {
+                if (propertyOfDay.getDaysOfWeek() != null && !propertyOfDay.getDaysOfWeek().isEmpty()) {
+                    return propertyOfDay.getDaysOfWeek();
+                }
+            }
+        }
+        return null;
     }
 
     private static Set<DayOfWeek> getDaysOfWeek(DayType dayType) {
