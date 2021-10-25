@@ -24,10 +24,12 @@ import net.opengis.gml._3.LineStringType;
 import org.apache.commons.lang3.StringUtils;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateSequence;
+import org.locationtech.jts.geom.CoordinateSequenceFilter;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.PrecisionModel;
-import org.locationtech.jts.geom.impl.CoordinateArraySequence;
+import org.locationtech.jts.geom.impl.PackedCoordinateSequence;
+import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,8 +65,9 @@ public final class GeometryUtil {
 
     /**
      * Calculate the distance between 2 coordinates, in meters.
+     *
      * @param from from coordinate
-     * @param to to coordinate
+     * @param to   to coordinate
      * @return the distance between the 2 coordinates, in meters.
      */
     public static double distance(Coordinate from, Coordinate to) {
@@ -77,6 +80,7 @@ public final class GeometryUtil {
 
     /**
      * Convert a GML LIneString object into a JTS LineString.
+     *
      * @param gml the GML LineString.
      * @return the JTS LineString.
      */
@@ -107,8 +111,9 @@ public final class GeometryUtil {
             }
         }
 
-        CoordinateSequence coordinateSequence = convert(coordinateList);
+        CoordinateSequence coordinateSequence = new PackedCoordinateSequenceFactory().create(coordinateList.stream().mapToDouble(Double::doubleValue).toArray(), 2);
         LineString jts = new LineString(coordinateSequence, GEOMETRY_FACTORY);
+        jts.apply(new SwapPackedCoordinateSequenceFilter());
         assignSRID(gml, jts);
 
         return jts;
@@ -134,18 +139,31 @@ public final class GeometryUtil {
         }
     }
 
+
     /**
-     * Convert a list of double values into a sequence of coordinates.
-     * @param values the list of coordinate.
-     * @return a coordinate sequence.
+     * Swap latitude and longitude since GML and JTS have reversed convention.
      */
-    private static CoordinateSequence convert(List<Double> values) {
-        Coordinate[] coordinates = new Coordinate[values.size() / 2];
-        int coordinateIndex = 0;
-        for (int index = 0; index < values.size(); index += 2) {
-            Coordinate coordinate = new Coordinate(values.get(index + 1), values.get(index));
-            coordinates[coordinateIndex++] = coordinate;
+    private static final class SwapPackedCoordinateSequenceFilter implements CoordinateSequenceFilter {
+
+        private SwapPackedCoordinateSequenceFilter() {
         }
-        return new CoordinateArraySequence(coordinates);
+
+        @Override
+        public void filter(CoordinateSequence coordinateSequence, int i) {
+            PackedCoordinateSequence packedCoordinateSequence = (PackedCoordinateSequence) coordinateSequence;
+            double originalCoordinateX = packedCoordinateSequence.getX(i);
+            packedCoordinateSequence.setX(i, coordinateSequence.getY(i));
+            packedCoordinateSequence.setY(i, originalCoordinateX);
+        }
+
+        @Override
+        public boolean isDone() {
+            return false;
+        }
+
+        @Override
+        public boolean isGeometryChanged() {
+            return true;
+        }
     }
 }
