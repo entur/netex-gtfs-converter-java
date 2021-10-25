@@ -96,7 +96,7 @@ public class DefaultStopTimeProducer implements StopTimeProducer {
         String stopHeadSignOnCurrentStop = null;
         if (stopPointInSequence.getDestinationDisplayRef() != null) {
             DestinationDisplay destinationDisplay = netexDatasetRepository.getDestinationDisplayById(stopPointInSequence.getDestinationDisplayRef().getRef());
-            stopHeadSignOnCurrentStop = DestinationDisplayUtil.getFrontTextWithComputedVias(destinationDisplay, netexDatasetRepository);
+            stopHeadSignOnCurrentStop = DestinationDisplayUtil.getHeadSignFromDestinationDisplay(destinationDisplay, netexDatasetRepository);
             if(stopHeadSignOnCurrentStop != null && stopHeadSignOnCurrentStop.equals(trip.getTripHeadsign())) {
                 stopHeadSignOnCurrentStop = null;
             }

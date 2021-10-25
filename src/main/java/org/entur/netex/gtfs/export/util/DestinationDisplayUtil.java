@@ -20,12 +20,12 @@ package org.entur.netex.gtfs.export.util;
 
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 import org.rutebanken.netex.model.DestinationDisplay;
+import org.rutebanken.netex.model.DestinationDisplay_VersionStructure;
 import org.rutebanken.netex.model.JourneyPattern;
+import org.rutebanken.netex.model.MultilingualString;
 import org.rutebanken.netex.model.StopPointInJourneyPattern;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -38,7 +38,8 @@ public final class DestinationDisplayUtil {
 
     /**
      * Return the destination display on the first stop in the journey pattern.
-     * @param journeyPattern the journey pattern.
+     *
+     * @param journeyPattern         the journey pattern.
      * @param netexDatasetRepository the repository of NeTEx data.
      * @return the destination display on the first stop in the journey pattern.
      */
@@ -50,44 +51,35 @@ public final class DestinationDisplayUtil {
     }
 
     /**
-     * Compute a front text (GTFS head sign) from a destination display that may contain a list of vias (intermediate head sign)
+     * Build the GTFS head sign from a destination display that may contain a list of vias (intermediate head signs).
+     * If the destination display front text is A and it refers to 2 Vias with front texts B and C, then the head sign is "A via B/C".
      *
      * @param destinationDisplay     the NeTEx destination display
      * @param netexDatasetRepository the netex dataset repository
-     * @return a front text that concatenates the destination display and its optional vias.
+     * @return a head sign that concatenates the destination display front text and its optional vias.
      */
-    public static String getFrontTextWithComputedVias(DestinationDisplay destinationDisplay, NetexDatasetRepository netexDatasetRepository) {
+    public static String getHeadSignFromDestinationDisplay(DestinationDisplay destinationDisplay, NetexDatasetRepository netexDatasetRepository) {
 
         if (destinationDisplay == null) {
             return null;
         }
-
-        List<DestinationDisplay> vias;
+        String frontText = destinationDisplay.getFrontText().getValue();
+        String via = "";
         if (destinationDisplay.getVias() != null) {
-            vias = destinationDisplay.getVias()
+            via = destinationDisplay.getVias()
                     .getVia()
                     .stream()
-                    .map(via -> via.getDestinationDisplayRef().getRef())
+                    .map(netexVia -> netexVia.getDestinationDisplayRef().getRef())
                     .map(netexDatasetRepository::getDestinationDisplayById)
-                    .collect(Collectors.toList());
-        } else {
-            vias = Collections.emptyList();
+                    .map(DestinationDisplay_VersionStructure::getFrontText)
+                    .filter(Objects::nonNull)
+                    .map(MultilingualString::getValue)
+                    .collect(Collectors.joining("/"));
         }
-        String frontText = destinationDisplay.getFrontText().getValue();
-        if (!vias.isEmpty() && frontText != null) {
-            StringBuilder b = new StringBuilder();
-            b.append(frontText);
-            b.append(" via ");
-            List<String> viaFrontTexts = new ArrayList<>();
-            for (DestinationDisplay via : vias) {
-                if (via.getFrontText() != null) {
-                    viaFrontTexts.add(via.getFrontText().getValue());
-                }
-            }
-            b.append(String.join("/", viaFrontTexts));
-            return b.toString();
-        } else {
-            return frontText;
+
+        if (!via.isEmpty()) {
+            frontText = frontText + " via " + via;
         }
+        return frontText;
     }
 }
