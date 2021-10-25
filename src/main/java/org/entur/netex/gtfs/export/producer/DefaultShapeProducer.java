@@ -84,6 +84,9 @@ public class DefaultShapeProducer implements ShapeProducer {
             for (JAXBElement<?> jaxbElement : projections.getProjectionRefOrProjection()) {
                 LinkSequenceProjection linkSequenceProjection = (LinkSequenceProjection) jaxbElement.getValue();
                 LineString lineString = GeometryUtil.convertLineStringFromGmlToJts(linkSequenceProjection.getLineString());
+                if(lineString == null) {
+                    return null;
+                }
                 for (Coordinate currentPoint : lineString.getCoordinates()) {
                     // the first point of the current link is the last point of the previous link, it can be skipped.
                     // as a side effect, duplicate points that follow one another are also filtered out
