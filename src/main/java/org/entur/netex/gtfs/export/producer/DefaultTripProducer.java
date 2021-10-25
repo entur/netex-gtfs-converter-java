@@ -114,7 +114,7 @@ public class DefaultTripProducer implements TripProducer {
         trip.setServiceId(serviceAgencyAndId);
 
         // destination display = head sign
-        trip.setTripHeadsign(DestinationDisplayUtil.getFrontTextWithComputedVias(initialDestinationDisplay, netexDatasetRepository));
+        trip.setTripHeadsign(DestinationDisplayUtil.getHeadSignFromDestinationDisplay(initialDestinationDisplay, netexDatasetRepository));
 
         // shape
         trip.setShapeId(shapeId);
