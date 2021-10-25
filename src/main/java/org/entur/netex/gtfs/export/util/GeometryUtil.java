@@ -21,6 +21,7 @@ package org.entur.netex.gtfs.export.util;
 import net.opengis.gml._3.DirectPositionListType;
 import net.opengis.gml._3.DirectPositionType;
 import net.opengis.gml._3.LineStringType;
+import net.opengis.gml._3.PointPropertyType;
 import org.apache.commons.lang3.StringUtils;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateSequence;
@@ -81,42 +82,59 @@ public final class GeometryUtil {
     /**
      * Convert a GML LIneString object into a JTS LineString.
      *
-     * @param gml the GML LineString.
+     * @param gmlLineString the GML LineString.
      * @return the JTS LineString.
      */
-    public static LineString convertLineStringFromGmlToJts(LineStringType gml) {
-        List<Double> coordinateList;
-        DirectPositionListType posList = gml.getPosList();
+    public static LineString convertLineStringFromGmlToJts(LineStringType gmlLineString) {
+        List<Double> coordinates = extractCoordinates(gmlLineString);
+        if (coordinates == null) {
+            return null;
+        }
+        CoordinateSequence coordinateSequence = new PackedCoordinateSequenceFactory().create(coordinates.stream().mapToDouble(Double::doubleValue).toArray(), 2);
+        LineString jts = new LineString(coordinateSequence, GEOMETRY_FACTORY);
+        jts.apply(new SwapPackedCoordinateSequenceFilter());
+        assignSRID(gmlLineString, jts);
+
+        return jts;
+    }
+
+    /**
+     * Extract the GML coordinates as a list of double values.
+     *
+     * @param gmlLineString a GML LineString
+     * @return a list of coordinates or null if the LineString is not valid.
+     */
+    private static List<Double> extractCoordinates(LineStringType gmlLineString) {
+        List<Double> coordinates;
+        DirectPositionListType posList = gmlLineString.getPosList();
         if (posList != null && !posList.getValue().isEmpty()) {
-            coordinateList = posList.getValue();
+            coordinates = posList.getValue();
         } else {
-            if (gml.getPosOrPointProperty() != null && !gml.getPosOrPointProperty().isEmpty()) {
-                coordinateList = new ArrayList<>();
-                for (Object o : gml.getPosOrPointProperty()) {
+            if (gmlLineString.getPosOrPointProperty() != null && !gmlLineString.getPosOrPointProperty().isEmpty()) {
+                coordinates = new ArrayList<>();
+                for (Object o : gmlLineString.getPosOrPointProperty()) {
                     if (o instanceof DirectPositionType) {
                         DirectPositionType directPositionType = (DirectPositionType) o;
-                        coordinateList.addAll(directPositionType.getValue());
+                        coordinates.addAll(directPositionType.getValue());
+                    } else if (o instanceof PointPropertyType) {
+                        LOGGER.warn("Unsupported PointPropertyType for gmlString {}", gmlLineString.getId());
+                        return null;
                     } else {
-                        LOGGER.warn("Unknown class ({}) for PosOrPointProperty for gmlString {}", o.getClass(), gml.getId());
+                        LOGGER.warn("Unknown class ({}) for PosOrPointProperty for gmlString {}", o.getClass(), gmlLineString.getId());
+                        return null;
                     }
                 }
-                if (coordinateList.isEmpty()) {
-                    LOGGER.warn("Unknown class in PosOrPointProperty for gmlString {}", gml.getId());
+                if (coordinates.isEmpty()) {
+                    LOGGER.warn("LineStringType without coordinates for gmlString {}", gmlLineString.getId());
                     return null;
                 }
 
             } else {
-                LOGGER.warn("LineStringType without posList or PosOrPointProperty for gmlString {}", gml.getId());
+                LOGGER.warn("LineStringType without posList or PosOrPointProperty for gmlString {}", gmlLineString.getId());
                 return null;
             }
         }
-
-        CoordinateSequence coordinateSequence = new PackedCoordinateSequenceFactory().create(coordinateList.stream().mapToDouble(Double::doubleValue).toArray(), 2);
-        LineString jts = new LineString(coordinateSequence, GEOMETRY_FACTORY);
-        jts.apply(new SwapPackedCoordinateSequenceFilter());
-        assignSRID(gml, jts);
-
-        return jts;
+        return coordinates;
     }
 
     /**
