@@ -80,10 +80,10 @@ public final class GeometryUtil {
     }
 
     /**
-     * Convert a GML LIneString object into a JTS LineString.
+     * Return a JTS LineString corresponding to the GML LineString, or null if the GML LineString is invalid
      *
      * @param gmlLineString the GML LineString.
-     * @return the JTS LineString.
+     * @return the JTS LineString or null if the GML LineString is invalid.
      */
     public static LineString convertLineStringFromGmlToJts(LineStringType gmlLineString) {
         List<Double> coordinates = extractCoordinates(gmlLineString);
