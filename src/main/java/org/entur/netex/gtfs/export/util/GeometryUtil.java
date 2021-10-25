@@ -21,13 +21,16 @@ package org.entur.netex.gtfs.export.util;
 import net.opengis.gml._3.DirectPositionListType;
 import net.opengis.gml._3.DirectPositionType;
 import net.opengis.gml._3.LineStringType;
+import net.opengis.gml._3.PointPropertyType;
 import org.apache.commons.lang3.StringUtils;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateSequence;
+import org.locationtech.jts.geom.CoordinateSequenceFilter;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.PrecisionModel;
-import org.locationtech.jts.geom.impl.CoordinateArraySequence;
+import org.locationtech.jts.geom.impl.PackedCoordinateSequence;
+import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,8 +66,9 @@ public final class GeometryUtil {
 
     /**
      * Calculate the distance between 2 coordinates, in meters.
+     *
      * @param from from coordinate
-     * @param to to coordinate
+     * @param to   to coordinate
      * @return the distance between the 2 coordinates, in meters.
      */
     public static double distance(Coordinate from, Coordinate to) {
@@ -76,42 +80,61 @@ public final class GeometryUtil {
     }
 
     /**
-     * Convert a GML LIneString object into a JTS LineString.
-     * @param gml the GML LineString.
-     * @return the JTS LineString.
+     * Return a JTS LineString corresponding to the GML LineString, or null if the GML LineString is invalid
+     *
+     * @param gmlLineString the GML LineString.
+     * @return the JTS LineString or null if the GML LineString is invalid.
      */
-    public static LineString convertLineStringFromGmlToJts(LineStringType gml) {
-        List<Double> coordinateList;
-        DirectPositionListType posList = gml.getPosList();
+    public static LineString convertLineStringFromGmlToJts(LineStringType gmlLineString) {
+        List<Double> coordinates = extractCoordinates(gmlLineString);
+        if (coordinates == null) {
+            return null;
+        }
+        CoordinateSequence coordinateSequence = new PackedCoordinateSequenceFactory().create(coordinates.stream().mapToDouble(Double::doubleValue).toArray(), 2);
+        LineString jts = new LineString(coordinateSequence, GEOMETRY_FACTORY);
+        jts.apply(new SwapPackedCoordinateSequenceFilter());
+        assignSRID(gmlLineString, jts);
+
+        return jts;
+    }
+
+    /**
+     * Extract the GML coordinates as a list of double values.
+     *
+     * @param gmlLineString a GML LineString
+     * @return a list of coordinates or null if the LineString is not valid.
+     */
+    private static List<Double> extractCoordinates(LineStringType gmlLineString) {
+        List<Double> coordinates;
+        DirectPositionListType posList = gmlLineString.getPosList();
         if (posList != null && !posList.getValue().isEmpty()) {
-            coordinateList = posList.getValue();
+            coordinates = posList.getValue();
         } else {
-            if (gml.getPosOrPointProperty() != null && !gml.getPosOrPointProperty().isEmpty()) {
-                coordinateList = new ArrayList<>();
-                for (Object o : gml.getPosOrPointProperty()) {
+            if (gmlLineString.getPosOrPointProperty() != null && !gmlLineString.getPosOrPointProperty().isEmpty()) {
+                coordinates = new ArrayList<>();
+                for (Object o : gmlLineString.getPosOrPointProperty()) {
                     if (o instanceof DirectPositionType) {
                         DirectPositionType directPositionType = (DirectPositionType) o;
-                        coordinateList.addAll(directPositionType.getValue());
+                        coordinates.addAll(directPositionType.getValue());
+                    } else if (o instanceof PointPropertyType) {
+                        LOGGER.warn("Unsupported PointPropertyType for gmlString {}", gmlLineString.getId());
+                        return null;
                     } else {
-                        LOGGER.warn("Unknown class ({}) for PosOrPointProperty for gmlString {}", o.getClass(), gml.getId());
+                        LOGGER.warn("Unknown class ({}) for PosOrPointProperty for gmlString {}", o.getClass(), gmlLineString.getId());
+                        return null;
                     }
                 }
-                if (coordinateList.isEmpty()) {
-                    LOGGER.warn("Unknown class in PosOrPointProperty for gmlString {}", gml.getId());
+                if (coordinates.isEmpty()) {
+                    LOGGER.warn("LineStringType without coordinates for gmlString {}", gmlLineString.getId());
                     return null;
                 }
 
             } else {
-                LOGGER.warn("LineStringType without posList or PosOrPointProperty for gmlString {}", gml.getId());
+                LOGGER.warn("LineStringType without posList or PosOrPointProperty for gmlString {}", gmlLineString.getId());
                 return null;
             }
         }
-
-        CoordinateSequence coordinateSequence = convert(coordinateList);
-        LineString jts = new LineString(coordinateSequence, GEOMETRY_FACTORY);
-        assignSRID(gml, jts);
-
-        return jts;
+        return coordinates;
     }
 
     /**
@@ -134,18 +157,31 @@ public final class GeometryUtil {
         }
     }
 
+
     /**
-     * Convert a list of double values into a sequence of coordinates.
-     * @param values the list of coordinate.
-     * @return a coordinate sequence.
+     * Swap latitude and longitude since GML and JTS have reversed convention.
      */
-    private static CoordinateSequence convert(List<Double> values) {
-        Coordinate[] coordinates = new Coordinate[values.size() / 2];
-        int coordinateIndex = 0;
-        for (int index = 0; index < values.size(); index += 2) {
-            Coordinate coordinate = new Coordinate(values.get(index + 1), values.get(index));
-            coordinates[coordinateIndex++] = coordinate;
+    private static final class SwapPackedCoordinateSequenceFilter implements CoordinateSequenceFilter {
+
+        private SwapPackedCoordinateSequenceFilter() {
         }
-        return new CoordinateArraySequence(coordinates);
+
+        @Override
+        public void filter(CoordinateSequence coordinateSequence, int i) {
+            PackedCoordinateSequence packedCoordinateSequence = (PackedCoordinateSequence) coordinateSequence;
+            double originalCoordinateX = packedCoordinateSequence.getX(i);
+            packedCoordinateSequence.setX(i, coordinateSequence.getY(i));
+            packedCoordinateSequence.setY(i, originalCoordinateX);
+        }
+
+        @Override
+        public boolean isDone() {
+            return false;
+        }
+
+        @Override
+        public boolean isGeometryChanged() {
+            return true;
+        }
     }
 }
