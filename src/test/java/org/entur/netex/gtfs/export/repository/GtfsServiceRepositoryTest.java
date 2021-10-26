@@ -60,16 +60,21 @@ import org.entur.netex.gtfs.export.producer.DefaultGtfsServiceRepository;
 import org.entur.netex.gtfs.export.producer.GtfsServiceRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.rutebanken.netex.model.DayOfWeekEnumeration;
 import org.rutebanken.netex.model.DayType;
 import org.rutebanken.netex.model.DayTypeAssignment;
 import org.rutebanken.netex.model.DayTypeRefStructure;
 import org.rutebanken.netex.model.ObjectFactory;
 import org.rutebanken.netex.model.OperatingPeriod;
 import org.rutebanken.netex.model.OperatingPeriodRefStructure;
+import org.rutebanken.netex.model.PropertiesOfDay_RelStructure;
+import org.rutebanken.netex.model.PropertyOfDay;
 
 import javax.xml.bind.JAXBElement;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -82,7 +87,7 @@ class GtfsServiceRepositoryTest {
     private static final ObjectFactory NETEX_FACTORY = new ObjectFactory();
     private static final String TEST_CODESPACE = "ENT";
     private static final String TEST_DAY_TYPE_ID = "ENT:DayType:1";
-    private static final LocalDateTime TEST_DATE = LocalDateTime.of(2021, 10, 15, 1, 1, 1);
+    private static final LocalDateTime TEST_DATE = LocalDateTime.of(2021, 10, 20, 1, 1, 1);
 
     private static final String TEST_OPERATING_PERIOD_1_ID = "TEST_OPERATING_PERIOD_1_ID";
     private static final LocalDateTime TEST_OPERATING_PERIOD_1_START = LocalDateTime.of(2021, 10, 15, 1, 1, 1);
@@ -131,7 +136,7 @@ class GtfsServiceRepositoryTest {
     }
 
     @Test
-    void testSingleDayTypeWithSinglePeriod() {
+    void testSingleDayTypeWithSinglePeriodWithoutExplicitDaysOfWeek() {
         DayType dayType = createTestDayType(TEST_DAY_TYPE_ID);
         OperatingPeriod operatingPeriod = createTestOperatingPeriod(TEST_OPERATING_PERIOD_1_ID, TEST_OPERATING_PERIOD_1_START, TEST_OPERATING_PERIOD_1_END);
         DayTypeAssignment dayTypeAssignment = createTestDayTypeAssignmentWithPeriod(TEST_DAY_TYPE_ID, TEST_OPERATING_PERIOD_1_ID);
@@ -148,6 +153,56 @@ class GtfsServiceRepositoryTest {
         Assertions.assertEquals(TEST_DAY_TYPE_ID, service.getId());
         Assertions.assertTrue(service.getIncludedDates().isEmpty());
         Assertions.assertTrue(service.getExcludedDates().isEmpty());
+        ServiceCalendarPeriod serviceCalendarPeriod = service.getServiceCalendarPeriod();
+        Assertions.assertNotNull(serviceCalendarPeriod);
+        Assertions.assertEquals(7, serviceCalendarPeriod.getDaysOfWeek().size());
+    }
+
+    @Test
+    void testSingleDayTypeWithSinglePeriodAndDaysOfWeek() {
+        Collection<DayOfWeekEnumeration> daysOfWeek = Set.of(DayOfWeekEnumeration.MONDAY, DayOfWeekEnumeration.TUESDAY);
+        DayType dayType = createTestDayType(TEST_DAY_TYPE_ID, daysOfWeek);
+        OperatingPeriod operatingPeriod = createTestOperatingPeriod(TEST_OPERATING_PERIOD_1_ID, TEST_OPERATING_PERIOD_1_START, TEST_OPERATING_PERIOD_1_END);
+        DayTypeAssignment dayTypeAssignment = createTestDayTypeAssignmentWithPeriod(TEST_DAY_TYPE_ID, TEST_OPERATING_PERIOD_1_ID);
+
+        NetexDatasetRepository netexDatasetRepository = mock(NetexDatasetRepository.class);
+        when(netexDatasetRepository.getDayTypeByDayTypeAssignment(dayTypeAssignment)).thenReturn(dayType);
+        when(netexDatasetRepository.getDayTypeAssignmentsByDayType(dayType)).thenReturn(Set.of(dayTypeAssignment));
+        when(netexDatasetRepository.getOperatingPeriodByDayTypeAssignment(dayTypeAssignment)).thenReturn(operatingPeriod);
+
+        GtfsServiceRepository gtfsServiceRepository = new DefaultGtfsServiceRepository(TEST_CODESPACE, netexDatasetRepository);
+        GtfsService service = gtfsServiceRepository.getServiceForDayTypes(Set.of(dayType));
+        Assertions.assertNotNull(service);
+        Assertions.assertEquals(TEST_DAY_TYPE_ID, service.getId());
+        Assertions.assertTrue(service.getIncludedDates().isEmpty());
+        Assertions.assertTrue(service.getExcludedDates().isEmpty());
+        ServiceCalendarPeriod serviceCalendarPeriod = service.getServiceCalendarPeriod();
+        Assertions.assertNotNull(serviceCalendarPeriod);
+        Assertions.assertEquals(2, serviceCalendarPeriod.getDaysOfWeek().size());
+        Assertions.assertTrue(serviceCalendarPeriod.getDaysOfWeek().containsAll(Set.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY)));
+    }
+
+    @Test
+    void testSingleDayTypeWithSinglePeriodAndNonAvailableDateInsideThePeriod() {
+        DayType dayType = createTestDayType(TEST_DAY_TYPE_ID);
+        OperatingPeriod operatingPeriod = createTestOperatingPeriod(TEST_OPERATING_PERIOD_1_ID, TEST_OPERATING_PERIOD_1_START, TEST_OPERATING_PERIOD_1_END);
+        DayTypeAssignment dayTypeAssignment1 = createTestDayTypeAssignmentWithPeriod(TEST_DAY_TYPE_ID, TEST_OPERATING_PERIOD_1_ID);
+        DayTypeAssignment dayTypeAssignment2 = createTestDayTypeAssignment(TEST_DAY_TYPE_ID, TEST_DATE, false);
+
+
+        NetexDatasetRepository netexDatasetRepository = mock(NetexDatasetRepository.class);
+        when(netexDatasetRepository.getDayTypeByDayTypeAssignment(dayTypeAssignment1)).thenReturn(dayType);
+        when(netexDatasetRepository.getDayTypeAssignmentsByDayType(dayType)).thenReturn(Set.of(dayTypeAssignment1, dayTypeAssignment2));
+        when(netexDatasetRepository.getOperatingPeriodByDayTypeAssignment(dayTypeAssignment1)).thenReturn(operatingPeriod);
+
+
+        GtfsServiceRepository gtfsServiceRepository = new DefaultGtfsServiceRepository(TEST_CODESPACE, netexDatasetRepository);
+        GtfsService service = gtfsServiceRepository.getServiceForDayTypes(Set.of(dayType));
+        Assertions.assertNotNull(service);
+        Assertions.assertEquals(TEST_DAY_TYPE_ID, service.getId());
+        Assertions.assertTrue(service.getIncludedDates().isEmpty());
+        Assertions.assertFalse(service.getExcludedDates().isEmpty());
+        Assertions.assertEquals(TEST_DATE, service.getExcludedDates().stream().findFirst().orElseThrow());
         ServiceCalendarPeriod serviceCalendarPeriod = service.getServiceCalendarPeriod();
         Assertions.assertNotNull(serviceCalendarPeriod);
         Assertions.assertEquals(7, serviceCalendarPeriod.getDaysOfWeek().size());
@@ -180,7 +235,7 @@ class GtfsServiceRepositoryTest {
 
         Set<LocalDate> allIncludedDates = service.getIncludedDates().stream().map(LocalDateTime::toLocalDate).collect(Collectors.toSet());
         Set<LocalDate> allDatesInCombinedPeriods = TEST_OPERATING_PERIOD_2_START.toLocalDate().datesUntil(TEST_OPERATING_PERIOD_1_END.toLocalDate().plusDays(1)).collect(Collectors.toSet());
-        Assertions.assertEquals(allDatesInCombinedPeriods.size(), allIncludedDates.size() );
+        Assertions.assertEquals(allDatesInCombinedPeriods.size(), allIncludedDates.size());
         Assertions.assertTrue(allIncludedDates.containsAll(allDatesInCombinedPeriods));
 
 
@@ -219,7 +274,7 @@ class GtfsServiceRepositoryTest {
         Set<LocalDate> allDatesInSecondPeriod = TEST_OPERATING_PERIOD_3_START.toLocalDate().datesUntil(TEST_OPERATING_PERIOD_3_END.toLocalDate().plusDays(1)).collect(Collectors.toSet());
         Set<LocalDate> allDatesInCombinedPeriods = new HashSet<>(allDatesInFirstPeriod);
         allDatesInCombinedPeriods.addAll(allDatesInSecondPeriod);
-        Assertions.assertEquals(allDatesInCombinedPeriods.size(), allIncludedDates.size() );
+        Assertions.assertEquals(allDatesInCombinedPeriods.size(), allIncludedDates.size());
         Assertions.assertTrue(allIncludedDates.containsAll(allDatesInCombinedPeriods));
 
 
@@ -228,12 +283,65 @@ class GtfsServiceRepositoryTest {
         Assertions.assertNull(serviceCalendarPeriod, "When a day type contains multiple periods, they are replaced by individual dates");
     }
 
+    @Test
+    void testSingleDayTypeWithTwoOverlappingPeriodsAndNonAvailableIndividualDates() {
+        DayType dayType = createTestDayType(TEST_DAY_TYPE_ID);
 
+        OperatingPeriod operatingPeriod1 = createTestOperatingPeriod(TEST_OPERATING_PERIOD_1_ID, TEST_OPERATING_PERIOD_1_START, TEST_OPERATING_PERIOD_1_END);
+        DayTypeAssignment dayTypeAssignment1 = createTestDayTypeAssignmentWithPeriod(TEST_DAY_TYPE_ID, TEST_OPERATING_PERIOD_1_ID);
+
+        OperatingPeriod operatingPeriod2 = createTestOperatingPeriod(TEST_OPERATING_PERIOD_2_ID, TEST_OPERATING_PERIOD_2_START, TEST_OPERATING_PERIOD_2_END);
+        DayTypeAssignment dayTypeAssignment2 = createTestDayTypeAssignmentWithPeriod(TEST_DAY_TYPE_ID, TEST_OPERATING_PERIOD_2_ID);
+
+        DayTypeAssignment dayTypeAssignment3 = createTestDayTypeAssignment(TEST_DAY_TYPE_ID, TEST_DATE, false);
+
+
+        NetexDatasetRepository netexDatasetRepository = mock(NetexDatasetRepository.class);
+
+        when(netexDatasetRepository.getDayTypeByDayTypeAssignment(dayTypeAssignment1)).thenReturn(dayType);
+        when(netexDatasetRepository.getOperatingPeriodByDayTypeAssignment(dayTypeAssignment1)).thenReturn(operatingPeriod1);
+
+        when(netexDatasetRepository.getDayTypeByDayTypeAssignment(dayTypeAssignment2)).thenReturn(dayType);
+        when(netexDatasetRepository.getOperatingPeriodByDayTypeAssignment(dayTypeAssignment2)).thenReturn(operatingPeriod2);
+
+        when(netexDatasetRepository.getDayTypeAssignmentsByDayType(dayType)).thenReturn(Set.of(dayTypeAssignment1, dayTypeAssignment2, dayTypeAssignment3));
+
+        GtfsServiceRepository gtfsServiceRepository = new DefaultGtfsServiceRepository(TEST_CODESPACE, netexDatasetRepository);
+        GtfsService service = gtfsServiceRepository.getServiceForDayTypes(Set.of(dayType));
+        Assertions.assertNotNull(service);
+        Assertions.assertEquals(TEST_DAY_TYPE_ID, service.getId());
+        Assertions.assertFalse(service.getIncludedDates().isEmpty(), "When a day type contains multiple periods, they are replaced by individual dates");
+        Assertions.assertTrue(service.getExcludedDates().isEmpty(), "Non available date should not be added if there is no period");
+
+        Set<LocalDate> allIncludedDates = service.getIncludedDates().stream().map(LocalDateTime::toLocalDate).collect(Collectors.toSet());
+        Set<LocalDate> allDatesInCombinedPeriods = TEST_OPERATING_PERIOD_2_START.toLocalDate().datesUntil(TEST_OPERATING_PERIOD_1_END.toLocalDate().plusDays(1)).collect(Collectors.toSet());
+        Assertions.assertEquals(allDatesInCombinedPeriods.size(), allIncludedDates.size() + 1);
+        Set<LocalDate> allExcludedDates = new HashSet<>(allDatesInCombinedPeriods);
+        allExcludedDates.removeAll(allIncludedDates);
+        Assertions.assertEquals(TEST_DATE.toLocalDate(), allExcludedDates.stream().findFirst().orElseThrow());
+
+        Assertions.assertTrue(service.getExcludedDates().isEmpty());
+        ServiceCalendarPeriod serviceCalendarPeriod = service.getServiceCalendarPeriod();
+        Assertions.assertNull(serviceCalendarPeriod, "When a day type contains multiple periods, they are replaced by individual dates");
+    }
 
 
     private DayType createTestDayType(String dayTypeId) {
+        return createTestDayType(dayTypeId, null);
+    }
+
+    private DayType createTestDayType(String dayTypeId, Collection<DayOfWeekEnumeration> daysOfWeek) {
         DayType dayType = NETEX_FACTORY.createDayType();
         dayType.setId(dayTypeId);
+        if (daysOfWeek != null) {
+            PropertiesOfDay_RelStructure properties = NETEX_FACTORY.createPropertiesOfDay_RelStructure();
+            PropertyOfDay propertyOfDay = NETEX_FACTORY.createPropertyOfDay();
+            for(DayOfWeekEnumeration dayOfWeekEnumeration: daysOfWeek) {
+                propertyOfDay.getDaysOfWeek().add(dayOfWeekEnumeration);
+            }
+            properties.getPropertyOfDay().add(propertyOfDay);
+            dayType.setProperties(properties);
+        }
         return dayType;
     }
 
