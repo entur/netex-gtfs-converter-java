@@ -137,9 +137,9 @@ class GtfsExportTest {
     private Iterable<CSVRecord> getCsvRecords(File gtfsFile, String entryName) throws IOException {
         Assertions.assertTrue(ZipUtil.containsEntry(gtfsFile, entryName));
 
-        byte[] agencyFile = ZipUtil.unpackEntry(gtfsFile, entryName, StandardCharsets.UTF_8);
+        byte[] zipEntry = ZipUtil.unpackEntry(gtfsFile, entryName, StandardCharsets.UTF_8);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).build();
-        return csvFormat.parse(new InputStreamReader(new ByteArrayInputStream(agencyFile)));
+        return csvFormat.parse(new InputStreamReader(new ByteArrayInputStream(zipEntry)));
     }
 
 
