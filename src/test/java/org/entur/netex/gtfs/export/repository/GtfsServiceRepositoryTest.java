@@ -350,7 +350,7 @@ class GtfsServiceRepositoryTest {
         GtfsServiceRepository gtfsServiceRepository = new DefaultGtfsServiceRepository(TEST_CODESPACE, netexDatasetRepository);
         GtfsService service = gtfsServiceRepository.getServiceForDayTypes(Set.of(dayType1, dayType2));
         Assertions.assertNotNull(service);
-        Assertions.assertEquals(TEST_DAY_TYPE_1_ID, service.getId());
+        Assertions.assertEquals(TEST_DAY_TYPE_1_ID + '-' + TEST_DAY_TYPE_2_ID.substring(TEST_DAY_TYPE_2_ID.lastIndexOf(':') + 1), service.getId());
         Assertions.assertFalse(service.getIncludedDates().isEmpty(), "When a day type contains multiple periods, they are replaced by individual dates");
 
         Set<LocalDate> allIncludedDates = service.getIncludedDates().stream().map(LocalDateTime::toLocalDate).collect(Collectors.toSet());
