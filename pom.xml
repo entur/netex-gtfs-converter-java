@@ -53,6 +53,8 @@
         <slf4j.version>1.7.32</slf4j.version>
         <junit.version>5.7.2</junit.version>
         <mockito-core.version>3.11.2</mockito-core.version>
+        <zt-zip.version>1.14</zt-zip.version>
+        <commons-csv.version>1.9.0</commons-csv.version>
 
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
@@ -141,6 +143,18 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${mockito-core.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.zeroturnaround</groupId>
+            <artifactId>zt-zip</artifactId>
+            <version>${zt-zip.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>${commons-csv.version}</version>
             <scope>test</scope>
         </dependency>
 
