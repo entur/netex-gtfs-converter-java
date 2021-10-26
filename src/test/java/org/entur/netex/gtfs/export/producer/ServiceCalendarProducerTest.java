@@ -77,7 +77,7 @@ class ServiceCalendarProducerTest {
         ServiceCalendarProducer serviceCalendarProducer = new DefaultServiceCalendarProducer(gtfsDatasetRepository);
         ServiceDate startDate = new ServiceDate();
         ServiceDate endDate = new ServiceDate();
-        Set<DayOfWeek> daysOfWeek = Collections.emptySet();
+        Set<DayOfWeek> daysOfWeek = Set.of(DayOfWeek.MONDAY);
         ServiceCalendar serviceCalendar = serviceCalendarProducer.produce(SERVICE_ID, startDate, endDate, daysOfWeek);
 
         Assertions.assertNotNull(serviceCalendar);
@@ -86,6 +86,7 @@ class ServiceCalendarProducerTest {
         Assertions.assertEquals(startDate, serviceCalendar.getStartDate());
         Assertions.assertEquals(endDate, serviceCalendar.getEndDate());
         Assertions.assertEquals(ServiceCalendarProducer.SERVICE_AVAILABLE, serviceCalendar.getMonday());
+        Assertions.assertEquals(ServiceCalendarProducer.SERVICE_UNAVAILABLE, serviceCalendar.getTuesday());
 
     }
 }
