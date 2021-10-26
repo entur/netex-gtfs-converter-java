@@ -55,7 +55,7 @@
 package org.entur.netex.gtfs.export.producer;
 
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
-import org.entur.netex.gtfs.export.repository.TestNetexDatasetRepository;
+import org.entur.netex.gtfs.export.mock.TestNetexDatasetRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.onebusaway.gtfs.model.Agency;

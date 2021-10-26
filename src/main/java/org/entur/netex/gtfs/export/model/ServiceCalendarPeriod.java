@@ -19,29 +19,28 @@
 package org.entur.netex.gtfs.export.model;
 
 import org.onebusaway.gtfs.model.calendar.ServiceDate;
-import org.rutebanken.netex.model.DayOfWeekEnumeration;
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 /**
  * A GTFS service calendar period defined by an interval [startDate, endDate] and a set of days of week for which the service is running.
- * If no days of week are specified then the service runs every day of the week.
  */
 public class ServiceCalendarPeriod {
 
     private final ServiceDate startDate;
     private final ServiceDate endDate;
 
-    private List<DayOfWeekEnumeration> daysOfWeek;
+    private final Set<DayOfWeek> daysOfWeek;
 
-    public ServiceCalendarPeriod(LocalDateTime startDateTime, LocalDateTime endDateTime) {
+    public ServiceCalendarPeriod(LocalDateTime startDateTime, LocalDateTime endDateTime, Set<DayOfWeek> daysOfWeek) {
         startDate = new ServiceDate(toGtfsDate(startDateTime));
         endDate = new ServiceDate(toGtfsDate(endDateTime));
+        this.daysOfWeek = daysOfWeek;
     }
-
 
     public ServiceDate getStartDate() {
         return startDate;
@@ -51,14 +50,9 @@ public class ServiceCalendarPeriod {
         return endDate;
     }
 
-    public List<DayOfWeekEnumeration> getDaysOfWeek() {
+    public Set<DayOfWeek> getDaysOfWeek() {
         return daysOfWeek;
     }
-
-    public void setDaysOfWeek(List<DayOfWeekEnumeration> daysOfWeek) {
-        this.daysOfWeek = daysOfWeek;
-    }
-
 
     private static Date toGtfsDate(LocalDateTime netexDate) {
         return Date.from(netexDate.atZone(ZoneId.systemDefault()).toInstant());

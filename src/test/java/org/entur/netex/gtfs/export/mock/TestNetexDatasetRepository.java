@@ -52,40 +52,36 @@
  *
  */
 
-package org.entur.netex.gtfs.export.producer;
+package org.entur.netex.gtfs.export.mock;
 
-import org.entur.netex.gtfs.export.repository.DefaultGtfsRepository;
-import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.onebusaway.gtfs.model.ServiceCalendar;
-import org.onebusaway.gtfs.model.calendar.ServiceDate;
+import org.entur.netex.gtfs.export.repository.DefaultNetexDatasetRepository;
+import org.rutebanken.netex.model.DayType;
+import org.rutebanken.netex.model.Line;
 
-import java.time.DayOfWeek;
-import java.util.Collections;
-import java.util.Set;
+public class TestNetexDatasetRepository extends DefaultNetexDatasetRepository {
 
-class ServiceCalendarProducerTest {
+    public static final String NETWORK_ID = "Network-Id";
+    public static final String QUAY_ID = "Quay-Id";
 
-    private static final String SERVICE_ID = "Service-ID";
+    @Override
+    public String getTimeZone() {
+        return "Europe/Oslo";
+    }
 
-    @Test
-    void testServiceCalendarProducer() {
+    @Override
+    public String getAuthorityIdForLine(Line line) {
+        return NETWORK_ID;
+    }
 
-        GtfsDatasetRepository gtfsDatasetRepository = new DefaultGtfsRepository();
+    @Override
+    public String getQuayIdByScheduledStopPointId(String scheduledStopPointId) {
+        return QUAY_ID;
+    }
 
-        ServiceCalendarProducer serviceCalendarProducer = new DefaultServiceCalendarProducer(gtfsDatasetRepository);
-        ServiceDate startDate = new ServiceDate();
-        ServiceDate endDate = new ServiceDate();
-        Set<DayOfWeek> daysOfWeek = Collections.emptySet();
-        ServiceCalendar serviceCalendar = serviceCalendarProducer.produce(SERVICE_ID, startDate, endDate, daysOfWeek);
-
-        Assertions.assertNotNull(serviceCalendar);
-        Assertions.assertNotNull(serviceCalendar.getId());
-        Assertions.assertEquals(SERVICE_ID, serviceCalendar.getServiceId().getId());
-        Assertions.assertEquals(startDate, serviceCalendar.getStartDate());
-        Assertions.assertEquals(endDate, serviceCalendar.getEndDate());
-        Assertions.assertEquals(ServiceCalendarProducer.SERVICE_AVAILABLE, serviceCalendar.getMonday());
-
+    @Override
+    public DayType getDayTypeById(String dayTypeId) {
+        DayType dayType = new DayType();
+        dayType.setId("ENT:DayType:1");
+        return dayType;
     }
 }

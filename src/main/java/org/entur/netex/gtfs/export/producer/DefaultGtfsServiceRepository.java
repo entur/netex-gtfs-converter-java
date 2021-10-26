@@ -36,6 +36,8 @@ import org.slf4j.LoggerFactory;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +56,9 @@ public class DefaultGtfsServiceRepository implements GtfsServiceRepository {
 
     // No restrictions in GTFS spec, but restricted to suit clients
     private static final int MAX_SERVICE_ID_CHARS = 256;
+    private static final Set<DayOfWeek> ALL_DAYS_OF_WEEKS = EnumSet.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
+    private static final Set<DayOfWeek> WEEKDAYS = EnumSet.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY);
+    private static final Set<DayOfWeek> WEEKEND = EnumSet.of(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
 
     private final String codespace;
     private final NetexDatasetRepository netexDatasetRepository;
@@ -162,8 +167,8 @@ public class DefaultGtfsServiceRepository implements GtfsServiceRepository {
 
         DayType dayTypeWithAPeriod = netexDatasetRepository.getDayTypeByDayTypeAssignment(dayTypeAssignmentWithPeriod);
         OperatingPeriod operatingPeriod = netexDatasetRepository.getOperatingPeriodByDayTypeAssignment(dayTypeAssignmentWithPeriod);
-        ServiceCalendarPeriod serviceCalendarPeriod = new ServiceCalendarPeriod(operatingPeriod.getFromDate(), operatingPeriod.getToDate());
-        serviceCalendarPeriod.setDaysOfWeek(getNetexDaysOfWeek(dayTypeWithAPeriod));
+        Set<DayOfWeek> daysOfWeek = getDaysOfWeek(dayTypeWithAPeriod);
+        ServiceCalendarPeriod serviceCalendarPeriod = new ServiceCalendarPeriod(operatingPeriod.getFromDate(), operatingPeriod.getToDate(), daysOfWeek);
         gtfsService.setServiceCalendarPeriod(serviceCalendarPeriod);
 
         dayTypes.stream()
@@ -228,6 +233,11 @@ public class DefaultGtfsServiceRepository implements GtfsServiceRepository {
         }
     }
 
+    /**
+     * Return the days of week explicitly specified for a day type. Returns an empty list if no day of week is explicitly set.
+     * @param dayType the day type.
+     * @return Return the days of week for a day type. Returns an empty list if no day of week is explicitly set.
+     */
     private static List<DayOfWeekEnumeration> getNetexDaysOfWeek(DayType dayType) {
         if (dayType.getProperties() != null && dayType.getProperties().getPropertyOfDay() != null) {
             for (PropertyOfDay propertyOfDay : dayType.getProperties().getPropertyOfDay()) {
@@ -236,35 +246,39 @@ public class DefaultGtfsServiceRepository implements GtfsServiceRepository {
                 }
             }
         }
-        return null;
+        return Collections.emptyList();
     }
 
+    /**
+     * Return the set of active days of week for a day type.
+     * @param dayType
+     * @return the set of active days of week for a day type.
+     */
     private static Set<DayOfWeek> getDaysOfWeek(DayType dayType) {
         List<DayOfWeekEnumeration> netexDaysOfWeek = getNetexDaysOfWeek(dayType);
-        if (netexDaysOfWeek == null) {
-            return null;
+        // A DayType  with no days of week explicitly set is implicitly available on every day of week.
+        if (netexDaysOfWeek.isEmpty() || netexDaysOfWeek.contains(DayOfWeekEnumeration.EVERYDAY)) {
+            return ALL_DAYS_OF_WEEKS;
         }
         return netexDaysOfWeek.stream().map(dayOfWeekEnumeration -> {
             if (DayOfWeekEnumeration.MONDAY == dayOfWeekEnumeration) {
-                return List.of(DayOfWeek.MONDAY);
+                return Set.of(DayOfWeek.MONDAY);
             } else if (DayOfWeekEnumeration.TUESDAY == dayOfWeekEnumeration) {
-                return List.of(DayOfWeek.TUESDAY);
+                return Set.of(DayOfWeek.TUESDAY);
             } else if (DayOfWeekEnumeration.WEDNESDAY == dayOfWeekEnumeration) {
-                return List.of(DayOfWeek.WEDNESDAY);
+                return Set.of(DayOfWeek.WEDNESDAY);
             } else if (DayOfWeekEnumeration.THURSDAY == dayOfWeekEnumeration) {
-                return List.of(DayOfWeek.THURSDAY);
+                return Set.of(DayOfWeek.THURSDAY);
             } else if (DayOfWeekEnumeration.FRIDAY == dayOfWeekEnumeration) {
-                return List.of(DayOfWeek.FRIDAY);
+                return Set.of(DayOfWeek.FRIDAY);
             } else if (DayOfWeekEnumeration.SATURDAY == dayOfWeekEnumeration) {
-                return List.of(DayOfWeek.SATURDAY);
+                return Set.of(DayOfWeek.SATURDAY);
             } else if (DayOfWeekEnumeration.SUNDAY == dayOfWeekEnumeration) {
-                return List.of(DayOfWeek.SUNDAY);
+                return Set.of(DayOfWeek.SUNDAY);
             } else if (DayOfWeekEnumeration.WEEKDAYS == dayOfWeekEnumeration) {
-                return List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY);
+                return WEEKDAYS;
             } else if (DayOfWeekEnumeration.WEEKEND == dayOfWeekEnumeration) {
-                return List.of(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
-            } else if (DayOfWeekEnumeration.EVERYDAY == dayOfWeekEnumeration) {
-                return List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
+                return WEEKEND;
             } else {
                 throw new GtfsExportException("Unsupported day of week: " + dayOfWeekEnumeration);
             }
@@ -274,9 +288,6 @@ public class DefaultGtfsServiceRepository implements GtfsServiceRepository {
 
 
     private static boolean isActiveDate(LocalDateTime date, Set<DayOfWeek> daysOfWeek) {
-        if (daysOfWeek == null) {
-            return true;
-        }
         return daysOfWeek.contains(date.getDayOfWeek());
     }
 

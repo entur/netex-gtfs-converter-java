@@ -34,53 +34,32 @@
  *
  */
 
-/*
- *
- *  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- *  * the European Commission - subsequent versions of the EUPL (the "Licence");
- *  * You may not use this work except in compliance with the Licence.
- *  * You may obtain a copy of the Licence at:
- *  *
- *  *   https://joinup.ec.europa.eu/software/page/eupl
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the Licence is distributed on an "AS IS" basis,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the Licence for the specific language governing permissions and
- *  * limitations under the Licence.
- *  *
- *
- */
+package org.entur.netex.gtfs.export.mock;
 
-package org.entur.netex.gtfs.export.repository;
+import org.entur.netex.gtfs.export.repository.DefaultGtfsRepository;
+import org.onebusaway.gtfs.model.Agency;
+import org.onebusaway.gtfs.model.AgencyAndId;
+import org.onebusaway.gtfs.model.Stop;
+import org.onebusaway.gtfs.model.Trip;
 
-import org.rutebanken.netex.model.DayType;
-import org.rutebanken.netex.model.Line;
-
-public class TestNetexDatasetRepository extends DefaultNetexDatasetRepository {
-
-    public static final String NETWORK_ID = "Network-Id";
-    public static final String QUAY_ID = "Quay-Id";
+public class TestGtfsRepository extends DefaultGtfsRepository {
 
     @Override
-    public String getTimeZone() {
-        return "Europe/Oslo";
+    public Agency getAgencyById(String agencyId) {
+        return new Agency();
     }
 
     @Override
-    public String getAuthorityIdForLine(Line line) {
-        return NETWORK_ID;
+    public Trip getTripById(String tripId) {
+        Trip trip = new Trip();
+        trip.setId(new AgencyAndId());
+        return trip;
     }
 
     @Override
-    public String getQuayIdByScheduledStopPointId(String scheduledStopPointId) {
-        return QUAY_ID;
-    }
-
-    @Override
-    public DayType getDayTypeById(String dayTypeId) {
-        DayType dayType = new DayType();
-        dayType.setId("ENT:DayType:1");
-        return dayType;
+    public Stop getStopById(String stopId) {
+        Stop stop = new Stop();
+        stop.setId(new AgencyAndId());
+        return stop;
     }
 }

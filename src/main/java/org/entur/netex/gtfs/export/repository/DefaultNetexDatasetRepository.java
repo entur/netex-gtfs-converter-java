@@ -19,6 +19,7 @@
 package org.entur.netex.gtfs.export.repository;
 
 import org.entur.netex.gtfs.export.exception.DefaultTimeZoneException;
+import org.entur.netex.gtfs.export.exception.GtfsExportException;
 import org.entur.netex.index.api.NetexEntitiesIndex;
 import org.entur.netex.index.impl.NetexEntitiesIndexImpl;
 import org.rutebanken.netex.model.Authority;
@@ -60,22 +61,35 @@ public class DefaultNetexDatasetRepository implements NetexDatasetRepository {
     @Override
     public OperatingDay getOperatingDayByDayTypeAssignment(DayTypeAssignment dayTypeAssignment) {
         if (dayTypeAssignment.getOperatingDayRef() == null) {
-            return null;
+            throw new GtfsExportException("OperatingDay undefined for DayTypeAssignment " + dayTypeAssignment.getId());
         }
-        return netexEntitiesIndex.getOperatingDayIndex().get(dayTypeAssignment.getOperatingDayRef().getRef());
+        OperatingDay operatingDay = netexEntitiesIndex.getOperatingDayIndex().get(dayTypeAssignment.getOperatingDayRef().getRef());
+        if (operatingDay == null) {
+            throw new GtfsExportException("OperatingDay not found: " + dayTypeAssignment.getOperatingDayRef());
+        }
+        return operatingDay;
     }
 
     @Override
     public OperatingPeriod getOperatingPeriodByDayTypeAssignment(DayTypeAssignment dayTypeAssignment) {
         if (dayTypeAssignment.getOperatingPeriodRef() == null) {
-            return null;
+            throw new GtfsExportException("OperatingPeriod undefined for DayTypeAssignment " + dayTypeAssignment.getId());
         }
-        return netexEntitiesIndex.getOperatingPeriodIndex().get(dayTypeAssignment.getOperatingPeriodRef().getRef());
+        OperatingPeriod operatingPeriod = netexEntitiesIndex.getOperatingPeriodIndex().get(dayTypeAssignment.getOperatingPeriodRef().getRef());
+        if (operatingPeriod == null) {
+            throw new GtfsExportException("OperatingPeriod not found: " + dayTypeAssignment.getOperatingPeriodRef());
+        }
+        return operatingPeriod;
     }
 
     @Override
     public DayType getDayTypeByDayTypeAssignment(DayTypeAssignment dayTypeAssignment) {
-        return netexEntitiesIndex.getDayTypeIndex().get(dayTypeAssignment.getDayTypeRef().getValue().getRef());
+        String dayTypeId = dayTypeAssignment.getDayTypeRef().getValue().getRef();
+        DayType dayType = netexEntitiesIndex.getDayTypeIndex().get(dayTypeId);
+        if (dayType == null) {
+            throw new GtfsExportException("DayType not found: " + dayTypeId);
+        }
+        return dayType;
     }
 
     @Override
