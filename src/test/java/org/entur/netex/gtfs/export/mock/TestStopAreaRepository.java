@@ -34,7 +34,7 @@
  *
  */
 
-package org.entur.netex.gtfs.export.repository;
+package org.entur.netex.gtfs.export.mock;
 
 import org.entur.netex.gtfs.export.stop.DefaultStopAreaRepository;
 import org.rutebanken.netex.model.StopPlace;

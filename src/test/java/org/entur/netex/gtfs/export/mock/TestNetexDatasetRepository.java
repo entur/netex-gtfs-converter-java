@@ -52,43 +52,36 @@
  *
  */
 
-package org.entur.netex.gtfs.export.producer;
+package org.entur.netex.gtfs.export.mock;
 
-import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
-import org.entur.netex.gtfs.export.mock.TestNetexDatasetRepository;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.onebusaway.gtfs.model.Agency;
-import org.rutebanken.netex.model.Authority;
-import org.rutebanken.netex.model.ContactStructure;
-import org.rutebanken.netex.model.MultilingualString;
+import org.entur.netex.gtfs.export.repository.DefaultNetexDatasetRepository;
+import org.rutebanken.netex.model.DayType;
+import org.rutebanken.netex.model.Line;
 
-class AgencyProducerTest {
+public class TestNetexDatasetRepository extends DefaultNetexDatasetRepository {
 
-    private static final String AUTHORITY_ID = "Authority-ID";
-    private static final String AUTHORITY_NAME = "Authority-name";
-    private static final String AUTHORITY_URL = "Authority-URL";
+    public static final String NETWORK_ID = "Network-Id";
+    public static final String QUAY_ID = "Quay-Id";
 
-    @Test
-    void testAgencyProducer() {
+    @Override
+    public String getTimeZone() {
+        return "Europe/Oslo";
+    }
 
-        NetexDatasetRepository netexDatasetRepository = new TestNetexDatasetRepository();
+    @Override
+    public String getAuthorityIdForLine(Line line) {
+        return NETWORK_ID;
+    }
 
-        AgencyProducer agencyProducer = new DefaultAgencyProducer(netexDatasetRepository);
+    @Override
+    public String getQuayIdByScheduledStopPointId(String scheduledStopPointId) {
+        return QUAY_ID;
+    }
 
-        Authority authority = new Authority();
-        authority.setId(AUTHORITY_ID);
-        MultilingualString name = new MultilingualString();
-        name.setValue(AUTHORITY_NAME);
-        authority.setName(name);
-        ContactStructure contactDetails = new ContactStructure();
-        contactDetails.setUrl(AUTHORITY_URL);
-        authority.setContactDetails(contactDetails);
-
-        Agency agency = agencyProducer.produce(authority);
-        Assertions.assertNotNull(agency);
-        Assertions.assertEquals(AUTHORITY_ID, agency.getId());
-        Assertions.assertEquals(AUTHORITY_NAME, agency.getName());
-        Assertions.assertNotNull(AUTHORITY_URL, agency.getUrl());
+    @Override
+    public DayType getDayTypeById(String dayTypeId) {
+        DayType dayType = new DayType();
+        dayType.setId("ENT:DayType:1");
+        return dayType;
     }
 }

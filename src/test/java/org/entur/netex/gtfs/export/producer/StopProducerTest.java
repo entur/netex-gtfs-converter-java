@@ -56,7 +56,7 @@ package org.entur.netex.gtfs.export.producer;
 
 import org.entur.netex.gtfs.export.repository.DefaultGtfsRepository;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
-import org.entur.netex.gtfs.export.repository.TestStopAreaRepository;
+import org.entur.netex.gtfs.export.mock.TestStopAreaRepository;
 import org.entur.netex.gtfs.export.stop.StopAreaRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
