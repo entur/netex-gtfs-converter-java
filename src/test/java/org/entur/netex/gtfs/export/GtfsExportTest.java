@@ -141,6 +141,4 @@ class GtfsExportTest {
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).build();
         return csvFormat.parse(new InputStreamReader(new ByteArrayInputStream(zipEntry)));
     }
-
-
 }
