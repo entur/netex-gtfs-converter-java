@@ -54,6 +54,7 @@
 
 package org.entur.netex.gtfs.export.producer;
 
+import org.entur.netex.gtfs.export.TestUtil;
 import org.entur.netex.gtfs.export.repository.DefaultGtfsRepository;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
@@ -76,7 +77,6 @@ class TripProducerTest {
     private static final String SERVICE_JOURNEY_ID = "ServiceJourney-Id";
     private static final String FRONT_TEXT = "Front Text";
 
-    private static final ObjectFactory NETEX_FACTORY = new ObjectFactory();
     private static final String DAY_TYPE_ID = "ENT:DayType:1";
 
 
@@ -98,7 +98,7 @@ class TripProducerTest {
         frontText.setValue(FRONT_TEXT);
         initialDestinationDisplay.setFrontText(frontText);
 
-        ServiceJourney serviceJourney = createTestServiceJourney();
+        ServiceJourney serviceJourney = TestUtil.createTestServiceJourney(SERVICE_JOURNEY_ID, DAY_TYPE_ID);
 
         Trip trip = tripProducer.produce(serviceJourney, netexRoute, gtfsRoute, shapeId, initialDestinationDisplay);
 
@@ -110,14 +110,4 @@ class TripProducerTest {
 
     }
 
-    private ServiceJourney createTestServiceJourney() {
-        ServiceJourney serviceJourney = new ServiceJourney();
-        serviceJourney.setId(SERVICE_JOURNEY_ID);
-        DayTypeRefs_RelStructure dayTypeStruct = NETEX_FACTORY.createDayTypeRefs_RelStructure();
-        serviceJourney.setDayTypes(dayTypeStruct);
-        DayTypeRefStructure dayTypeRefStruct = NETEX_FACTORY.createDayTypeRefStructure();
-        dayTypeRefStruct.setRef(DAY_TYPE_ID);
-        serviceJourney.getDayTypes().getDayTypeRef().add(NETEX_FACTORY.createDayTypeRef(dayTypeRefStruct));
-        return serviceJourney;
-    }
 }
