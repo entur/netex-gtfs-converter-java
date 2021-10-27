@@ -111,13 +111,13 @@ class TransferProducerTest {
         Assertions.assertNotNull(transfer);
         Assertions.assertNotNull(transfer.getId());
         Assertions.assertNotNull(transfer.getFromTrip());
-        Assertions.assertNotNull(TEST_SERVICE_JOURNEY_FROM_ID, transfer.getFromTrip().getId().getId());
+        Assertions.assertEquals(TEST_SERVICE_JOURNEY_FROM_ID, transfer.getFromTrip().getId().getId());
         Assertions.assertNotNull(transfer.getToTrip());
-        Assertions.assertNotNull(TEST_SERVICE_JOURNEY_FROM_ID, transfer.getToTrip().getId().getId());
+        Assertions.assertEquals(TEST_SERVICE_JOURNEY_TO_ID, transfer.getToTrip().getId().getId());
         Assertions.assertNotNull(transfer.getFromStop());
-        Assertions.assertNotNull(TEST_SCHEDULED_STOP_POINT_FROM_ID, transfer.getFromStop().getId().getId());
+        Assertions.assertEquals(TEST_QUAY_FROM_ID, transfer.getFromStop().getId().getId());
         Assertions.assertNotNull(transfer.getToStop());
-        Assertions.assertNotNull(TEST_SCHEDULED_STOP_POINT_TO_ID, transfer.getToStop().getId().getId());
+        Assertions.assertEquals(TEST_QUAY_TO_ID, transfer.getToStop().getId().getId());
 
     }
 

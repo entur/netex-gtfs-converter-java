@@ -52,7 +52,7 @@ public class DefaultTransferProducer implements TransferProducer {
         Stop fromStop = StopUtil.getGtfsStopFromScheduledStopPointId(fromScheduledStopPointId, netexDatasetRepository, gtfsDatasetRepository);
         transfer.setFromStop(fromStop);
 
-        String toScheduledStopPointId = serviceJourneyInterchange.getFromPointRef().getRef();
+        String toScheduledStopPointId = serviceJourneyInterchange.getToPointRef().getRef();
         Stop toStop = StopUtil.getGtfsStopFromScheduledStopPointId(toScheduledStopPointId, netexDatasetRepository, gtfsDatasetRepository);
         transfer.setToStop(toStop);
 
