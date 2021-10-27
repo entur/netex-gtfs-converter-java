@@ -18,8 +18,6 @@
 
 package org.entur.netex.gtfs.export;
 
-import org.entur.netex.gtfs.export.exception.QuayNotFoundException;
-import org.entur.netex.gtfs.export.exception.StopPlaceNotFoundException;
 import org.entur.netex.gtfs.export.loader.DefaultNetexDatasetLoader;
 import org.entur.netex.gtfs.export.loader.NetexDatasetLoader;
 import org.entur.netex.gtfs.export.model.GtfsService;
@@ -62,10 +60,8 @@ import org.onebusaway.gtfs.model.Trip;
 import org.rutebanken.netex.model.DestinationDisplay;
 import org.rutebanken.netex.model.JourneyPattern;
 import org.rutebanken.netex.model.Line;
-import org.rutebanken.netex.model.Quay;
 import org.rutebanken.netex.model.ServiceJourney;
 import org.rutebanken.netex.model.ServiceJourneyInterchange;
-import org.rutebanken.netex.model.StopPlace;
 import org.rutebanken.netex.model.StopPointInJourneyPattern;
 import org.rutebanken.netex.model.TimetabledPassingTime;
 import org.slf4j.Logger;
@@ -241,17 +237,17 @@ public class DefaultGtfsExporter implements GtfsExporter {
                 .map(stopPointInJourneyPattern -> ((StopPointInJourneyPattern) stopPointInJourneyPattern).getScheduledStopPointRef().getValue().getRef())
                 .distinct()
                 .filter(Predicate.not(this::isFlexibleScheduledStopPoint))
-                .map(this::findQuayIdByScheduledStopPointId)
+                .map(netexDatasetRepository::getQuayIdByScheduledStopPointId)
                 .collect(Collectors.toSet());
 
         // Persist the quays
-        allQuaysId.stream().map(this::findQuayById)
+        allQuaysId.stream().map(stopAreaRepository::getQuayById)
                 .map(stopProducer::produceStopFromQuay)
                 .forEach(gtfsDatasetRepository::saveEntity);
 
         // Retrieve and persist all the stop places that contain the quays
         allQuaysId.stream()
-                .map(this::findStopPlaceByQuayId)
+                .map(stopAreaRepository::getStopPlaceByQuayId)
                 .distinct()
                 .map(stopProducer::produceStopFromStopPlace)
                 .forEach(gtfsDatasetRepository::saveEntity);
@@ -259,6 +255,7 @@ public class DefaultGtfsExporter implements GtfsExporter {
 
     /**
      * A service journey is valid if the referenced ServiceJourneys are neither replaced nor cancelled.
+     *
      * @param serviceJourneyInterchange the ServiceJourneyInterchange to check.
      * @return true if the referenced ServiceJourneys are neither replaced nor cancelled.
      */
@@ -284,31 +281,6 @@ public class DefaultGtfsExporter implements GtfsExporter {
         }
         return false;
     }
-
-    private String findQuayIdByScheduledStopPointId(String scheduledStopPointRef) {
-        String quayId = netexDatasetRepository.getQuayIdByScheduledStopPointId(scheduledStopPointRef);
-        if (quayId == null) {
-            throw new QuayNotFoundException("Could not find Quay id for scheduled stop point id " + scheduledStopPointRef);
-        }
-        return quayId;
-    }
-
-    private Quay findQuayById(String quayId) {
-        Quay quay = stopAreaRepository.getQuayById(quayId);
-        if (quay == null) {
-            throw new QuayNotFoundException("Could not find Quay for id " + quayId);
-        }
-        return quay;
-    }
-
-    private StopPlace findStopPlaceByQuayId(String quayId) {
-        StopPlace stopPlace = stopAreaRepository.getStopPlaceByQuayId(quayId);
-        if (stopPlace == null) {
-            throw new StopPlaceNotFoundException("Could not find Quay for id " + quayId);
-        }
-        return stopPlace;
-    }
-
 
     protected final String getCodespace() {
         return codespace;
