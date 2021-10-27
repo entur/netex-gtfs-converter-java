@@ -241,17 +241,17 @@ public class DefaultGtfsExporter implements GtfsExporter {
                 .map(stopPointInJourneyPattern -> ((StopPointInJourneyPattern) stopPointInJourneyPattern).getScheduledStopPointRef().getValue().getRef())
                 .distinct()
                 .filter(Predicate.not(this::isFlexibleScheduledStopPoint))
-                .map(this::findQuayIdByScheduledStopPointId)
+                .map(netexDatasetRepository::getQuayIdByScheduledStopPointId)
                 .collect(Collectors.toSet());
 
         // Persist the quays
-        allQuaysId.stream().map(this::findQuayById)
+        allQuaysId.stream().map(stopAreaRepository::getQuayById)
                 .map(stopProducer::produceStopFromQuay)
                 .forEach(gtfsDatasetRepository::saveEntity);
 
         // Retrieve and persist all the stop places that contain the quays
         allQuaysId.stream()
-                .map(this::findStopPlaceByQuayId)
+                .map(stopAreaRepository::getStopPlaceByQuayId)
                 .distinct()
                 .map(stopProducer::produceStopFromStopPlace)
                 .forEach(gtfsDatasetRepository::saveEntity);
@@ -284,31 +284,6 @@ public class DefaultGtfsExporter implements GtfsExporter {
         }
         return false;
     }
-
-    private String findQuayIdByScheduledStopPointId(String scheduledStopPointRef) {
-        String quayId = netexDatasetRepository.getQuayIdByScheduledStopPointId(scheduledStopPointRef);
-        if (quayId == null) {
-            throw new QuayNotFoundException("Could not find Quay id for scheduled stop point id " + scheduledStopPointRef);
-        }
-        return quayId;
-    }
-
-    private Quay findQuayById(String quayId) {
-        Quay quay = stopAreaRepository.getQuayById(quayId);
-        if (quay == null) {
-            throw new QuayNotFoundException("Could not find Quay for id " + quayId);
-        }
-        return quay;
-    }
-
-    private StopPlace findStopPlaceByQuayId(String quayId) {
-        StopPlace stopPlace = stopAreaRepository.getStopPlaceByQuayId(quayId);
-        if (stopPlace == null) {
-            throw new StopPlaceNotFoundException("Could not find Quay for id " + quayId);
-        }
-        return stopPlace;
-    }
-
 
     protected final String getCodespace() {
         return codespace;

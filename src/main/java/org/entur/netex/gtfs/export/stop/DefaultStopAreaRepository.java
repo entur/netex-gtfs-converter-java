@@ -18,6 +18,8 @@
 
 package org.entur.netex.gtfs.export.stop;
 
+import org.entur.netex.gtfs.export.exception.QuayNotFoundException;
+import org.entur.netex.gtfs.export.exception.StopPlaceNotFoundException;
 import org.entur.netex.gtfs.export.loader.DefaultNetexDatasetLoader;
 import org.entur.netex.gtfs.export.loader.NetexDatasetLoader;
 import org.entur.netex.gtfs.export.repository.DefaultNetexDatasetRepository;
@@ -72,11 +74,19 @@ public class DefaultStopAreaRepository implements StopAreaRepository {
 
     @Override
     public StopPlace getStopPlaceByQuayId(String quayId) {
-        return stopPlaceByQuayId.get(quayId);
+        StopPlace stopPlace = stopPlaceByQuayId.get(quayId);
+        if (stopPlace == null) {
+            throw new StopPlaceNotFoundException("Could not find Quay for id " + quayId);
+        }
+        return stopPlace;
     }
 
     @Override
     public Quay getQuayById(String quayId) {
-        return quayById.get(quayId);
+        Quay quay = quayById.get(quayId);
+        if (quay == null) {
+            throw new QuayNotFoundException("Could not find Quay for id " + quayId);
+        }
+        return quay;
     }
 }

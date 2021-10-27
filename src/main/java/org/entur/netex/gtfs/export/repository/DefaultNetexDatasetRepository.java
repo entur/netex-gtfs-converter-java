@@ -20,6 +20,7 @@ package org.entur.netex.gtfs.export.repository;
 
 import org.entur.netex.gtfs.export.exception.DefaultTimeZoneException;
 import org.entur.netex.gtfs.export.exception.GtfsExportException;
+import org.entur.netex.gtfs.export.exception.QuayNotFoundException;
 import org.entur.netex.index.api.NetexEntitiesIndex;
 import org.entur.netex.index.impl.NetexEntitiesIndexImpl;
 import org.rutebanken.netex.model.Authority;
@@ -182,7 +183,11 @@ public class DefaultNetexDatasetRepository implements NetexDatasetRepository {
 
     @Override
     public String getQuayIdByScheduledStopPointId(String scheduledStopPointId) {
-        return netexEntitiesIndex.getQuayIdByStopPointRefIndex().get(scheduledStopPointId);
+        String quayId = netexEntitiesIndex.getQuayIdByStopPointRefIndex().get(scheduledStopPointId);
+        if (quayId == null) {
+            throw new QuayNotFoundException("Could not find Quay id for scheduled stop point id " + scheduledStopPointId);
+        }
+        return quayId;
     }
 
 
