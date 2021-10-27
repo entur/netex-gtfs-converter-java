@@ -69,7 +69,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -164,10 +166,11 @@ public class DefaultGtfsExporter implements GtfsExporter {
 
     protected void convertRoutes() {
         for (Line netexLine : netexDatasetRepository.getLines()) {
+            boolean isActiveRoute= false;
             Route gtfsRoute = routeProducer.produce(netexLine);
-            gtfsDatasetRepository.saveEntity(gtfsRoute);
             for (org.rutebanken.netex.model.Route netexRoute : netexDatasetRepository.getRoutesByLine(netexLine)) {
                 for (JourneyPattern journeyPattern : netexDatasetRepository.getJourneyPatternsByRoute(netexRoute)) {
+                    boolean isActiveJourneyPattern=false;
                     GtfsShape gtfsShape = shapeProducer.produce(journeyPattern);
                     AgencyAndId shapeId = null;
                     if (gtfsShape != null && !gtfsShape.getShapePoints().isEmpty()) {
@@ -182,6 +185,7 @@ public class DefaultGtfsExporter implements GtfsExporter {
                     for (ServiceJourney serviceJourney : netexDatasetRepository.getServiceJourneysByJourneyPattern(journeyPattern)) {
                         Trip trip = tripProducer.produce(serviceJourney, netexRoute, gtfsRoute, shapeId, initialDestinationDisplay);
                         if (trip != null) {
+                            isActiveJourneyPattern = true;
                             gtfsDatasetRepository.saveEntity(trip);
                             // the head sign set on a given stop depends on the one set on the previous stop
                             // i.e. it must be repeated from one stop to the next unless there is an explicit change.
@@ -193,7 +197,16 @@ public class DefaultGtfsExporter implements GtfsExporter {
                             }
                         }
                     }
+                    // saving the shape only if there is at least one trip that uses it.
+                    if(isActiveJourneyPattern) {
+                        gtfsShape.getShapePoints().forEach(gtfsDatasetRepository::saveEntity);
+                        isActiveRoute = true;
+                    }
                 }
+            }
+            // saving the route only if it contains at least one active trip.
+            if(isActiveRoute) {
+                gtfsDatasetRepository.saveEntity(gtfsRoute);
             }
         }
     }
