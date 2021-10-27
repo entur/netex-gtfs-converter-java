@@ -18,8 +18,6 @@
 
 package org.entur.netex.gtfs.export;
 
-import org.entur.netex.gtfs.export.exception.QuayNotFoundException;
-import org.entur.netex.gtfs.export.exception.StopPlaceNotFoundException;
 import org.entur.netex.gtfs.export.loader.DefaultNetexDatasetLoader;
 import org.entur.netex.gtfs.export.loader.NetexDatasetLoader;
 import org.entur.netex.gtfs.export.model.GtfsService;
@@ -62,10 +60,8 @@ import org.onebusaway.gtfs.model.Trip;
 import org.rutebanken.netex.model.DestinationDisplay;
 import org.rutebanken.netex.model.JourneyPattern;
 import org.rutebanken.netex.model.Line;
-import org.rutebanken.netex.model.Quay;
 import org.rutebanken.netex.model.ServiceJourney;
 import org.rutebanken.netex.model.ServiceJourneyInterchange;
-import org.rutebanken.netex.model.StopPlace;
 import org.rutebanken.netex.model.StopPointInJourneyPattern;
 import org.rutebanken.netex.model.TimetabledPassingTime;
 import org.slf4j.Logger;
@@ -259,6 +255,7 @@ public class DefaultGtfsExporter implements GtfsExporter {
 
     /**
      * A service journey is valid if the referenced ServiceJourneys are neither replaced nor cancelled.
+     *
      * @param serviceJourneyInterchange the ServiceJourneyInterchange to check.
      * @return true if the referenced ServiceJourneys are neither replaced nor cancelled.
      */
