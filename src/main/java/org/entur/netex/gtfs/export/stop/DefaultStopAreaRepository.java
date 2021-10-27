@@ -76,7 +76,7 @@ public class DefaultStopAreaRepository implements StopAreaRepository {
     public StopPlace getStopPlaceByQuayId(String quayId) {
         StopPlace stopPlace = stopPlaceByQuayId.get(quayId);
         if (stopPlace == null) {
-            throw new StopPlaceNotFoundException("Could not find Quay for id " + quayId);
+            throw new StopPlaceNotFoundException("Could not find StopPlace for quay id " + quayId);
         }
         return stopPlace;
     }
