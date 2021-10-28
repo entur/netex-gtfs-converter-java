@@ -86,7 +86,7 @@ class StopTimeProducerTest {
     private static final String TEST_STOP_POINT_IN_JOURNEY_PATTERN_ID_1 = "ENT:StopPointInJourneyPattern:1";
     private static final String TEST_SCHEDULED_STOP_POINT_ID_1 = "ENT:ScheduledStopPoint:1";
     private static final String TEST_QUAY_ID = "ENT:QUAY:1";
-    private static final LocalTime TEST_ARRIVAL_TIME = LocalTime.of(00, 1);
+    private static final LocalTime TEST_ARRIVAL_TIME = LocalTime.of(0, 1);
     private static final String INITIAL_HEADSIGN = "Initial headsign";
 
 
@@ -204,18 +204,18 @@ class StopTimeProducerTest {
         return journeyPattern;
     }
 
-    private TimetabledPassingTime createTestTimetabledPassingTime(String stopPointInJourneyPtternRef, LocalTime arrivalTime) {
-        return createTestTimetabledPassingTime(stopPointInJourneyPtternRef, arrivalTime, 0);
+    private TimetabledPassingTime createTestTimetabledPassingTime(String stopPointInJourneyPatternRef, LocalTime arrivalTime) {
+        return createTestTimetabledPassingTime(stopPointInJourneyPatternRef, arrivalTime, 0);
     }
 
-    private TimetabledPassingTime createTestTimetabledPassingTime(String stopPointInJourneyPtternRef, LocalTime arrivalTime, int dayOffset) {
+    private TimetabledPassingTime createTestTimetabledPassingTime(String stopPointInJourneyPatternRef, LocalTime arrivalTime, int dayOffset) {
         TimetabledPassingTime timetabledPassingTime = NETEX_FACTORY.createTimetabledPassingTime();
         timetabledPassingTime.setArrivalTime(arrivalTime);
         if (dayOffset != 0) {
             timetabledPassingTime.setArrivalDayOffset(BigInteger.valueOf(dayOffset));
         }
         StopPointInJourneyPatternRefStructure stopPointInJourneyPatternRefStructure = NETEX_FACTORY.createStopPointInJourneyPatternRefStructure();
-        stopPointInJourneyPatternRefStructure.setRef(stopPointInJourneyPtternRef);
+        stopPointInJourneyPatternRefStructure.setRef(stopPointInJourneyPatternRef);
         JAXBElement<? extends PointInJourneyPatternRefStructure> pointInJourneyPatternRef = NETEX_FACTORY.createStopPointInJourneyPatternRef(stopPointInJourneyPatternRefStructure);
         timetabledPassingTime.setPointInJourneyPatternRef(pointInJourneyPatternRef);
         return timetabledPassingTime;
