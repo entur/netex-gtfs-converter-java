@@ -118,7 +118,6 @@ class TripProducerTest {
         Assertions.assertEquals(FRONT_TEXT, trip.getTripHeadsign());
 
         Assertions.assertEquals(TEST_DAY_TYPE_ID, trip.getServiceId().getId());
-        Assertions.assertEquals("", trip.getRoute().getId().getId());
     }
 
 }
