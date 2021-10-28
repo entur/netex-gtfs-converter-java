@@ -163,7 +163,7 @@ public class DefaultGtfsServiceRepository implements GtfsServiceRepository {
                 .flatMap(Collection::stream)
                 .filter(dta -> dta.getOperatingPeriodRef() != null)
                 .findFirst()
-                .orElseThrow();
+                .orElseThrow(() -> new GtfsExportException("Could not find DayTypeAssignment without operating period for serviceId " + serviceId));
 
         DayType dayTypeWithAPeriod = netexDatasetRepository.getDayTypeByDayTypeAssignment(dayTypeAssignmentWithPeriod);
         OperatingPeriod operatingPeriod = netexDatasetRepository.getOperatingPeriodByDayTypeAssignment(dayTypeAssignmentWithPeriod);
