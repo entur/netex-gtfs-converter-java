@@ -18,6 +18,7 @@
 
 package org.entur.netex.gtfs.export.producer;
 
+import org.entur.netex.gtfs.export.exception.GtfsExportException;
 import org.entur.netex.gtfs.export.model.GtfsShape;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
@@ -62,7 +63,7 @@ public class DefaultStopTimeProducer implements StopTimeProducer {
                 .stream()
                 .filter(stopPointInJourneyPattern -> stopPointInJourneyPattern.getId().equals(pointInJourneyPatternRef))
                 .findFirst()
-                .orElseThrow();
+                .orElseThrow(() -> new GtfsExportException("Could not find StopPointInJourneyPattern with id " + pointInJourneyPatternRef));
         int stopSequence = stopPointInSequence.getOrder().intValueExact();
         stopTime.setStopSequence(stopSequence);
         String scheduledStopPointId = stopPointInSequence.getScheduledStopPointRef().getValue().getRef();
