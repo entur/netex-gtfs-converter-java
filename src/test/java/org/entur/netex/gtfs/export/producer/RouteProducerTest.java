@@ -57,10 +57,9 @@ package org.entur.netex.gtfs.export.producer;
 import org.entur.netex.gtfs.export.model.GtfsRouteType;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
-import org.entur.netex.gtfs.export.mock.TestGtfsRepository;
-import org.entur.netex.gtfs.export.mock.TestNetexDatasetRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.onebusaway.gtfs.model.Agency;
 import org.onebusaway.gtfs.model.Route;
 import org.rutebanken.netex.model.AllVehicleModesOfTransportEnumeration;
 import org.rutebanken.netex.model.BusSubmodeEnumeration;
@@ -69,27 +68,34 @@ import org.rutebanken.netex.model.Line;
 import org.rutebanken.netex.model.MultilingualString;
 import org.rutebanken.netex.model.TransportSubmodeStructure;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 class RouteProducerTest {
 
-    private static final String LINE_ID = "Line-ID";
+    private static final String TEST_LINE_ID = "ENT:Line:1";
     private static final String LINE_NAME = "Line-Name";
     private static final String LINE_SHORT_NAME = "Line-Short-Name";
-
+    private static final String TEST_AUTHORITY_ID = "ENT:Authority:1";
+    private static final String TEST_NETWORK_ID = "ENT:Network:1";
 
     @Test
     void testRouteProducer() {
 
-        NetexDatasetRepository netexDatasetRepository = new TestNetexDatasetRepository();
-        GtfsDatasetRepository gtfsDatasetRepository = new TestGtfsRepository();
-
-        RouteProducer routeProducer = new DefaultRouteProducer(netexDatasetRepository, gtfsDatasetRepository);
         Line line = createTestLine();
 
+        NetexDatasetRepository netexDatasetRepository = mock(NetexDatasetRepository.class);
+        when(netexDatasetRepository.getAuthorityIdForLine(line)).thenReturn(TEST_AUTHORITY_ID);
+
+        GtfsDatasetRepository gtfsDatasetRepository = mock(GtfsDatasetRepository.class);
+        when(gtfsDatasetRepository.getAgencyById(TEST_AUTHORITY_ID)).thenReturn(new Agency());
+
+        RouteProducer routeProducer = new DefaultRouteProducer(netexDatasetRepository, gtfsDatasetRepository);
         Route route = routeProducer.produce(line);
 
         Assertions.assertNotNull(route);
         Assertions.assertNotNull(route.getId());
-        Assertions.assertEquals(LINE_ID, route.getId().getId());
+        Assertions.assertEquals(TEST_LINE_ID, route.getId().getId());
         Assertions.assertEquals(line.getPublicCode(), route.getShortName(), "The GTFS route short name should be the NeTEx Line public code");
         Assertions.assertEquals(line.getShortName().getValue(), route.getLongName(), "The GTFS route long name should be the NeTEx Line short name");
 
@@ -100,12 +106,18 @@ class RouteProducerTest {
     @Test
     void testRouteProducerWithoutShortName() {
 
-        NetexDatasetRepository netexDatasetRepository = new TestNetexDatasetRepository();
-        GtfsDatasetRepository gtfsDatasetRepository = new TestGtfsRepository();
-
-        RouteProducer routeProducer = new DefaultRouteProducer(netexDatasetRepository, gtfsDatasetRepository);
         Line line = createTestLine();
         line.setShortName(null);
+
+        NetexDatasetRepository netexDatasetRepository = mock(NetexDatasetRepository.class);
+        when(netexDatasetRepository.getAuthorityIdForLine(line)).thenReturn(TEST_AUTHORITY_ID);
+
+        GtfsDatasetRepository gtfsDatasetRepository = mock(GtfsDatasetRepository.class);
+        Agency agency = new Agency();
+        agency.setId(TEST_AUTHORITY_ID);
+        when(gtfsDatasetRepository.getAgencyById(TEST_AUTHORITY_ID)).thenReturn(agency);
+
+        RouteProducer routeProducer = new DefaultRouteProducer(netexDatasetRepository, gtfsDatasetRepository);
 
         Route route = routeProducer.produce(line);
 
@@ -116,12 +128,18 @@ class RouteProducerTest {
     @Test
     void testRouteProducerWithIdenticalPublicCodeAndShortName() {
 
-        NetexDatasetRepository netexDatasetRepository = new TestNetexDatasetRepository();
-        GtfsDatasetRepository gtfsDatasetRepository = new TestGtfsRepository();
-
-        RouteProducer routeProducer = new DefaultRouteProducer(netexDatasetRepository, gtfsDatasetRepository);
         Line line = createTestLine();
         line.setPublicCode(LINE_SHORT_NAME);
+
+        NetexDatasetRepository netexDatasetRepository = mock(NetexDatasetRepository.class);
+        when(netexDatasetRepository.getAuthorityIdForLine(line)).thenReturn(TEST_AUTHORITY_ID);
+
+        GtfsDatasetRepository gtfsDatasetRepository = mock(GtfsDatasetRepository.class);
+        Agency agency = new Agency();
+        agency.setId(TEST_AUTHORITY_ID);
+        when(gtfsDatasetRepository.getAgencyById(TEST_AUTHORITY_ID)).thenReturn(agency);
+
+        RouteProducer routeProducer = new DefaultRouteProducer(netexDatasetRepository, gtfsDatasetRepository);
 
         Route route = routeProducer.produce(line);
 
@@ -132,7 +150,7 @@ class RouteProducerTest {
 
     private Line createTestLine() {
         Line line = new Line();
-        line.setId(LINE_ID);
+        line.setId(TEST_LINE_ID);
 
         MultilingualString lineName = new MultilingualString();
         lineName.setValue(LINE_NAME);
@@ -148,7 +166,7 @@ class RouteProducerTest {
         line.setTransportSubmode(transportSubmode);
 
         GroupOfLinesRefStructure groupOfLineRef = new GroupOfLinesRefStructure();
-        groupOfLineRef.setRef(TestNetexDatasetRepository.NETWORK_ID);
+        groupOfLineRef.setRef(TEST_NETWORK_ID);
         line.setRepresentedByGroupRef(groupOfLineRef);
 
         return line;

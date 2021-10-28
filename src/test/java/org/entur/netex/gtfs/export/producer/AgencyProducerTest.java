@@ -55,7 +55,6 @@
 package org.entur.netex.gtfs.export.producer;
 
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
-import org.entur.netex.gtfs.export.mock.TestNetexDatasetRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.onebusaway.gtfs.model.Agency;
@@ -63,19 +62,35 @@ import org.rutebanken.netex.model.Authority;
 import org.rutebanken.netex.model.ContactStructure;
 import org.rutebanken.netex.model.MultilingualString;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 class AgencyProducerTest {
 
-    private static final String AUTHORITY_ID = "Authority-ID";
+    private static final String AUTHORITY_ID = "ENT:Authority:1";
     private static final String AUTHORITY_NAME = "Authority-name";
-    private static final String AUTHORITY_URL = "Authority-URL";
+    private static final String AUTHORITY_URL = "https://testUrl";
+    private static final String TIMEZONE = "Europe/Oslo";
 
     @Test
     void testAgencyProducer() {
+        Authority authority = createTestAuthority();
 
-        NetexDatasetRepository netexDatasetRepository = new TestNetexDatasetRepository();
+        NetexDatasetRepository netexDatasetRepository = mock(NetexDatasetRepository.class);
+        when(netexDatasetRepository.getTimeZone()).thenReturn(TIMEZONE);
+
 
         AgencyProducer agencyProducer = new DefaultAgencyProducer(netexDatasetRepository);
 
+        Agency agency = agencyProducer.produce(authority);
+        Assertions.assertNotNull(agency);
+        Assertions.assertEquals(AUTHORITY_ID, agency.getId());
+        Assertions.assertEquals(AUTHORITY_NAME, agency.getName());
+        Assertions.assertEquals(AUTHORITY_URL, agency.getUrl());
+        Assertions.assertEquals(TIMEZONE, agency.getTimezone());
+    }
+
+    private Authority createTestAuthority() {
         Authority authority = new Authority();
         authority.setId(AUTHORITY_ID);
         MultilingualString name = new MultilingualString();
@@ -84,11 +99,6 @@ class AgencyProducerTest {
         ContactStructure contactDetails = new ContactStructure();
         contactDetails.setUrl(AUTHORITY_URL);
         authority.setContactDetails(contactDetails);
-
-        Agency agency = agencyProducer.produce(authority);
-        Assertions.assertNotNull(agency);
-        Assertions.assertEquals(AUTHORITY_ID, agency.getId());
-        Assertions.assertEquals(AUTHORITY_NAME, agency.getName());
-        Assertions.assertNotNull(AUTHORITY_URL, agency.getUrl());
+        return authority;
     }
 }
