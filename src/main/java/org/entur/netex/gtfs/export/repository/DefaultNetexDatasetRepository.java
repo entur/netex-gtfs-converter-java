@@ -141,7 +141,7 @@ public class DefaultNetexDatasetRepository implements NetexDatasetRepository {
                             .stream()
                             .anyMatch(groupOfLine -> groupOfLine.getId().equals(networkOrGroupOfLinesRef)))
                     .findFirst()
-                    .orElseThrow();
+                    .orElseThrow(() -> new GtfsExportException("Could not find Network for network or group of lines id " + networkOrGroupOfLinesRef));
         }
     }
 
