@@ -58,13 +58,11 @@ import org.entur.netex.gtfs.export.TestUtil;
 import org.entur.netex.gtfs.export.repository.DefaultGtfsRepository;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
-import org.entur.netex.gtfs.export.mock.TestNetexDatasetRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.onebusaway.gtfs.model.AgencyAndId;
 import org.onebusaway.gtfs.model.Trip;
-import org.rutebanken.netex.model.DayTypeRefStructure;
-import org.rutebanken.netex.model.DayTypeRefs_RelStructure;
+import org.rutebanken.netex.model.DayType;
 import org.rutebanken.netex.model.DestinationDisplay;
 import org.rutebanken.netex.model.DirectionTypeEnumeration;
 import org.rutebanken.netex.model.MultilingualString;
@@ -72,20 +70,31 @@ import org.rutebanken.netex.model.ObjectFactory;
 import org.rutebanken.netex.model.Route;
 import org.rutebanken.netex.model.ServiceJourney;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 class TripProducerTest {
+
+    private static final ObjectFactory NETEX_FACTORY = new ObjectFactory();
+
 
     private static final String SERVICE_JOURNEY_ID = "ServiceJourney-Id";
     private static final String FRONT_TEXT = "Front Text";
 
-    private static final String DAY_TYPE_ID = "ENT:DayType:1";
+    private static final String TEST_DAY_TYPE_ID = "ENT:DayType:1";
+    private static final String CODESPACE = "ENT";
 
 
     @Test
     void testTripProducer() {
 
-        NetexDatasetRepository netexDatasetRepository = new TestNetexDatasetRepository();
+        NetexDatasetRepository netexDatasetRepository = mock(NetexDatasetRepository.class);
+        DayType dayType = NETEX_FACTORY.createDayType();
+        dayType.setId(TEST_DAY_TYPE_ID);
+        when(netexDatasetRepository.getDayTypeById(TEST_DAY_TYPE_ID)).thenReturn(dayType);
+
         GtfsDatasetRepository gtfsDatasetRepository = new DefaultGtfsRepository();
-        GtfsServiceRepository gtfsServiceRepository = new DefaultGtfsServiceRepository("codespace", netexDatasetRepository);
+        GtfsServiceRepository gtfsServiceRepository = new DefaultGtfsServiceRepository(CODESPACE, netexDatasetRepository);
 
         TripProducer tripProducer = new DefaultTripProducer(netexDatasetRepository, gtfsDatasetRepository, gtfsServiceRepository);
 
@@ -98,7 +107,7 @@ class TripProducerTest {
         frontText.setValue(FRONT_TEXT);
         initialDestinationDisplay.setFrontText(frontText);
 
-        ServiceJourney serviceJourney = TestUtil.createTestServiceJourney(SERVICE_JOURNEY_ID, DAY_TYPE_ID);
+        ServiceJourney serviceJourney = TestUtil.createTestServiceJourney(SERVICE_JOURNEY_ID, TEST_DAY_TYPE_ID);
 
         Trip trip = tripProducer.produce(serviceJourney, netexRoute, gtfsRoute, shapeId, initialDestinationDisplay);
 
@@ -108,6 +117,8 @@ class TripProducerTest {
         Assertions.assertEquals(TripProducer.GTFS_DIRECTION_INBOUND, trip.getDirectionId());
         Assertions.assertEquals(FRONT_TEXT, trip.getTripHeadsign());
 
+        Assertions.assertEquals(TEST_DAY_TYPE_ID, trip.getServiceId().getId());
+        Assertions.assertEquals("", trip.getRoute().getId().getId());
     }
 
 }

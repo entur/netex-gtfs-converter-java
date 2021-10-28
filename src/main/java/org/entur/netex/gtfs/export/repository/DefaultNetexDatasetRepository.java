@@ -238,12 +238,20 @@ public class DefaultNetexDatasetRepository implements NetexDatasetRepository {
 
     @Override
     public DayType getDayTypeById(String dayTypeId) {
-        return netexEntitiesIndex.getDayTypeIndex().get(dayTypeId);
+        DayType dayType = netexEntitiesIndex.getDayTypeIndex().get(dayTypeId);
+        if (dayType == null) {
+            throw new GtfsExportException("Could not find DayType with id " + dayTypeId);
+        }
+        return dayType;
     }
 
     @Override
     public OperatingDay getOperatingDayById(String operatingDayId) {
-        return netexEntitiesIndex.getOperatingDayIndex().get(operatingDayId);
+        OperatingDay operatingDay = netexEntitiesIndex.getOperatingDayIndex().get(operatingDayId);
+        if (operatingDay == null) {
+            throw new GtfsExportException("Could not find OperatingDay with id " + operatingDayId);
+        }
+        return operatingDay;
     }
 
 
