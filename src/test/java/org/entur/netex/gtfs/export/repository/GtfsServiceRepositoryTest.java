@@ -65,6 +65,8 @@ import org.rutebanken.netex.model.DayType;
 import org.rutebanken.netex.model.DayTypeAssignment;
 import org.rutebanken.netex.model.DayTypeRefStructure;
 import org.rutebanken.netex.model.ObjectFactory;
+import org.rutebanken.netex.model.OperatingDay;
+import org.rutebanken.netex.model.OperatingDayRefStructure;
 import org.rutebanken.netex.model.OperatingPeriod;
 import org.rutebanken.netex.model.OperatingPeriodRefStructure;
 import org.rutebanken.netex.model.PropertiesOfDay_RelStructure;
@@ -101,6 +103,8 @@ class GtfsServiceRepositoryTest {
     private static final String TEST_OPERATING_PERIOD_3_ID = "TEST_OPERATING_PERIOD_2_ID";
     private static final LocalDateTime TEST_OPERATING_PERIOD_3_START = LocalDateTime.of(2021, 11, 20, 1, 1, 1);
     private static final LocalDateTime TEST_OPERATING_PERIOD_3_END = LocalDateTime.of(2021, 12, 20, 1, 1, 1);
+
+    private static final String TEST_OPERATING_DAY_ID = "ENT:OperatingDay:1";
 
     @Test
     void testSingleDayTypeWithSingleAvailableDate() {
@@ -405,7 +409,58 @@ class GtfsServiceRepositoryTest {
         Assertions.assertNull(serviceCalendarPeriod, "When a day type contains multiple periods, they are replaced by individual dates");
     }
 
+    @Test
+    void testSingleDayTypeWithOperatingDay() {
+        DayType dayType = createTestDayType(TEST_DAY_TYPE_1_ID);
+        OperatingDay operatingDay = NETEX_FACTORY.createOperatingDay();
+        operatingDay.setId(TEST_OPERATING_DAY_ID);
+        operatingDay.setCalendarDate(TEST_DATE);
+        DayTypeAssignment dayTypeAssignment = createTestDayTypeAssignmentWithOperatingDay(TEST_DAY_TYPE_1_ID, TEST_OPERATING_DAY_ID);
 
+        NetexDatasetRepository netexDatasetRepository = mock(NetexDatasetRepository.class);
+        when(netexDatasetRepository.getDayTypeAssignmentsByDayType(dayType)).thenReturn(Set.of(dayTypeAssignment));
+
+        GtfsServiceRepository gtfsServiceRepository = new DefaultGtfsServiceRepository(TEST_CODESPACE, netexDatasetRepository);
+
+        GtfsService service = gtfsServiceRepository.getServiceForOperatingDays(Set.of(operatingDay));
+        Assertions.assertNotNull(service);
+        Assertions.assertEquals(TEST_OPERATING_DAY_ID, service.getId());
+        Assertions.assertTrue(service.getExcludedDates().isEmpty());
+        Assertions.assertEquals(1, service.getIncludedDates().size());
+        LocalDateTime actual = service.getIncludedDates().stream().findFirst().orElseThrow();
+        Assertions.assertEquals(TEST_DATE, actual);
+    }
+
+    @Test
+    void testSingleDayTypeWithOnePeriodAndOperatingDay() {
+        DayType dayType = createTestDayType(TEST_DAY_TYPE_1_ID);
+
+        OperatingPeriod operatingPeriod = createTestOperatingPeriod(TEST_OPERATING_PERIOD_1_ID, TEST_OPERATING_PERIOD_1_START, TEST_OPERATING_PERIOD_1_END);
+        DayTypeAssignment dayTypeAssignment1 = createTestDayTypeAssignmentWithPeriod(TEST_DAY_TYPE_1_ID, TEST_OPERATING_PERIOD_1_ID);
+
+        OperatingDay operatingDay = NETEX_FACTORY.createOperatingDay();
+        operatingDay.setId(TEST_OPERATING_DAY_ID);
+        operatingDay.setCalendarDate(TEST_DATE);
+        DayTypeAssignment dayTypeAssignment2 = createTestDayTypeAssignmentWithOperatingDay(TEST_DAY_TYPE_1_ID, TEST_OPERATING_DAY_ID);
+
+        NetexDatasetRepository netexDatasetRepository = mock(NetexDatasetRepository.class);
+        when(netexDatasetRepository.getDayTypeAssignmentsByDayType(dayType)).thenReturn(Set.of(dayTypeAssignment1, dayTypeAssignment2));
+        when(netexDatasetRepository.getDayTypeByDayTypeAssignment(dayTypeAssignment1)).thenReturn(dayType);
+        when(netexDatasetRepository.getOperatingPeriodByDayTypeAssignment(dayTypeAssignment1)).thenReturn(operatingPeriod);
+        when(netexDatasetRepository.getOperatingDayByDayTypeAssignment(dayTypeAssignment2)).thenReturn(operatingDay);
+
+        GtfsServiceRepository gtfsServiceRepository = new DefaultGtfsServiceRepository(TEST_CODESPACE, netexDatasetRepository);
+
+        GtfsService service = gtfsServiceRepository.getServiceForDayTypes(Set.of(dayType));
+        Assertions.assertNotNull(service);
+        Assertions.assertEquals(TEST_DAY_TYPE_1_ID, service.getId());
+        Assertions.assertTrue(service.getExcludedDates().isEmpty());
+        Assertions.assertEquals(1, service.getIncludedDates().size());
+        LocalDateTime actual = service.getIncludedDates().stream().findFirst().orElseThrow();
+        Assertions.assertEquals(TEST_DATE, actual);
+
+        Assertions.assertNotNull(service.getServiceCalendarPeriod());
+    }
 
 
     private DayType createTestDayType(String dayTypeId) {
@@ -441,7 +496,7 @@ class GtfsServiceRepositoryTest {
     private DayTypeAssignment createTestDayTypeAssignmentWithPeriod(String testDayTypeId, String operatingPeriodId) {
         DayTypeAssignment dayTypeAssignment = NETEX_FACTORY.createDayTypeAssignment();
         DayTypeRefStructure daytypeRefStructure = NETEX_FACTORY.createDayTypeRefStructure();
-        daytypeRefStructure.setRef(TEST_DAY_TYPE_1_ID);
+        daytypeRefStructure.setRef(testDayTypeId);
         JAXBElement<DayTypeRefStructure> dayTypeRef = NETEX_FACTORY.createDayTypeRef(daytypeRefStructure);
         dayTypeAssignment.setDayTypeRef(dayTypeRef);
 
@@ -449,6 +504,19 @@ class GtfsServiceRepositoryTest {
         operatingPeriodRef.setRef(operatingPeriodId);
 
         dayTypeAssignment.setOperatingPeriodRef(operatingPeriodRef);
+        return dayTypeAssignment;
+    }
+
+    private DayTypeAssignment createTestDayTypeAssignmentWithOperatingDay(String dayTypeId, String operatingDayId) {
+        DayTypeAssignment dayTypeAssignment = NETEX_FACTORY.createDayTypeAssignment();
+        DayTypeRefStructure daytypeRefStructure = NETEX_FACTORY.createDayTypeRefStructure();
+        daytypeRefStructure.setRef(dayTypeId);
+        JAXBElement<DayTypeRefStructure> dayTypeRef = NETEX_FACTORY.createDayTypeRef(daytypeRefStructure);
+        dayTypeAssignment.setDayTypeRef(dayTypeRef);
+
+        OperatingDayRefStructure operatingDayRef = NETEX_FACTORY.createOperatingDayRefStructure();
+        operatingDayRef.setRef(TEST_OPERATING_DAY_ID);
+        dayTypeAssignment.setOperatingDayRef(operatingDayRef);
         return dayTypeAssignment;
     }
 
