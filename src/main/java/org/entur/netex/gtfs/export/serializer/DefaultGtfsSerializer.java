@@ -51,13 +51,11 @@ public class DefaultGtfsSerializer implements GtfsSerializer {
         LOGGER.info("Exporting GTFS archive");
         GtfsWriter writer = null;
         try {
-            File outputFile = File.createTempFile("export-gtfs-", ".zip");
+            File outputFile = createSecureTemporaryFile("gtfs-export-", ".zip");
             writer = new FilteredFieldsGtfsWriter(FILTERED_FIELDS);
             writer.setOutputLocation(outputFile);
             writer.run(gtfsDao);
-
             return createDeleteOnCloseInputStream(outputFile);
-
         } catch (IOException e) {
             throw new GtfsSerializationException("Error while saving the GTFS dataset", e);
         } finally {
@@ -70,6 +68,25 @@ public class DefaultGtfsSerializer implements GtfsSerializer {
             }
         }
 
+    }
+
+    /**
+     * Create a file accessible only by the user running the process.
+     *
+     * @param prefix temporary file prefix.
+     * @param suffix temporary file suffix.
+     * @return a temporary file accessible only by the user running the process.
+     * @throws IOException if the file cannot be created.
+     */
+    private static File createSecureTemporaryFile(String prefix, String suffix) throws IOException {
+        File outputFile = Files.createTempFile(prefix, suffix).toFile();
+        boolean setReadableSucceeded = outputFile.setReadable(true, true);
+        boolean setWritableSucceeded = outputFile.setWritable(true, true);
+        boolean setExecutableSucceeded = outputFile.setExecutable(false);
+        if (!(setReadableSucceeded && setWritableSucceeded && setExecutableSucceeded)) {
+            LOGGER.warn("Could not set permissions on temporary file {}", outputFile.getCanonicalPath());
+        }
+        return outputFile;
     }
 
     /**
