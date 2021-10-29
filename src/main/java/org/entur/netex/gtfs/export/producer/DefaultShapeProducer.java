@@ -18,6 +18,7 @@
 
 package org.entur.netex.gtfs.export.producer;
 
+import org.entur.netex.gtfs.export.exception.GtfsExportException;
 import org.entur.netex.gtfs.export.model.GtfsShape;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
@@ -37,7 +38,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXBElement;
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class DefaultShapeProducer implements ShapeProducer {
@@ -46,18 +49,21 @@ public class DefaultShapeProducer implements ShapeProducer {
 
     private final Agency agency;
     private final NetexDatasetRepository netexDatasetRepository;
+    private final Comparator<? super LinkInLinkSequence_VersionedChildStructure> serviceLinksComparator;
 
     public DefaultShapeProducer(NetexDatasetRepository netexDatasetRepository, GtfsDatasetRepository gtfsDatasetRepository) {
         this.agency = gtfsDatasetRepository.getDefaultAgency();
         this.netexDatasetRepository = netexDatasetRepository;
+        this.serviceLinksComparator = new ServiceLinksComparator();
     }
 
     @Override
     public GtfsShape produce(JourneyPattern journeyPattern) {
         int nbStopPoints = journeyPattern.getPointsInSequence().getPointInJourneyPatternOrStopPointInJourneyPatternOrTimingPointInJourneyPattern().size();
+        List<LinkInLinkSequence_VersionedChildStructure> serviceLinks = journeyPattern.getLinksInSequence().getServiceLinkInJourneyPatternOrTimingLinkInJourneyPattern();
         if (journeyPattern.getLinksInSequence() == null
-                || journeyPattern.getLinksInSequence().getServiceLinkInJourneyPatternOrTimingLinkInJourneyPattern() == null
-                || journeyPattern.getLinksInSequence().getServiceLinkInJourneyPatternOrTimingLinkInJourneyPattern().size() != (nbStopPoints - 1)) {
+                || serviceLinks == null
+                || serviceLinks.size() != (nbStopPoints - 1)) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Skipping GTFS shape org.entur.netex.gtfs.org.entur.netex.gtfs.export for JourneyPattern {} with incomplete list of service links", journeyPattern.getId());
             }
@@ -71,7 +77,8 @@ public class DefaultShapeProducer implements ShapeProducer {
         int sequence = 0;
         double distanceFromStart = 0;
         Coordinate previousPoint = null;
-        for (LinkInLinkSequence_VersionedChildStructure link : journeyPattern.getLinksInSequence().getServiceLinkInJourneyPatternOrTimingLinkInJourneyPattern()) {
+        serviceLinks.sort(serviceLinksComparator);
+        for (LinkInLinkSequence_VersionedChildStructure link : serviceLinks) {
             ServiceLinkInJourneyPattern_VersionedChildStructure serviceLinkInJourneyPattern = (ServiceLinkInJourneyPattern_VersionedChildStructure) link;
             ServiceLink serviceLink = netexDatasetRepository.getServiceLinkById(serviceLinkInJourneyPattern.getServiceLinkRef().getRef());
             Projections_RelStructure projections = serviceLink.getProjections();
@@ -84,7 +91,7 @@ public class DefaultShapeProducer implements ShapeProducer {
             for (JAXBElement<?> jaxbElement : projections.getProjectionRefOrProjection()) {
                 LinkSequenceProjection linkSequenceProjection = (LinkSequenceProjection) jaxbElement.getValue();
                 LineString lineString = GeometryUtil.convertLineStringFromGmlToJts(linkSequenceProjection.getLineString());
-                if(lineString == null) {
+                if (lineString == null) {
                     LOGGER.debug("Skipping GTFS shape export for JourneyPattern {} with service link {} with invalid LineString", journeyPattern.getId(), serviceLink.getId());
                     return null;
                 }
@@ -114,4 +121,18 @@ public class DefaultShapeProducer implements ShapeProducer {
         return new GtfsShape(shapeId, shapePoints, travelledDistanceToStop);
     }
 
+    private static class ServiceLinksComparator implements Comparator<LinkInLinkSequence_VersionedChildStructure> {
+        @Override
+        public int compare(LinkInLinkSequence_VersionedChildStructure o1, LinkInLinkSequence_VersionedChildStructure o2) {
+            BigInteger order1 = o1.getOrder();
+            if (order1 == null) {
+                throw new GtfsExportException("Undefined order for service link" + o1.getId());
+            }
+            BigInteger order2 = o2.getOrder();
+            if (order2 == null) {
+                throw new GtfsExportException("Undefined order for service link " + o2.getId());
+            }
+            return order1.compareTo(order2);
+        }
+    }
 }
