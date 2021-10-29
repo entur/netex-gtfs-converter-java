@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.entur</groupId>
@@ -78,7 +79,7 @@
         <sonar-maven-plugin.version>3.9.0.2155</sonar-maven-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
         <!-- empty argLine property, the value is set up by Jacoco during unit tests execution -->
-        <argLine />
+        <argLine/>
 
         <!-- GPG configuration for jar signing-->
         <gpg.executable>gpg</gpg.executable>
@@ -159,6 +160,14 @@
         </dependency>
 
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>onebusaway-releases</id>
+            <name>Onebusaway Releases Repo</name>
+            <url>https://repo.camsys-apps.com/releases/</url>
+        </repository>
+    </repositories>
 
     <build>
         <extensions>
@@ -244,7 +253,7 @@
                             <goal>check</goal>
                         </goals>
                         <configuration>
-                            <rules />
+                            <rules/>
                         </configuration>
                     </execution>
                 </executions>
@@ -302,7 +311,7 @@
                                 <requireJavaVersion>
                                     <version>${jdk.version}</version>
                                 </requireJavaVersion>
-                                <requirePluginVersions />
+                                <requirePluginVersions/>
                             </rules>
                         </configuration>
                     </execution>
