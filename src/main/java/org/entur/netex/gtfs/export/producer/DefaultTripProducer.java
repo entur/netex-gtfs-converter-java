@@ -104,7 +104,7 @@ public class DefaultTripProducer implements TripProducer {
                     .filter(Predicate.not(ServiceJourneyUtil::isReplacedOrCancelled))
                     .map(datedServiceJourney -> netexDatasetRepository.getOperatingDayById(datedServiceJourney.getOperatingDayRef().getRef()))
                     .collect(Collectors.toSet());
-            if(operatingDays.isEmpty()) {
+            if (operatingDays.isEmpty()) {
                 LOGGER.trace("Filtering ServiceJourney where all DatedServiceJourneys are replaced or cancelled: {}", serviceJourney.getId());
                 return null;
             }
