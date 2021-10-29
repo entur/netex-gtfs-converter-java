@@ -121,6 +121,9 @@ public class DefaultShapeProducer implements ShapeProducer {
         return new GtfsShape(shapeId, shapePoints, travelledDistanceToStop);
     }
 
+    /**
+     * Compare ServiceLinks by their "order" property.
+     */
     private static class ServiceLinksComparator implements Comparator<LinkInLinkSequence_VersionedChildStructure> {
         @Override
         public int compare(LinkInLinkSequence_VersionedChildStructure o1, LinkInLinkSequence_VersionedChildStructure o2) {
