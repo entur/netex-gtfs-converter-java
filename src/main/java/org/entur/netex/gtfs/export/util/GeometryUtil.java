@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -87,7 +88,7 @@ public final class GeometryUtil {
      */
     public static LineString convertLineStringFromGmlToJts(LineStringType gmlLineString) {
         List<Double> coordinates = extractCoordinates(gmlLineString);
-        if (coordinates == null) {
+        if (coordinates.isEmpty()) {
             return null;
         }
         CoordinateSequence coordinateSequence = new PackedCoordinateSequenceFactory().create(coordinates.stream().mapToDouble(Double::doubleValue).toArray(), 2);
@@ -102,7 +103,7 @@ public final class GeometryUtil {
      * Extract the GML coordinates as a list of double values.
      *
      * @param gmlLineString a GML LineString
-     * @return a list of coordinates or null if the LineString is not valid.
+     * @return a list of coordinates. The list is empty if the LineString is not valid.
      */
     private static List<Double> extractCoordinates(LineStringType gmlLineString) {
         List<Double> coordinates;
@@ -118,20 +119,19 @@ public final class GeometryUtil {
                         coordinates.addAll(directPositionType.getValue());
                     } else if (o instanceof PointPropertyType) {
                         LOGGER.warn("Unsupported PointPropertyType for gmlString {}", gmlLineString.getId());
-                        return null;
+                        return Collections.emptyList();
                     } else {
                         LOGGER.warn("Unknown class ({}) for PosOrPointProperty for gmlString {}", o.getClass(), gmlLineString.getId());
-                        return null;
+                        return Collections.emptyList();
                     }
                 }
                 if (coordinates.isEmpty()) {
                     LOGGER.warn("LineStringType without coordinates for gmlString {}", gmlLineString.getId());
-                    return null;
                 }
 
             } else {
                 LOGGER.warn("LineStringType without posList or PosOrPointProperty for gmlString {}", gmlLineString.getId());
-                return null;
+                return Collections.emptyList();
             }
         }
         return coordinates;
