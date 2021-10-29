@@ -77,6 +77,7 @@ public class DefaultShapeProducer implements ShapeProducer {
         int sequence = 0;
         double distanceFromStart = 0;
         Coordinate previousPoint = null;
+        // sort the service links by ascending "order" property
         serviceLinks.sort(serviceLinksComparator);
         for (LinkInLinkSequence_VersionedChildStructure link : serviceLinks) {
             ServiceLinkInJourneyPattern_VersionedChildStructure serviceLinkInJourneyPattern = (ServiceLinkInJourneyPattern_VersionedChildStructure) link;
