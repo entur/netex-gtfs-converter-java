@@ -50,7 +50,7 @@
         <netex-parser-java.version>1.0.14</netex-parser-java.version>
         <netex-java-model.version>1.0.12</netex-java-model.version>
         <onebusaway.version>1.3.88</onebusaway.version>
-        <jts.version>1.18.1</jts.version>
+        <jts.version>1.18.2</jts.version>
         <slf4j.version>1.7.32</slf4j.version>
         <junit.version>5.7.2</junit.version>
         <mockito-core.version>3.11.2</mockito-core.version>
