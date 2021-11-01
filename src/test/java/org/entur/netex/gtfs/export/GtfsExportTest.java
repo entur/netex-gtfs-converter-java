@@ -66,8 +66,6 @@ class GtfsExportTest {
         testExport("VYG", "/rb_vyg-aggregated-netex.zip", "/RailStations_latest.zip");
     }
 
-
-    @Test
     void testExport(String codespace, String timetableDataset, String stopDataset) throws IOException {
 
         DefaultStopAreaRepository defaultStopAreaRepository = new DefaultStopAreaRepository();
@@ -86,7 +84,7 @@ class GtfsExportTest {
                 StandardCopyOption.REPLACE_EXISTING);
 
         checkAgency(gtfsFile, codespace);
-        checkStop(gtfsFile, codespace);
+        checkStop(gtfsFile);
         checkRoute(gtfsFile, codespace);
         checkTrip(gtfsFile, codespace);
         checkStopTime(gtfsFile, codespace);
@@ -105,7 +103,7 @@ class GtfsExportTest {
         Assertions.assertFalse(records.iterator().hasNext());
     }
 
-    private void checkStop(File gtfsFile, String codespace) throws IOException {
+    private void checkStop(File gtfsFile) throws IOException {
         Iterable<CSVRecord> records = getCsvRecords(gtfsFile, "stops.txt");
         Assertions.assertTrue(records.iterator().hasNext());
         CSVRecord record = records.iterator().next();
