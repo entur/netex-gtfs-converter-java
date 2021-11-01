@@ -57,14 +57,23 @@ import java.nio.file.StandardCopyOption;
 class GtfsExportTest {
 
     @Test
-    void testExport() throws IOException {
+    void testExportSimpleLine() throws IOException {
+        testExport("FLB", "/rb_flb-aggregated-netex.zip", "/RailStations_latest.zip");
+    }
+
+    @Test
+    void testExportDatedServiceJourney() throws IOException {
+        testExport("VYG", "/rb_vyg-aggregated-netex.zip", "/RailStations_latest.zip");
+    }
+
+    void testExport(String codespace, String timetableDataset, String stopDataset) throws IOException {
 
         DefaultStopAreaRepository defaultStopAreaRepository = new DefaultStopAreaRepository();
-        defaultStopAreaRepository.loadStopAreas(getClass().getResourceAsStream("/RailStations_latest.zip"));
+        defaultStopAreaRepository.loadStopAreas(getClass().getResourceAsStream(stopDataset));
 
-        InputStream netexTimetableDataset = getClass().getResourceAsStream("/rb_flb-aggregated-netex.zip");
+        InputStream netexTimetableDataset = getClass().getResourceAsStream(timetableDataset);
 
-        GtfsExporter gtfsExport = new DefaultGtfsExporter("FLB", defaultStopAreaRepository);
+        GtfsExporter gtfsExport = new DefaultGtfsExporter(codespace, defaultStopAreaRepository);
 
         InputStream exportedGtfs = gtfsExport.convertNetexToGtfs(netexTimetableDataset);
 
@@ -74,23 +83,23 @@ class GtfsExportTest {
                 gtfsFile.toPath(),
                 StandardCopyOption.REPLACE_EXISTING);
 
-        checkAgency(gtfsFile);
+        checkAgency(gtfsFile, codespace);
         checkStop(gtfsFile);
-        checkRoute(gtfsFile);
-        checkTrip(gtfsFile);
-        checkStopTime(gtfsFile);
-        checkCalendarDate(gtfsFile);
+        checkRoute(gtfsFile, codespace);
+        checkTrip(gtfsFile, codespace);
+        checkStopTime(gtfsFile, codespace);
+        checkCalendarDate(gtfsFile, codespace);
 
         IOUtils.closeQuietly(exportedGtfs);
         Files.deleteIfExists(gtfsFile.toPath());
     }
 
-    private void checkAgency(File gtfsFile) throws IOException {
+    private void checkAgency(File gtfsFile, String codespace) throws IOException {
         Iterable<CSVRecord> records = getCsvRecords(gtfsFile, "agency.txt");
         Assertions.assertTrue(records.iterator().hasNext());
         CSVRecord record = records.iterator().next();
         Assertions.assertNotNull(record.get("agency_id"));
-        Assertions.assertTrue(record.get("agency_id").startsWith("FLB:Authority"));
+        Assertions.assertTrue(record.get("agency_id").startsWith(codespace + ':' + "Authority"));
         Assertions.assertFalse(records.iterator().hasNext());
     }
 
@@ -102,36 +111,37 @@ class GtfsExportTest {
         Assertions.assertTrue(record.get("stop_id").startsWith("NSR:Quay"));
     }
 
-    private void checkRoute(File gtfsFile) throws IOException {
+    private void checkRoute(File gtfsFile, String codespace) throws IOException {
         Iterable<CSVRecord> records = getCsvRecords(gtfsFile, "routes.txt");
         Assertions.assertTrue(records.iterator().hasNext());
         CSVRecord record = records.iterator().next();
         Assertions.assertNotNull(record.get("route_id"));
-        Assertions.assertTrue(record.get("route_id").startsWith("FLB:Line"));
+        Assertions.assertTrue(record.get("route_id").startsWith(codespace + ':' + "Line"));
     }
 
-    private void checkTrip(File gtfsFile) throws IOException {
+    private void checkTrip(File gtfsFile, String codespace) throws IOException {
         Iterable<CSVRecord> records = getCsvRecords(gtfsFile, "trips.txt");
         Assertions.assertTrue(records.iterator().hasNext());
         CSVRecord record = records.iterator().next();
         Assertions.assertNotNull(record.get("route_id"));
-        Assertions.assertTrue(record.get("route_id").startsWith("FLB:Line"));
+        Assertions.assertTrue(record.get("route_id").startsWith(codespace + ':' + "Line"));
     }
 
-    private void checkCalendarDate(File gtfsFile) throws IOException {
+    private void checkCalendarDate(File gtfsFile, String codespace) throws IOException {
         Iterable<CSVRecord> records = getCsvRecords(gtfsFile, "calendar_dates.txt");
         Assertions.assertTrue(records.iterator().hasNext());
         CSVRecord record = records.iterator().next();
-        Assertions.assertNotNull(record.get("service_id"));
-        Assertions.assertTrue(record.get("service_id").startsWith("FLB:DayType:"));
+        String serviceId = record.get("service_id");
+        Assertions.assertNotNull(serviceId);
+        Assertions.assertTrue(serviceId.startsWith(codespace + ':' + "DayType:") || serviceId.startsWith(codespace + ':' + "OperatingDay:"));
     }
 
-    private void checkStopTime(File gtfsFile) throws IOException {
+    private void checkStopTime(File gtfsFile, String codespace) throws IOException {
         Iterable<CSVRecord> records = getCsvRecords(gtfsFile, "stop_times.txt");
         Assertions.assertTrue(records.iterator().hasNext());
         CSVRecord record = records.iterator().next();
         Assertions.assertNotNull(record.get("trip_id"));
-        Assertions.assertTrue(record.get("trip_id").startsWith("FLB:ServiceJourney"));
+        Assertions.assertTrue(record.get("trip_id").startsWith(codespace + ':' + "ServiceJourney"));
     }
 
     private Iterable<CSVRecord> getCsvRecords(File gtfsFile, String entryName) throws IOException {
