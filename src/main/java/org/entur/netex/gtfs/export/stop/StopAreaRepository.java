@@ -22,7 +22,6 @@ import org.rutebanken.netex.model.Quay;
 import org.rutebanken.netex.model.StopPlace;
 
 import java.util.Collection;
-import java.util.Set;
 
 /**
  * A repository containing NeTEx quays and stop places.
@@ -32,6 +31,7 @@ public interface StopAreaRepository {
 
     /**
      * Return the Quay identified by its id.
+     *
      * @param quayId the quay id.
      * @return the quay identified by this id.
      */
@@ -39,6 +39,7 @@ public interface StopAreaRepository {
 
     /**
      * Return the stop place associated to a given quay.
+     *
      * @param quayId the id of the quay
      * @return the stop place that contains that quay.
      */
@@ -47,6 +48,7 @@ public interface StopAreaRepository {
 
     /**
      * Return all quays in the repository.
+     *
      * @return all quays in the repository.
      */
     Collection<Quay> getAllQuays();
