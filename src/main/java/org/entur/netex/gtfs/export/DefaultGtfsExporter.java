@@ -60,6 +60,7 @@ import org.onebusaway.gtfs.model.Trip;
 import org.rutebanken.netex.model.DestinationDisplay;
 import org.rutebanken.netex.model.JourneyPattern;
 import org.rutebanken.netex.model.Line;
+import org.rutebanken.netex.model.Quay;
 import org.rutebanken.netex.model.ServiceJourney;
 import org.rutebanken.netex.model.ServiceJourneyInterchange;
 import org.rutebanken.netex.model.StopPointInJourneyPattern;
@@ -97,6 +98,11 @@ public class DefaultGtfsExporter implements GtfsExporter {
     private StopProducer stopProducer;
     private NetexDatasetLoader netexDatasetLoader;
 
+    /**
+     * Create a GTFS exporter for a given codespace.
+     * @param codespace the codespace of the exported dataset. This is the codespace of the data provider who owns the timetable dataset.
+     * @param stopAreaRepository the stop area repository.
+     */
     public DefaultGtfsExporter(String codespace, StopAreaRepository stopAreaRepository) {
 
         this.codespace = codespace;
@@ -120,12 +126,27 @@ public class DefaultGtfsExporter implements GtfsExporter {
 
     }
 
+    /**
+     * Create a GTFS exporter not tied to a specific codespace.
+     * This can be used to export only stops, without timetable data.
+     * @param stopAreaRepository the stop area repository.
+     */
+    public DefaultGtfsExporter(StopAreaRepository stopAreaRepository) {
+        this(null, stopAreaRepository);
+    }
+
     @Override
-    public InputStream convertNetexToGtfs(InputStream netexTimetableDataset) {
+    public InputStream convertTimetablesToGtfs(InputStream netexTimetableDataset) {
         loadNetex(netexTimetableDataset);
         convertNetexToGtfs();
         return gtfsDatasetRepository.writeGtfs();
+    }
 
+    @Override
+    public InputStream convertStopsToGtfs() {
+        convertStops(false);
+        addFeedInfo();
+        return gtfsDatasetRepository.writeGtfs();
     }
 
     private void loadNetex(InputStream netexTimetableDataset) {
@@ -144,7 +165,7 @@ public class DefaultGtfsExporter implements GtfsExporter {
                 .map(netexDatasetRepository::getAuthorityById)
                 .map(agencyProducer::produce).forEach(gtfsDatasetRepository::saveEntity);
 
-        convertStops();
+        convertStops(true);
         convertRoutes();
         convertServices();
         convertTransfers();
@@ -222,23 +243,31 @@ public class DefaultGtfsExporter implements GtfsExporter {
                 .forEach(gtfsDatasetRepository::saveEntity);
     }
 
-    protected void convertStops() {
-        // Retrieve all quays referenced by valid ServiceJourneys
-        // This excludes quays referenced by cancelled or replaced service journeys
-        // and quays referenced only as route points or in dead runs
-        Set<String> allQuaysId = netexDatasetRepository.getServiceJourneys()
-                .stream()
-                .filter(Predicate.not(ServiceJourneyUtil::isReplacedOrCancelled))
-                .map(serviceJourney -> serviceJourney.getJourneyPatternRef().getValue().getRef())
-                .distinct()
-                .map(netexDatasetRepository::getJourneyPatternById)
-                .map(journeyPattern -> journeyPattern.getPointsInSequence().getPointInJourneyPatternOrStopPointInJourneyPatternOrTimingPointInJourneyPattern())
-                .flatMap(Collection::stream)
-                .map(stopPointInJourneyPattern -> ((StopPointInJourneyPattern) stopPointInJourneyPattern).getScheduledStopPointRef().getValue().getRef())
-                .distinct()
-                .filter(Predicate.not(this::isFlexibleScheduledStopPoint))
-                .map(netexDatasetRepository::getQuayIdByScheduledStopPointId)
-                .collect(Collectors.toSet());
+    protected void convertStops(boolean exportOnlyUsedStops) {
+
+        Set<String> allQuaysId = null;
+
+        if (exportOnlyUsedStops) {
+            // Retrieve all quays referenced by valid ServiceJourneys
+            // This excludes quays referenced by cancelled or replaced service journeys
+            // and quays referenced only as route points or in dead runs
+            allQuaysId = netexDatasetRepository.getServiceJourneys()
+                    .stream()
+                    .filter(Predicate.not(ServiceJourneyUtil::isReplacedOrCancelled))
+                    .map(serviceJourney -> serviceJourney.getJourneyPatternRef().getValue().getRef())
+                    .distinct()
+                    .map(netexDatasetRepository::getJourneyPatternById)
+                    .map(journeyPattern -> journeyPattern.getPointsInSequence().getPointInJourneyPatternOrStopPointInJourneyPatternOrTimingPointInJourneyPattern())
+                    .flatMap(Collection::stream)
+                    .map(stopPointInJourneyPattern -> ((StopPointInJourneyPattern) stopPointInJourneyPattern).getScheduledStopPointRef().getValue().getRef())
+                    .distinct()
+                    .filter(Predicate.not(this::isFlexibleScheduledStopPoint))
+                    .map(netexDatasetRepository::getQuayIdByScheduledStopPointId)
+                    .collect(Collectors.toSet());
+
+        } else {
+            allQuaysId = stopAreaRepository.getAllQuays().stream().map(Quay::getId).collect(Collectors.toSet());
+        }
 
         // Persist the quays
         allQuaysId.stream().map(stopAreaRepository::getQuayById)

@@ -75,7 +75,7 @@ class GtfsExportTest {
 
         GtfsExporter gtfsExport = new DefaultGtfsExporter(codespace, defaultStopAreaRepository);
 
-        InputStream exportedGtfs = gtfsExport.convertNetexToGtfs(netexTimetableDataset);
+        InputStream exportedGtfs = gtfsExport.convertTimetablesToGtfs(netexTimetableDataset);
 
         File gtfsFile = new File("export-gtfs.zip");
         java.nio.file.Files.copy(
