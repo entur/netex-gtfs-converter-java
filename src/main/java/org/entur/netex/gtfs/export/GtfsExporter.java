@@ -33,7 +33,7 @@ public interface GtfsExporter {
     InputStream convertTimetablesToGtfs(InputStream netexTimetableDataset);
 
     /**
-     * Export the stop area repository to GTFS. Not timetable data is exported.
+     * Export the stop area repository to GTFS. No timetable data is exported.
      * @return a GTFS ZIP archive containing all stops.
      */
     InputStream convertStopsToGtfs();

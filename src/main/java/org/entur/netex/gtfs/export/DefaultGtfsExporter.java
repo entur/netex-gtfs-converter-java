@@ -100,7 +100,8 @@ public class DefaultGtfsExporter implements GtfsExporter {
 
     /**
      * Create a GTFS exporter for a given codespace.
-     * @param codespace the codespace of the exported dataset. This is the codespace of the data provider who owns the timetable dataset.
+     *
+     * @param codespace          the codespace of the exported dataset. This is the codespace of the data provider who owns the timetable dataset.
      * @param stopAreaRepository the stop area repository.
      */
     public DefaultGtfsExporter(String codespace, StopAreaRepository stopAreaRepository) {
@@ -129,6 +130,7 @@ public class DefaultGtfsExporter implements GtfsExporter {
     /**
      * Create a GTFS exporter not tied to a specific codespace.
      * This can be used to export only stops, without timetable data.
+     *
      * @param stopAreaRepository the stop area repository.
      */
     public DefaultGtfsExporter(StopAreaRepository stopAreaRepository) {
@@ -137,6 +139,9 @@ public class DefaultGtfsExporter implements GtfsExporter {
 
     @Override
     public InputStream convertTimetablesToGtfs(InputStream netexTimetableDataset) {
+        if (codespace == null) {
+            throw new IllegalStateException("Missing required codespace for timetable data export");
+        }
         loadNetex(netexTimetableDataset);
         convertNetexToGtfs();
         return gtfsDatasetRepository.writeGtfs();
