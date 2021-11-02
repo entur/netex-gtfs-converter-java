@@ -66,6 +66,25 @@ class GtfsExportTest {
         testExport("VYG", "/rb_vyg-aggregated-netex.zip", "/RailStations_latest.zip");
     }
 
+    @Test
+    void testExportStops() throws IOException {
+        DefaultStopAreaRepository defaultStopAreaRepository = new DefaultStopAreaRepository();
+        defaultStopAreaRepository.loadStopAreas(getClass().getResourceAsStream("/RailStations_latest.zip"));
+        GtfsExporter gtfsExport = new DefaultGtfsExporter(defaultStopAreaRepository);
+
+        InputStream exportedGtfs = gtfsExport.convertStopsToGtfs();
+
+        File gtfsFile = new File("export-gtfs.zip");
+        java.nio.file.Files.copy(
+                exportedGtfs,
+                gtfsFile.toPath(),
+                StandardCopyOption.REPLACE_EXISTING);
+
+        checkStop(gtfsFile);
+        IOUtils.closeQuietly(exportedGtfs);
+        Files.deleteIfExists(gtfsFile.toPath());
+    }
+
     void testExport(String codespace, String timetableDataset, String stopDataset) throws IOException {
 
         DefaultStopAreaRepository defaultStopAreaRepository = new DefaultStopAreaRepository();
