@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.entur</groupId>
     <artifactId>netex-gtfs-converter-java</artifactId>
-    <version>1.5-SNAPSHOT</version>
+    <version>1.5</version>
 
     <name>netex-gtfs-converter-java</name>
     <description>Library for converting NeTEx datasets into GTFS datasets.</description>
@@ -25,7 +24,7 @@
         <connection>scm:git:ssh://git@github.com/entur/netex-gtfs-converter-java.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/entur/netex-gtfs-converter-java.git</developerConnection>
         <url>https://github.com/entur/netex-gtfs-converter-java/tree/main</url>
-        <tag>netex-gtfs-converter-java-1.2</tag>
+        <tag>netex-gtfs-converter-java-1.5</tag>
     </scm>
 
     <distributionManagement>
@@ -80,7 +79,7 @@
         <sonar-maven-plugin.version>3.9.0.2155</sonar-maven-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
         <!-- empty argLine property, the value is set up by Jacoco during unit tests execution -->
-        <argLine/>
+        <argLine />
 
         <!-- GPG configuration for jar signing-->
         <gpg.executable>gpg</gpg.executable>
@@ -259,7 +258,7 @@
                             <goal>check</goal>
                         </goals>
                         <configuration>
-                            <rules/>
+                            <rules />
                         </configuration>
                     </execution>
                 </executions>
@@ -317,7 +316,7 @@
                                 <requireJavaVersion>
                                     <version>${jdk.version}</version>
                                 </requireJavaVersion>
-                                <requirePluginVersions/>
+                                <requirePluginVersions />
                             </rules>
                         </configuration>
                     </execution>
