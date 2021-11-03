@@ -61,6 +61,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.onebusaway.gtfs.model.Stop;
 import org.rutebanken.netex.model.LocationStructure;
+import org.rutebanken.netex.model.MultilingualString;
+import org.rutebanken.netex.model.ObjectFactory;
 import org.rutebanken.netex.model.Quay;
 import org.rutebanken.netex.model.SimplePoint_VersionStructure;
 import org.rutebanken.netex.model.StopPlace;
@@ -72,10 +74,14 @@ import static org.mockito.Mockito.when;
 
 class StopProducerTest {
 
+    private static final ObjectFactory NETEX_FACTORY = new ObjectFactory();
+
+
     private static final String QUAY_ID = "ENT:Quay:1";
     private static final String STOP_PLACE_ID = "ENT:StopPlace:1";
     private static final double LONGITUDE = 10.0;
     private static final double LATITUDE = 1.0;
+    private static final String TEST_STOP_PLACE_NAME = "StopPlace name";
 
     @Test
     void testStopProducerFromQuay() {
@@ -102,6 +108,10 @@ class StopProducerTest {
     private StopPlace createTestStopPlace(String stopPlaceId) {
         StopPlace stopPlace = new StopPlace();
         stopPlace.setId(stopPlaceId);
+        MultilingualString stopPlaceName = NETEX_FACTORY.createMultilingualString();
+        stopPlaceName.setValue(TEST_STOP_PLACE_NAME);
+        stopPlace.setName(stopPlaceName);
+
         return stopPlace;
     }
 
