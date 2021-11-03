@@ -60,15 +60,15 @@ public class DefaultShapeProducer implements ShapeProducer {
     @Override
     public GtfsShape produce(JourneyPattern journeyPattern) {
         int nbStopPoints = journeyPattern.getPointsInSequence().getPointInJourneyPatternOrStopPointInJourneyPatternOrTimingPointInJourneyPattern().size();
-        List<LinkInLinkSequence_VersionedChildStructure> serviceLinks = journeyPattern.getLinksInSequence().getServiceLinkInJourneyPatternOrTimingLinkInJourneyPattern();
         if (journeyPattern.getLinksInSequence() == null
-                || serviceLinks == null
-                || serviceLinks.size() != (nbStopPoints - 1)) {
+                || journeyPattern.getLinksInSequence().getServiceLinkInJourneyPatternOrTimingLinkInJourneyPattern() == null
+                || journeyPattern.getLinksInSequence().getServiceLinkInJourneyPatternOrTimingLinkInJourneyPattern().size() != (nbStopPoints - 1)) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Skipping GTFS shape org.entur.netex.gtfs.org.entur.netex.gtfs.export for JourneyPattern {} with incomplete list of service links", journeyPattern.getId());
             }
             return null;
         }
+        List<LinkInLinkSequence_VersionedChildStructure> serviceLinks = journeyPattern.getLinksInSequence().getServiceLinkInJourneyPatternOrTimingLinkInJourneyPattern();
         List<ShapePoint> shapePoints = new ArrayList<>();
         List<Double> travelledDistanceToStop = new ArrayList<>(nbStopPoints);
         // distance travelled to first stop is 0.
