@@ -18,6 +18,7 @@
 
 package org.entur.netex.gtfs.export.producer;
 
+import org.entur.netex.gtfs.export.exception.GtfsExportException;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.stop.StopAreaRepository;
 import org.entur.netex.gtfs.export.util.TransportModeUtil;
@@ -69,6 +70,8 @@ public class DefaultStopProducer implements StopProducer {
         // name, description and platform code
         if (stopPlace.getName() != null) {
             stop.setName(stopPlace.getName().getValue());
+        } else {
+            throw new GtfsExportException("The stop place " + stopPlace.getId() + " does not have a name");
         }
         // the description is set only if it is different from the name
         if (stopPlace.getDescription() != null
@@ -135,6 +138,8 @@ public class DefaultStopProducer implements StopProducer {
         // the name of the quay is inherited from the parent stop place
         if (parentStopPlace.getName() != null) {
             stop.setName(parentStopPlace.getName().getValue());
+        } else {
+            throw new GtfsExportException("The parent stop place " + parentStopPlace.getId() + " of quay " + quay.getId() + " does not have a name");
         }
         // the description is set only if it is different from the name
         if (quay.getDescription() != null
