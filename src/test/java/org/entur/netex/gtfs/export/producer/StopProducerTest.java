@@ -54,6 +54,7 @@
 
 package org.entur.netex.gtfs.export.producer;
 
+import org.entur.netex.gtfs.export.exception.GtfsExportException;
 import org.entur.netex.gtfs.export.repository.DefaultGtfsRepository;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.stop.StopAreaRepository;
@@ -103,6 +104,38 @@ class StopProducerTest {
         Assertions.assertEquals(LONGITUDE, stop.getLon());
         Assertions.assertEquals(LATITUDE, stop.getLat());
 
+    }
+
+    @Test
+    void testStopProducerFromQuayWithoutName() {
+        testStopProducerFromQuayWithName(null);
+    }
+
+    @Test
+    void testStopProducerFromQuayWithEmptyName() {
+        testStopProducerFromQuayWithName(new MultilingualString());
+    }
+
+    @Test
+    void testStopProducerFromQuayWithBlankName() {
+        MultilingualString name = new MultilingualString();
+        name.setValue(" ");
+        testStopProducerFromQuayWithName(name);
+    }
+
+    private void testStopProducerFromQuayWithName(MultilingualString name) {
+
+        Quay quay = createTestQuay(QUAY_ID, LONGITUDE, LATITUDE);
+        StopPlace stopPlace = createTestStopPlace(STOP_PLACE_ID);
+        stopPlace.setName(name);
+
+        StopAreaRepository stopAreaRepository = mock(StopAreaRepository.class);
+        when(stopAreaRepository.getQuayById(QUAY_ID)).thenReturn(quay);
+        when(stopAreaRepository.getStopPlaceByQuayId(QUAY_ID)).thenReturn(stopPlace);
+
+        GtfsDatasetRepository gtfsDatasetRepository = new DefaultGtfsRepository();
+        StopProducer stopProducer = new DefaultStopProducer(stopAreaRepository, gtfsDatasetRepository);
+        Assertions.assertThrows(GtfsExportException.class, () -> stopProducer.produceStopFromQuay(quay));
     }
 
     private StopPlace createTestStopPlace(String stopPlaceId) {
