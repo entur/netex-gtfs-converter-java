@@ -4,7 +4,7 @@
 
     <groupId>org.entur</groupId>
     <artifactId>netex-gtfs-converter-java</artifactId>
-    <version>1.7-SNAPSHOT</version>
+    <version>1.7</version>
 
     <name>netex-gtfs-converter-java</name>
     <description>Library for converting NeTEx datasets into GTFS datasets.</description>
@@ -24,7 +24,7 @@
         <connection>scm:git:ssh://git@github.com/entur/netex-gtfs-converter-java.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/entur/netex-gtfs-converter-java.git</developerConnection>
         <url>https://github.com/entur/netex-gtfs-converter-java/tree/main</url>
-        <tag>netex-gtfs-converter-java-1.2</tag>
+        <tag>netex-gtfs-converter-java-1.7</tag>
     </scm>
 
     <distributionManagement>
