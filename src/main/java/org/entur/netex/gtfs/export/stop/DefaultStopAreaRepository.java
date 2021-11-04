@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -79,6 +80,11 @@ public class DefaultStopAreaRepository implements StopAreaRepository {
             throw new StopPlaceNotFoundException("Could not find StopPlace for quay id " + quayId);
         }
         return stopPlace;
+    }
+
+    @Override
+    public Collection<Quay> getAllQuays() {
+        return quayById.values();
     }
 
     @Override
