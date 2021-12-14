@@ -26,6 +26,7 @@ import org.entur.netex.gtfs.export.model.ServiceCalendarPeriod;
 import org.entur.netex.gtfs.export.producer.AgencyProducer;
 import org.entur.netex.gtfs.export.producer.DefaultAgencyProducer;
 import org.entur.netex.gtfs.export.producer.DefaultGtfsServiceRepository;
+import org.entur.netex.gtfs.export.producer.DefaultLocationProducer;
 import org.entur.netex.gtfs.export.producer.DefaultRouteProducer;
 import org.entur.netex.gtfs.export.producer.DefaultServiceCalendarDateProducer;
 import org.entur.netex.gtfs.export.producer.DefaultServiceCalendarProducer;
@@ -51,6 +52,7 @@ import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 import org.entur.netex.gtfs.export.stop.StopAreaRepository;
 import org.entur.netex.gtfs.export.util.DestinationDisplayUtil;
 import org.entur.netex.gtfs.export.util.ServiceJourneyUtil;
+import org.entur.netex.gtfs.export.util.StopUtil;
 import org.onebusaway.gtfs.model.AgencyAndId;
 import org.onebusaway.gtfs.model.FeedInfo;
 import org.onebusaway.gtfs.model.Route;
@@ -58,8 +60,11 @@ import org.onebusaway.gtfs.model.ServiceCalendar;
 import org.onebusaway.gtfs.model.StopTime;
 import org.onebusaway.gtfs.model.Trip;
 import org.rutebanken.netex.model.DestinationDisplay;
+import org.rutebanken.netex.model.FlexibleArea;
+import org.rutebanken.netex.model.FlexibleStopPlace;
+import org.rutebanken.netex.model.HailAndRideArea;
 import org.rutebanken.netex.model.JourneyPattern;
-import org.rutebanken.netex.model.Line;
+import org.rutebanken.netex.model.Line_VersionStructure;
 import org.rutebanken.netex.model.Quay;
 import org.rutebanken.netex.model.ServiceJourney;
 import org.rutebanken.netex.model.ServiceJourneyInterchange;
@@ -71,6 +76,7 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -85,6 +91,7 @@ public class DefaultGtfsExporter implements GtfsExporter {
     private final GtfsDatasetRepository gtfsDatasetRepository;
     private final GtfsServiceRepository gtfsServiceRepository;
     private final StopAreaRepository stopAreaRepository;
+    private final DefaultLocationProducer locationProducer;
 
     private TransferProducer transferProducer;
     private AgencyProducer agencyProducer;
@@ -124,6 +131,7 @@ public class DefaultGtfsExporter implements GtfsExporter {
         this.serviceCalendarDateProducer = new DefaultServiceCalendarDateProducer(gtfsDatasetRepository);
         this.serviceCalendarProducer = new DefaultServiceCalendarProducer(gtfsDatasetRepository);
         this.stopProducer = new DefaultStopProducer(stopAreaRepository, gtfsDatasetRepository);
+        this.locationProducer = new DefaultLocationProducer();
 
     }
 
@@ -163,7 +171,8 @@ public class DefaultGtfsExporter implements GtfsExporter {
     private void convertNetexToGtfs() {
         LOGGER.info("Converting NeTEx to GTFS");
         // create agencies only for authorities that are effectively referenced from a NeTex line
-        netexDatasetRepository.getLines()
+
+        netexDatasetRepository.getAllLines()
                 .stream()
                 .map(netexDatasetRepository::getAuthorityIdForLine)
                 .distinct()
@@ -171,11 +180,20 @@ public class DefaultGtfsExporter implements GtfsExporter {
                 .map(agencyProducer::produce).forEach(gtfsDatasetRepository::saveEntity);
 
         convertStops(true);
+        convertLocations();
         convertRoutes();
         convertServices();
         convertTransfers();
         addFeedInfo();
 
+    }
+
+    private void convertLocations() {
+        netexDatasetRepository.getFlexibleStopPlaces()
+                .stream()
+                .map(locationProducer::produceLocation)
+                .filter(Objects::nonNull)
+                .forEach(gtfsDatasetRepository::saveEntity);
     }
 
 
@@ -189,7 +207,7 @@ public class DefaultGtfsExporter implements GtfsExporter {
     }
 
     protected void convertRoutes() {
-        for (Line netexLine : netexDatasetRepository.getLines()) {
+        for (Line_VersionStructure netexLine : netexDatasetRepository.getAllLines()) {
             Route gtfsRoute = routeProducer.produce(netexLine);
             gtfsDatasetRepository.saveEntity(gtfsRoute);
             for (org.rutebanken.netex.model.Route netexRoute : netexDatasetRepository.getRoutesByLine(netexLine)) {
@@ -266,7 +284,7 @@ public class DefaultGtfsExporter implements GtfsExporter {
                     .flatMap(Collection::stream)
                     .map(stopPointInJourneyPattern -> ((StopPointInJourneyPattern) stopPointInJourneyPattern).getScheduledStopPointRef().getValue().getRef())
                     .distinct()
-                    .filter(Predicate.not(this::isFlexibleScheduledStopPoint))
+                    .filter(Predicate.not(scheduledStopPointId -> StopUtil.isFlexibleScheduledStopPoint(scheduledStopPointId, netexDatasetRepository)))
                     .map(netexDatasetRepository::getQuayIdByScheduledStopPointId)
                     .collect(Collectors.toSet());
 
@@ -306,15 +324,6 @@ public class DefaultGtfsExporter implements GtfsExporter {
         return isValid;
     }
 
-
-    private boolean isFlexibleScheduledStopPoint(String scheduledStopPointId) {
-        String flexibleStopPlaceId = netexDatasetRepository.getFlexibleStopPlaceIdByScheduledStopPointId(scheduledStopPointId);
-        if (flexibleStopPlaceId != null) {
-            LOGGER.warn("Ignoring scheduled stop point {} referring to flexible stop place {}", scheduledStopPointId, flexibleStopPlaceId);
-            return true;
-        }
-        return false;
-    }
 
     protected final String getCodespace() {
         return codespace;

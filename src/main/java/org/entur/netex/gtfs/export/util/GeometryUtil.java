@@ -21,13 +21,17 @@ package org.entur.netex.gtfs.export.util;
 import net.opengis.gml._3.DirectPositionListType;
 import net.opengis.gml._3.DirectPositionType;
 import net.opengis.gml._3.LineStringType;
+import net.opengis.gml._3.LinearRingType;
 import net.opengis.gml._3.PointPropertyType;
+import net.opengis.gml._3.PolygonType;
 import org.apache.commons.lang3.StringUtils;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.CoordinateSequenceFilter;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.LinearRing;
+import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequence;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory;
@@ -37,6 +41,8 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Utility class for geometric conversions.
@@ -97,6 +103,26 @@ public final class GeometryUtil {
         assignSRID(gmlLineString, jts);
 
         return jts;
+    }
+
+    public static Polygon convertPolygonFromGmlToJts(PolygonType gmlPolygon) {
+        LinearRing jtsExteriorLinearRing = convertGmlLinearRingToJtsLinearRing((LinearRingType) gmlPolygon.getExterior().getAbstractRing().getValue());
+        LinearRing[] jtsInteriorLinearRings = gmlPolygon.getInterior()
+                .stream()
+                .map(abstractRingPropertyType -> abstractRingPropertyType.getAbstractRing().getValue())
+                .map(abstractRingType -> convertGmlLinearRingToJtsLinearRing((LinearRingType) abstractRingType))
+                .filter(Objects::nonNull)
+               .toArray(LinearRing[]::new);
+        return GEOMETRY_FACTORY.createPolygon(jtsExteriorLinearRing, jtsInteriorLinearRings);
+    }
+
+    private static LinearRing convertGmlLinearRingToJtsLinearRing(LinearRingType linearRing) {
+        LineStringType linearRingAsGmlLineString = new LineStringType().withPosList(linearRing.getPosList()).withPosOrPointProperty(linearRing.getPosOrPointProperty());
+        LineString linearRingAsJtsLineString = convertLineStringFromGmlToJts(linearRingAsGmlLineString);
+        if(linearRingAsJtsLineString == null) {
+            return null;
+        }
+        return GEOMETRY_FACTORY.createLinearRing(linearRingAsJtsLineString.getCoordinateSequence());
     }
 
     /**

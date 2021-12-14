@@ -25,6 +25,7 @@ import org.onebusaway.gtfs.model.Agency;
 import org.onebusaway.gtfs.model.AgencyAndId;
 import org.onebusaway.gtfs.model.Route;
 import org.rutebanken.netex.model.Line;
+import org.rutebanken.netex.model.Line_VersionStructure;
 import org.rutebanken.netex.model.PresentationStructure;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
@@ -47,7 +48,7 @@ public class DefaultRouteProducer implements RouteProducer {
 
 
     @Override
-    public Route produce(Line line) {
+    public Route produce(Line_VersionStructure line) {
         String lineId = line.getId();
         Route route = new Route();
 

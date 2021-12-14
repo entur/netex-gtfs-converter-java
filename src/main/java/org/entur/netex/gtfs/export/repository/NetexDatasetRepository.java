@@ -24,8 +24,11 @@ import org.rutebanken.netex.model.DatedServiceJourney;
 import org.rutebanken.netex.model.DayType;
 import org.rutebanken.netex.model.DayTypeAssignment;
 import org.rutebanken.netex.model.DestinationDisplay;
+import org.rutebanken.netex.model.FlexibleLine;
+import org.rutebanken.netex.model.FlexibleStopPlace;
 import org.rutebanken.netex.model.JourneyPattern;
 import org.rutebanken.netex.model.Line;
+import org.rutebanken.netex.model.Line_VersionStructure;
 import org.rutebanken.netex.model.OperatingDay;
 import org.rutebanken.netex.model.OperatingPeriod;
 import org.rutebanken.netex.model.Route;
@@ -68,9 +71,13 @@ public interface NetexDatasetRepository {
      * @param line a NeTEx line
      * @return the line authority
      */
-    String getAuthorityIdForLine(Line line);
+    String getAuthorityIdForLine(Line_VersionStructure line);
 
     Collection<Line> getLines();
+
+    Collection<FlexibleLine> getFlexibleLines();
+
+    Collection<Line_VersionStructure> getAllLines();
 
     Authority getAuthorityById(String authorityId);
 
@@ -86,7 +93,7 @@ public interface NetexDatasetRepository {
 
     Collection<ServiceJourney> getServiceJourneysByJourneyPattern(JourneyPattern journeyPattern);
 
-    Collection<Route> getRoutesByLine(Line line);
+    Collection<Route> getRoutesByLine(Line_VersionStructure line);
 
     Collection<JourneyPattern> getJourneyPatternsByRoute(Route route);
 
@@ -100,4 +107,5 @@ public interface NetexDatasetRepository {
 
     OperatingDay getOperatingDayById(String operatingDayId);
 
+    Collection<FlexibleStopPlace> getFlexibleStopPlaces();
 }

@@ -24,6 +24,7 @@ import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 import org.entur.netex.gtfs.export.util.DestinationDisplayUtil;
 import org.entur.netex.gtfs.export.util.StopUtil;
+import org.onebusaway.gtfs.model.Location;
 import org.onebusaway.gtfs.model.Stop;
 import org.onebusaway.gtfs.model.StopTime;
 import org.onebusaway.gtfs.model.Trip;
@@ -67,8 +68,13 @@ public class DefaultStopTimeProducer implements StopTimeProducer {
         int stopSequence = stopPointInSequence.getOrder().intValueExact();
         stopTime.setStopSequence(stopSequence);
         String scheduledStopPointId = stopPointInSequence.getScheduledStopPointRef().getValue().getRef();
-        Stop stop = StopUtil.getGtfsStopFromScheduledStopPointId(scheduledStopPointId, netexDatasetRepository, gtfsDatasetRepository);
-        stopTime.setStop(stop);
+        if(StopUtil.isFlexibleScheduledStopPoint(scheduledStopPointId, netexDatasetRepository)) {
+            Location location = StopUtil.getGtfsLocationFromScheduledStopPointId(scheduledStopPointId, netexDatasetRepository, gtfsDatasetRepository);
+            stopTime.setStop(location);
+        } else {
+            Stop stop = StopUtil.getGtfsStopFromScheduledStopPointId(scheduledStopPointId, netexDatasetRepository, gtfsDatasetRepository);
+            stopTime.setStop(stop);
+        }
 
         // arrival time
         if (timetabledPassingTime.getArrivalTime() != null) {

@@ -24,6 +24,7 @@ import org.rutebanken.netex.model.AllVehicleModesOfTransportEnumeration;
 import org.rutebanken.netex.model.BusSubmodeEnumeration;
 import org.rutebanken.netex.model.CoachSubmodeEnumeration;
 import org.rutebanken.netex.model.Line;
+import org.rutebanken.netex.model.Line_VersionStructure;
 import org.rutebanken.netex.model.RailSubmodeEnumeration;
 import org.rutebanken.netex.model.TramSubmodeEnumeration;
 import org.rutebanken.netex.model.TransportSubmodeStructure;
@@ -191,7 +192,7 @@ public final class TransportModeUtil {
      * @param line a NeTEx line.
      * @return the GTFS extended route type code.
      */
-    public static int getGtfsExtendedRouteType(Line line) {
+    public static int getGtfsExtendedRouteType(Line_VersionStructure line) {
         String transportMode = line.getTransportMode().value();
         String transportSubMode = getSubMode(line.getTransportSubmode());
         return getGtfsExtendedRouteType(transportMode, transportSubMode).getValue();

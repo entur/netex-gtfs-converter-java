@@ -19,6 +19,7 @@
 package org.entur.netex.gtfs.export.repository;
 
 import org.onebusaway.gtfs.model.Agency;
+import org.onebusaway.gtfs.model.Location;
 import org.onebusaway.gtfs.model.Stop;
 import org.onebusaway.gtfs.model.Trip;
 
@@ -67,4 +68,6 @@ public interface GtfsDatasetRepository {
     InputStream writeGtfs();
 
     Agency getDefaultAgency();
+
+    Location getLocationById(String flexibleStopPlaceId);
 }

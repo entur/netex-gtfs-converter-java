@@ -23,6 +23,7 @@ import org.entur.netex.gtfs.export.serializer.GtfsSerializer;
 import org.onebusaway.gtfs.impl.GtfsRelationalDaoImpl;
 import org.onebusaway.gtfs.model.Agency;
 import org.onebusaway.gtfs.model.AgencyAndId;
+import org.onebusaway.gtfs.model.Location;
 import org.onebusaway.gtfs.model.Stop;
 import org.onebusaway.gtfs.model.Trip;
 import org.onebusaway.gtfs.services.GtfsMutableDao;
@@ -78,6 +79,18 @@ public class DefaultGtfsRepository implements GtfsDatasetRepository {
     }
 
     @Override
+    public Location getLocationById(String flexibleStopPlaceId) {
+        AgencyAndId agencyAndId = new AgencyAndId();
+        agencyAndId.setId(flexibleStopPlaceId);
+        agencyAndId.setAgencyId(defaultAgency.getId());
+        return gtfsDao.getAllLocations()
+                .stream()
+                .filter(aLocation -> aLocation.getId().getId().equals(flexibleStopPlaceId))
+                .findFirst()
+                .orElseThrow(() -> new GtfsDatasetRepositoryException("Location not found: " + flexibleStopPlaceId));
+    }
+
+    @Override
     public void saveEntity(Object entity) {
         gtfsDao.saveEntity(entity);
     }
@@ -91,6 +104,7 @@ public class DefaultGtfsRepository implements GtfsDatasetRepository {
     public Agency getDefaultAgency() {
         return defaultAgency;
     }
+
 
     /**
      * Return a default agency.

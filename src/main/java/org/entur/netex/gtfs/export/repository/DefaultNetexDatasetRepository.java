@@ -28,8 +28,11 @@ import org.rutebanken.netex.model.DatedServiceJourney;
 import org.rutebanken.netex.model.DayType;
 import org.rutebanken.netex.model.DayTypeAssignment;
 import org.rutebanken.netex.model.DestinationDisplay;
+import org.rutebanken.netex.model.FlexibleLine;
+import org.rutebanken.netex.model.FlexibleStopPlace;
 import org.rutebanken.netex.model.JourneyPattern;
 import org.rutebanken.netex.model.Line;
+import org.rutebanken.netex.model.Line_VersionStructure;
 import org.rutebanken.netex.model.LocaleStructure;
 import org.rutebanken.netex.model.Network;
 import org.rutebanken.netex.model.OperatingDay;
@@ -41,6 +44,7 @@ import org.rutebanken.netex.model.VersionFrameDefaultsStructure;
 import org.rutebanken.netex.model.VersionFrame_VersionStructure;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -115,7 +119,7 @@ public class DefaultNetexDatasetRepository implements NetexDatasetRepository {
 
 
     @Override
-    public String getAuthorityIdForLine(Line line) {
+    public String getAuthorityIdForLine(Line_VersionStructure line) {
         Network network = findNetwork(line.getRepresentedByGroupRef().getRef());
         return network.getTransportOrganisationRef().getValue().getRef();
     }
@@ -148,6 +152,19 @@ public class DefaultNetexDatasetRepository implements NetexDatasetRepository {
     @Override
     public Collection<Line> getLines() {
         return netexEntitiesIndex.getLineIndex().getAll();
+    }
+
+    @Override
+    public Collection<FlexibleLine> getFlexibleLines() {
+        return netexEntitiesIndex.getFlexibleLineIndex().getAll();
+    }
+
+    @Override
+    public Collection<Line_VersionStructure> getAllLines() {
+        Collection<Line_VersionStructure> allLines = new HashSet<>();
+        allLines.addAll(getLines());
+        allLines.addAll(getFlexibleLines());
+        return allLines;
     }
 
     @Override
@@ -205,7 +222,7 @@ public class DefaultNetexDatasetRepository implements NetexDatasetRepository {
     }
 
     @Override
-    public Collection<org.rutebanken.netex.model.Route> getRoutesByLine(Line line) {
+    public Collection<org.rutebanken.netex.model.Route> getRoutesByLine(Line_VersionStructure line) {
         return netexEntitiesIndex.getRouteIndex().getAll()
                 .stream()
                 .filter(route -> route.getLineRef().getValue().getRef().equals(line.getId()))
@@ -252,6 +269,11 @@ public class DefaultNetexDatasetRepository implements NetexDatasetRepository {
             throw new GtfsExportException("Could not find OperatingDay with id " + operatingDayId);
         }
         return operatingDay;
+    }
+
+    @Override
+    public Collection<FlexibleStopPlace> getFlexibleStopPlaces() {
+        return netexEntitiesIndex.getFlexibleStopPlaceIndex().getAll();
     }
 
 

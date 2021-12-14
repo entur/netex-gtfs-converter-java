@@ -20,6 +20,7 @@ package org.entur.netex.gtfs.export.util;
 
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
+import org.onebusaway.gtfs.model.Location;
 import org.onebusaway.gtfs.model.Stop;
 
 /**
@@ -32,13 +33,27 @@ public final class StopUtil {
 
     /**
      * Return the GTFS stop corresponding to a given Scheduled Stop Point.
-     * @param scheduledStopPointId the Scheduled Stop Point.
+     *
+     * @param scheduledStopPointId   the Scheduled Stop Point.
      * @param netexDatasetRepository the NeTEx dataset repository.
-     * @param gtfsDatasetRepository the GTFS dataset repository.
+     * @param gtfsDatasetRepository  the GTFS dataset repository.
      * @return the GTFS stop corresponding to the Scheduled Stop Point.
      */
     public static Stop getGtfsStopFromScheduledStopPointId(String scheduledStopPointId, NetexDatasetRepository netexDatasetRepository, GtfsDatasetRepository gtfsDatasetRepository) {
         String quayId = netexDatasetRepository.getQuayIdByScheduledStopPointId(scheduledStopPointId);
         return gtfsDatasetRepository.getStopById(quayId);
+    }
+
+    public static boolean isFlexibleScheduledStopPoint(String scheduledStopPointId, NetexDatasetRepository netexDatasetRepository) {
+        String flexibleStopPlaceId = netexDatasetRepository.getFlexibleStopPlaceIdByScheduledStopPointId(scheduledStopPointId);
+        if (flexibleStopPlaceId != null) {
+            return true;
+        }
+        return false;
+    }
+
+    public static Location getGtfsLocationFromScheduledStopPointId(String scheduledStopPointId, NetexDatasetRepository netexDatasetRepository, GtfsDatasetRepository gtfsDatasetRepository) {
+        String flexibleStopPlaceId = netexDatasetRepository.getFlexibleStopPlaceIdByScheduledStopPointId(scheduledStopPointId);
+        return gtfsDatasetRepository.getLocationById(flexibleStopPlaceId);
     }
 }
