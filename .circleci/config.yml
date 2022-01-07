@@ -65,22 +65,6 @@ jobs:
           at: ~/project
       - run: *sonar-scan
 
-  build:
-    docker:
-      - image:  cimg/openjdk:11.0
-    environment:
-      MAVEN_OPTS: -Xmx3G
-    steps:
-      - checkout
-      - restore_cache:
-          key: dep-cache-{{ checksum "pom.xml" }}
-      - attach_workspace:
-          at: ~/project
-      # Cannot use -o because of snapshot dependencies.
-      - run:
-          name: Run Maven package
-          command: mvn package -s .circleci/settings.xml -DskipTests
-
   deploy:
     docker:
       - image:  cimg/openjdk:11.0
@@ -104,14 +88,10 @@ workflows:
           context: org-carbon
           requires:
             - test
-      - build:
-          context: org-carbon
-          requires:
-            - sonar
       - deploy:
           context: org-carbon
           requires:
-            - build
+            - sonar
           filters:
             branches:
               only: main
