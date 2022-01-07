@@ -50,6 +50,7 @@ jobs:
           root: ~/project
           paths:
             - target
+            - .circleci
 
   sonar:
     docker:
