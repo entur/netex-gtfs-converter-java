@@ -65,27 +65,6 @@ jobs:
           at: ~/project
       - run: *sonar-scan
 
-  build:
-    docker:
-      - image:  cimg/openjdk:11.0
-    environment:
-      MAVEN_OPTS: -Xmx3G
-    steps:
-      - checkout
-      - restore_cache:
-          key: dep-cache-{{ checksum "pom.xml" }}
-      - run:
-          name: Download Maven settings
-          command: wget https://raw.githubusercontent.com/entur/circleci-toolbox-image-java11/master/tools/m2/settings.xml -O .circleci/settings.xml
-      - run:
-          name: Refresh cache
-          command: mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.0:go-offline -s .circleci/settings.xml
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: dep-cache-{{ checksum "pom.xml" }}
-      # Cannot use -o because of snapshot dependencies.
-      - run: mvn package -s .circleci/settings.xml -DskipTests
   deploy:
     docker:
       - image:  cimg/openjdk:11.0
@@ -93,6 +72,8 @@ jobs:
       - checkout
       - restore_cache:
           key: dep-cache-{{ checksum "pom.xml" }}
+      - attach_workspace:
+          at: ~/project
       - run:
           name: Maven deploy
           command: mvn deploy -s .circleci/settings.xml -DskipTests
@@ -107,14 +88,10 @@ workflows:
           context: org-carbon
           requires:
             - test
-      - build:
-          context: org-carbon
-          requires:
-            - sonar
       - deploy:
           context: org-carbon
           requires:
-            - build
+            - sonar
           filters:
             branches:
               only: main
