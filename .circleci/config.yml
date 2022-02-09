@@ -24,7 +24,10 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: dep-cache-{{ checksum "pom.xml" }}
+          keys:
+            - dep-cache-{{ checksum "pom.xml" }}
+            # fallback to the most recent cache if there is no exact match for this pom.xml
+            - dep-cache-
       - run:
           name: Download Maven settings
           command: wget https://raw.githubusercontent.com/entur/circleci-toolbox-image-java11/master/tools/m2/settings.xml -O .circleci/settings.xml
@@ -66,7 +69,10 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: dep-cache-{{ checksum "pom.xml" }}
+          keys:
+            - dep-cache-{{ checksum "pom.xml" }}
+            # fallback to the most recent cache if there is no exact match for this pom.xml
+            - dep-cache-
       - attach_workspace:
           at: ~/project
       - run: *sonar-scan
@@ -80,7 +86,10 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: dep-cache-{{ checksum "pom.xml" }}
+          keys:
+            - dep-cache-{{ checksum "pom.xml" }}
+            # fallback to the most recent cache if there is no exact match for this pom.xml
+            - dep-cache-
       - attach_workspace:
           at: ~/project
       - run:
