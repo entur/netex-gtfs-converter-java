@@ -50,7 +50,7 @@ import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 import org.entur.netex.gtfs.export.stop.StopAreaRepository;
 import org.entur.netex.gtfs.export.util.DestinationDisplayUtil;
-import org.entur.netex.gtfs.export.util.ServiceJourneyUtil;
+import org.entur.netex.gtfs.export.util.ServiceAlterationChecker;
 import org.onebusaway.gtfs.model.AgencyAndId;
 import org.onebusaway.gtfs.model.FeedInfo;
 import org.onebusaway.gtfs.model.Route;
@@ -97,6 +97,7 @@ public class DefaultGtfsExporter implements GtfsExporter {
     private ServiceCalendarProducer serviceCalendarProducer;
     private StopProducer stopProducer;
     private NetexDatasetLoader netexDatasetLoader;
+    private final ServiceAlterationChecker serviceAlterationChecker;
 
     /**
      * Create a GTFS exporter for a given codespace.
@@ -114,6 +115,7 @@ public class DefaultGtfsExporter implements GtfsExporter {
         this.gtfsDatasetRepository = new DefaultGtfsRepository();
         this.netexDatasetRepository = new DefaultNetexDatasetRepository();
         this.gtfsServiceRepository = new DefaultGtfsServiceRepository(codespace, netexDatasetRepository);
+        this.serviceAlterationChecker = new ServiceAlterationChecker(netexDatasetRepository);
 
         this.transferProducer = new DefaultTransferProducer(netexDatasetRepository, gtfsDatasetRepository);
         this.agencyProducer = new DefaultAgencyProducer(netexDatasetRepository);
@@ -250,7 +252,7 @@ public class DefaultGtfsExporter implements GtfsExporter {
 
     protected void convertStops(boolean exportOnlyUsedStops) {
 
-        Set<String> allQuaysId = null;
+        Set<String> allQuaysId;
 
         if (exportOnlyUsedStops) {
             // Retrieve all quays referenced by valid ServiceJourneys
@@ -258,7 +260,7 @@ public class DefaultGtfsExporter implements GtfsExporter {
             // and quays referenced only as route points or in dead runs
             allQuaysId = netexDatasetRepository.getServiceJourneys()
                     .stream()
-                    .filter(Predicate.not(ServiceJourneyUtil::isReplacedOrCancelled))
+                    .filter(Predicate.not(serviceAlterationChecker::isReplacedOrCancelled))
                     .map(serviceJourney -> serviceJourney.getJourneyPatternRef().getValue().getRef())
                     .distinct()
                     .map(netexDatasetRepository::getJourneyPatternById)
@@ -297,14 +299,15 @@ public class DefaultGtfsExporter implements GtfsExporter {
         ServiceJourney fromServiceJourney = netexDatasetRepository.getServiceJourneyById(serviceJourneyInterchange.getFromJourneyRef().getRef());
         ServiceJourney toServiceJourney = netexDatasetRepository.getServiceJourneyById(serviceJourneyInterchange.getToJourneyRef().getRef());
         boolean hasValidReferences = fromServiceJourney != null && toServiceJourney != null;
-        boolean isActive = !ServiceJourneyUtil.isReplacedOrCancelled(fromServiceJourney) && !ServiceJourneyUtil.isReplacedOrCancelled(toServiceJourney);
         if (!hasValidReferences) {
             LOGGER.warn("Filtering ServiceJourneyInterchange {} with invalid references.", serviceJourneyInterchange.getId());
+            return false;
         }
+        boolean isActive = !serviceAlterationChecker.isReplacedOrCancelled(fromServiceJourney) && !serviceAlterationChecker.isReplacedOrCancelled(toServiceJourney);
         if (!isActive) {
             LOGGER.info("Filtering cancelled or replaced ServiceJourneyInterchange {}", serviceJourneyInterchange.getId());
         }
-        return hasValidReferences && isActive;
+        return isActive;
     }
 
 
