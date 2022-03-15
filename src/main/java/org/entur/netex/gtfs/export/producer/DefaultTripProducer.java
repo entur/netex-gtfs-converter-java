@@ -21,7 +21,7 @@ package org.entur.netex.gtfs.export.producer;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 import org.entur.netex.gtfs.export.util.DestinationDisplayUtil;
-import org.entur.netex.gtfs.export.util.ServiceJourneyUtil;
+import org.entur.netex.gtfs.export.util.ServiceAlterationChecker;
 import org.onebusaway.gtfs.model.Agency;
 import org.onebusaway.gtfs.model.AgencyAndId;
 import org.onebusaway.gtfs.model.Trip;
@@ -50,11 +50,13 @@ public class DefaultTripProducer implements TripProducer {
     private final Agency agency;
     private final GtfsServiceRepository gtfsServiceRepository;
     private final NetexDatasetRepository netexDatasetRepository;
+    private final ServiceAlterationChecker serviceAlterationChecker;
 
     public DefaultTripProducer(NetexDatasetRepository netexDatasetRepository, GtfsDatasetRepository gtfsDatasetRepository, GtfsServiceRepository gtfsServiceRepository) {
         this.agency = gtfsDatasetRepository.getDefaultAgency();
         this.gtfsServiceRepository = gtfsServiceRepository;
         this.netexDatasetRepository = netexDatasetRepository;
+        this.serviceAlterationChecker = new ServiceAlterationChecker(netexDatasetRepository);
     }
 
 
@@ -62,7 +64,7 @@ public class DefaultTripProducer implements TripProducer {
     public Trip produce(ServiceJourney serviceJourney, Route netexRoute, org.onebusaway.gtfs.model.Route gtfsRoute, AgencyAndId shapeId, DestinationDisplay initialDestinationDisplay) {
 
         // Cancelled or replaced service journeys are not valid GTFS trips.
-        if (ServiceJourneyUtil.isReplacedOrCancelled(serviceJourney)) {
+        if (serviceAlterationChecker.isReplacedOrCancelled(serviceJourney)) {
             return null;
         }
 
@@ -101,7 +103,7 @@ public class DefaultTripProducer implements TripProducer {
             // DatedServiceJourneys for cancelled and replaced trips are filtered out
             Set<OperatingDay> operatingDays = netexDatasetRepository.getDatedServiceJourneysByServiceJourneyId(serviceJourney.getId())
                     .stream()
-                    .filter(Predicate.not(ServiceJourneyUtil::isReplacedOrCancelled))
+                    .filter(Predicate.not(serviceAlterationChecker::isReplacedOrCancelled))
                     .map(datedServiceJourney -> netexDatasetRepository.getOperatingDayById(datedServiceJourney.getOperatingDayRef().getRef()))
                     .collect(Collectors.toSet());
             if (operatingDays.isEmpty()) {
