@@ -296,21 +296,22 @@ public class DefaultGtfsExporter implements GtfsExporter {
     private boolean isValidServiceJourneyInterchange(ServiceJourneyInterchange serviceJourneyInterchange) {
         ServiceJourney fromServiceJourney = netexDatasetRepository.getServiceJourneyById(serviceJourneyInterchange.getFromJourneyRef().getRef());
         ServiceJourney toServiceJourney = netexDatasetRepository.getServiceJourneyById(serviceJourneyInterchange.getToJourneyRef().getRef());
-        boolean isValid = fromServiceJourney != null
-                && toServiceJourney != null
-                && !ServiceJourneyUtil.isReplacedOrCancelled(fromServiceJourney)
-                && !ServiceJourneyUtil.isReplacedOrCancelled(toServiceJourney);
-        if (!isValid) {
-            LOGGER.warn("Filtering invalid ServiceJourneyInterchange {}", serviceJourneyInterchange.getId());
+        boolean hasValidReferences = fromServiceJourney != null && toServiceJourney != null;
+        boolean isActive = !ServiceJourneyUtil.isReplacedOrCancelled(fromServiceJourney) && !ServiceJourneyUtil.isReplacedOrCancelled(toServiceJourney);
+        if (!hasValidReferences) {
+            LOGGER.warn("Filtering ServiceJourneyInterchange {} with invalid references.", serviceJourneyInterchange.getId());
         }
-        return isValid;
+        if (!isActive) {
+            LOGGER.info("Filtering cancelled or replaced ServiceJourneyInterchange {}", serviceJourneyInterchange.getId());
+        }
+        return hasValidReferences && isActive;
     }
 
 
     private boolean isFlexibleScheduledStopPoint(String scheduledStopPointId) {
         String flexibleStopPlaceId = netexDatasetRepository.getFlexibleStopPlaceIdByScheduledStopPointId(scheduledStopPointId);
         if (flexibleStopPlaceId != null) {
-            LOGGER.warn("Ignoring scheduled stop point {} referring to flexible stop place {}", scheduledStopPointId, flexibleStopPlaceId);
+            LOGGER.info("Ignoring scheduled stop point {} referring to flexible stop place {}", scheduledStopPointId, flexibleStopPlaceId);
             return true;
         }
         return false;

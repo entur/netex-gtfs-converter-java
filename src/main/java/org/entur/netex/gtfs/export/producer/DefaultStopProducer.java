@@ -92,7 +92,7 @@ public class DefaultStopProducer implements StopProducer {
         if (stopPlace.getTransportMode() != null) {
             stop.setVehicleType(TransportModeUtil.getGtfsExtendedRouteType(stopPlace.getTransportMode()));
         } else {
-            LOGGER.warn("Missing transport mode for stop place {}", stop.getId());
+            LOGGER.info("Missing transport mode for stop place {}.", stop.getId());
         }
         // accessibility
         if (stopPlace.getAccessibilityAssessment() != null) {
@@ -160,7 +160,7 @@ public class DefaultStopProducer implements StopProducer {
         if (parentStopPlace.getTransportMode() != null) {
             stop.setVehicleType(TransportModeUtil.getGtfsExtendedRouteType(parentStopPlace.getTransportMode()));
         } else {
-            LOGGER.warn("Missing transport mode for quay {}", stop.getId());
+            LOGGER.info("Missing transport mode for quay {}", stop.getId());
         }
 
         // accessibility
