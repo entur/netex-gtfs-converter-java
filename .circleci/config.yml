@@ -99,6 +99,7 @@ jobs:
             - dep-cache-
       - attach_workspace:
           at: ~/project
+      - run: *jfrog-login
       - run:
           name: Maven deploy
           command: mvn deploy -s .circleci/settings.xml -DskipTests
