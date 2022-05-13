@@ -81,6 +81,7 @@ jobs:
             - dep-cache-
       - attach_workspace:
           at: ~/project
+      - run: *jfrog-login
       - run: *sonar-scan
 
   deploy:
