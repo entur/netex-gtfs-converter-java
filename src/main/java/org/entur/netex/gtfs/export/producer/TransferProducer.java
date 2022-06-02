@@ -31,6 +31,7 @@ public interface TransferProducer {
     int TRANSFER_TIMED = 1;
     int TRANSFER_MINIMAL = 2;
     int TRANSFER_NOT_ALLOWED = 3;
+    int TRANSFER_STAY_SEATED = 4;
 
     /**
      * Produce a GTFS Transfer from a NeTEx Service Journey Interchange.

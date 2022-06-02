@@ -56,7 +56,9 @@ public class DefaultTransferProducer implements TransferProducer {
         Stop toStop = StopUtil.getGtfsStopFromScheduledStopPointId(toScheduledStopPointId, netexDatasetRepository, gtfsDatasetRepository);
         transfer.setToStop(toStop);
 
-        if (Boolean.TRUE.equals(serviceJourneyInterchange.isGuaranteed())) {
+        if (Boolean.TRUE.equals(serviceJourneyInterchange.isStaySeated())) {
+            transfer.setTransferType(TransferProducer.TRANSFER_STAY_SEATED);
+        } else if (Boolean.TRUE.equals(serviceJourneyInterchange.isGuaranteed())) {
             transfer.setTransferType(TransferProducer.TRANSFER_TIMED);
         } else if (serviceJourneyInterchange.getMinimumTransferTime() != null) {
             transfer.setTransferType(TransferProducer.TRANSFER_MINIMAL);
