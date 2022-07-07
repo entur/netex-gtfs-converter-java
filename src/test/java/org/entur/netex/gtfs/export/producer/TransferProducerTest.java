@@ -192,7 +192,7 @@ class TransferProducerTest {
         serviceJourneyInterchange.setStaySeated(true);
         serviceJourneyInterchange.setGuaranteed(true);
 
-        TransferProducer transferProducer = new DefaultTransferProducer(netexDatasetRepository, gtfsDatasetRepository);
+        TransferProducer transferProducer = new DefaultTransferProducer(netexDatasetRepository, gtfsDatasetRepository, true);
         Transfer transfer = transferProducer.produce(serviceJourneyInterchange);
 
         assertTransferFromTo(transfer);

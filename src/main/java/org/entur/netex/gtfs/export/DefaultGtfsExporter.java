@@ -105,28 +105,9 @@ public class DefaultGtfsExporter implements GtfsExporter {
      * @param codespace          the codespace of the exported dataset. This is the codespace of the data provider who owns the timetable dataset.
      * @param stopAreaRepository the stop area repository.
      */
+
     public DefaultGtfsExporter(String codespace, StopAreaRepository stopAreaRepository) {
-
-        this.codespace = codespace;
-
-        this.netexDatasetLoader = new DefaultNetexDatasetLoader();
-
-        this.stopAreaRepository = stopAreaRepository;
-        this.gtfsDatasetRepository = new DefaultGtfsRepository();
-        this.netexDatasetRepository = new DefaultNetexDatasetRepository();
-        this.gtfsServiceRepository = new DefaultGtfsServiceRepository(codespace, netexDatasetRepository);
-        this.serviceAlterationChecker = new ServiceAlterationChecker(netexDatasetRepository);
-
-        this.transferProducer = new DefaultTransferProducer(netexDatasetRepository, gtfsDatasetRepository);
-        this.agencyProducer = new DefaultAgencyProducer(netexDatasetRepository);
-        this.routeProducer = new DefaultRouteProducer(netexDatasetRepository, gtfsDatasetRepository);
-        this.shapeProducer = new DefaultShapeProducer(netexDatasetRepository, gtfsDatasetRepository);
-        this.tripProducer = new DefaultTripProducer(netexDatasetRepository, gtfsDatasetRepository, gtfsServiceRepository);
-        this.stopTimeProducer = new DefaultStopTimeProducer(netexDatasetRepository, gtfsDatasetRepository);
-        this.serviceCalendarDateProducer = new DefaultServiceCalendarDateProducer(gtfsDatasetRepository);
-        this.serviceCalendarProducer = new DefaultServiceCalendarProducer(gtfsDatasetRepository);
-        this.stopProducer = new DefaultStopProducer(stopAreaRepository, gtfsDatasetRepository);
-
+        this(codespace, stopAreaRepository, false);
     }
 
     /**
@@ -138,6 +119,32 @@ public class DefaultGtfsExporter implements GtfsExporter {
     public DefaultGtfsExporter(StopAreaRepository stopAreaRepository) {
         this(null, stopAreaRepository);
     }
+
+    public DefaultGtfsExporter(String codespace, StopAreaRepository stopAreaRepository, boolean generateStaySeatedTransfer) {
+
+        this.codespace = codespace;
+
+        this.netexDatasetLoader = new DefaultNetexDatasetLoader();
+
+        this.stopAreaRepository = stopAreaRepository;
+        this.gtfsDatasetRepository = new DefaultGtfsRepository();
+        this.netexDatasetRepository = new DefaultNetexDatasetRepository();
+        this.gtfsServiceRepository = new DefaultGtfsServiceRepository(codespace, netexDatasetRepository);
+        this.serviceAlterationChecker = new ServiceAlterationChecker(netexDatasetRepository);
+
+        this.transferProducer = new DefaultTransferProducer(netexDatasetRepository, gtfsDatasetRepository, generateStaySeatedTransfer);
+
+        this.agencyProducer = new DefaultAgencyProducer(netexDatasetRepository);
+        this.routeProducer = new DefaultRouteProducer(netexDatasetRepository, gtfsDatasetRepository);
+        this.shapeProducer = new DefaultShapeProducer(netexDatasetRepository, gtfsDatasetRepository);
+        this.tripProducer = new DefaultTripProducer(netexDatasetRepository, gtfsDatasetRepository, gtfsServiceRepository);
+        this.stopTimeProducer = new DefaultStopTimeProducer(netexDatasetRepository, gtfsDatasetRepository);
+        this.serviceCalendarDateProducer = new DefaultServiceCalendarDateProducer(gtfsDatasetRepository);
+        this.serviceCalendarProducer = new DefaultServiceCalendarProducer(gtfsDatasetRepository);
+        this.stopProducer = new DefaultStopProducer(stopAreaRepository, gtfsDatasetRepository);
+
+    }
+
 
     @Override
     public InputStream convertTimetablesToGtfs(InputStream netexTimetableDataset) {
