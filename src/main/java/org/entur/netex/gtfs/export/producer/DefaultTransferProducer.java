@@ -30,10 +30,16 @@ public class DefaultTransferProducer implements TransferProducer {
 
     private final NetexDatasetRepository netexDatasetRepository;
     private final GtfsDatasetRepository gtfsDatasetRepository;
+    private final boolean generateStaySeatedTransfer;
 
     public DefaultTransferProducer(NetexDatasetRepository netexDatasetRepository, GtfsDatasetRepository gtfsDatasetRepository) {
+        this(netexDatasetRepository, gtfsDatasetRepository, false);
+    }
+
+    public DefaultTransferProducer(NetexDatasetRepository netexDatasetRepository, GtfsDatasetRepository gtfsDatasetRepository, boolean generateStaySeatedTransfer) {
         this.netexDatasetRepository = netexDatasetRepository;
         this.gtfsDatasetRepository = gtfsDatasetRepository;
+        this.generateStaySeatedTransfer = generateStaySeatedTransfer;
     }
 
     @Override
@@ -56,7 +62,7 @@ public class DefaultTransferProducer implements TransferProducer {
         Stop toStop = StopUtil.getGtfsStopFromScheduledStopPointId(toScheduledStopPointId, netexDatasetRepository, gtfsDatasetRepository);
         transfer.setToStop(toStop);
 
-        if (Boolean.TRUE.equals(serviceJourneyInterchange.isStaySeated())) {
+        if (generateStaySeatedTransfer && Boolean.TRUE.equals(serviceJourneyInterchange.isStaySeated())) {
             transfer.setTransferType(TransferProducer.TRANSFER_STAY_SEATED);
         } else if (Boolean.TRUE.equals(serviceJourneyInterchange.isGuaranteed())) {
             transfer.setTransferType(TransferProducer.TRANSFER_TIMED);
