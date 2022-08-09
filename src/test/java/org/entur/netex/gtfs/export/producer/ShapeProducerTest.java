@@ -98,6 +98,10 @@ class ShapeProducerTest {
     private static final Coordinate A4 = new Coordinate(59.721627, 10.512238);
 
 
+    /**
+     * Create a JourneyPattern with 3 stops linked by 2 service links.
+     * The first service link contains 3 points, the second one contains 2 points.
+     */
     @Test
     void testShapeProducer() {
 
