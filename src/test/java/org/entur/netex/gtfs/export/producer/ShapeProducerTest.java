@@ -92,16 +92,22 @@ class ShapeProducerTest {
     public static final String TEST_SERVICE_LINK_1 = "SERVICE_LINK_1";
     public static final String TEST_SERVICE_LINK_2 = "SERVICE_LINK_2";
 
+    private static final Coordinate A1 = new Coordinate(59.72215, 10.512689);
+    private static final Coordinate A2 = new Coordinate(59.722111, 10.512651);
+    private static final Coordinate A3 = new Coordinate(59.721984, 10.512528);
+    private static final Coordinate A4 = new Coordinate(59.721627, 10.512238);
+
+
     @Test
     void testShapeProducer() {
 
         NetexDatasetRepository netexDatasetRepository = mock(NetexDatasetRepository.class);
 
-        when(netexDatasetRepository.getServiceLinkById(TEST_SERVICE_LINK_1)).thenReturn(createServiceLink(59.72215, 10.512689, 59.722111, 10.512651));
-        when(netexDatasetRepository.getServiceLinkById(TEST_SERVICE_LINK_2)).thenReturn(createServiceLink(59.722111, 10.512651, 59.721984, 10.512528));
+        when(netexDatasetRepository.getServiceLinkById(TEST_SERVICE_LINK_1)).thenReturn(createServiceLink(A1.x, A1.y, A2.x, A2.y, A3.x, A3.y));
+        when(netexDatasetRepository.getServiceLinkById(TEST_SERVICE_LINK_2)).thenReturn(createServiceLink(A3.x, A3.y, A4.x, A4.y));
 
-        double serviceLinkLength1 = GeometryUtil.distance(new Coordinate(59.72215, 10.512689), new Coordinate(59.722111, 10.512651));
-        double serviceLinkLength2 = GeometryUtil.distance(new Coordinate(59.722111, 10.512651), new Coordinate(59.721984, 10.512528));
+        double serviceLinkLength1 = GeometryUtil.distance(A1, A2) + GeometryUtil.distance(A2, A3);
+        double serviceLinkLength2 = GeometryUtil.distance(A3, A4);
 
         GtfsDatasetRepository gtfsDatasetRepository = mock(GtfsDatasetRepository.class);
         when(gtfsDatasetRepository.getDefaultAgency()).thenReturn(new Agency());
@@ -109,11 +115,17 @@ class ShapeProducerTest {
         ShapeProducer shapeProducer = new DefaultShapeProducer(netexDatasetRepository, gtfsDatasetRepository);
         GtfsShape shape = shapeProducer.produce(createTestJourneyPattern());
         Assertions.assertNotNull(shape);
-        Assertions.assertEquals(3, shape.getShapePoints().size());
+        Assertions.assertEquals(4, shape.getShapePoints().size());
 
         Assertions.assertEquals(0, shape.getDistanceTravelledToStop(1));
         Assertions.assertEquals(Math.round(serviceLinkLength1), shape.getDistanceTravelledToStop(2));
         Assertions.assertEquals(Math.round(serviceLinkLength1 + serviceLinkLength2), shape.getDistanceTravelledToStop(3));
+
+        Assertions.assertEquals(0, shape.getShapePoints().get(0).getDistTraveled());
+        Assertions.assertEquals(Math.round(GeometryUtil.distance(A1, A2)), shape.getShapePoints().get(1).getDistTraveled());
+        Assertions.assertEquals(Math.round(GeometryUtil.distance(A1, A2) + GeometryUtil.distance(A2, A3)), shape.getShapePoints().get(2).getDistTraveled());
+        Assertions.assertEquals(Math.round(GeometryUtil.distance(A1, A2) + GeometryUtil.distance(A2, A3) + +GeometryUtil.distance(A3, A4)), shape.getShapePoints().get(3).getDistTraveled());
+
 
     }
 
