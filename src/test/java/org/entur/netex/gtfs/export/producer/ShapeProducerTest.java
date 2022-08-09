@@ -99,8 +99,10 @@ class ShapeProducerTest {
 
 
     /**
-     * Create a JourneyPattern with 3 stops linked by 2 service links.
+     * Create a JourneyPattern with 3 stops linked by 2 contiguous service links.
      * The first service link contains 3 points, the second one contains 2 points.
+     * Verify that the ShapeProducer produces a GTFSShape containing 4 shape points with travelled distances
+     * consistent with the input ServiceLinks.
      */
     @Test
     void testShapeProducer() {
