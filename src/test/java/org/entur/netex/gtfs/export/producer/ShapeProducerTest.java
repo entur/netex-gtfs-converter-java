@@ -89,18 +89,19 @@ import static org.mockito.Mockito.when;
 class ShapeProducerTest {
 
     private static final ObjectFactory NETEX_FACTORY = new ObjectFactory();
+    public static final String TEST_SERVICE_LINK_1 = "SERVICE_LINK_1";
+    public static final String TEST_SERVICE_LINK_2 = "SERVICE_LINK_2";
 
     @Test
     void testShapeProducer() {
 
         NetexDatasetRepository netexDatasetRepository = mock(NetexDatasetRepository.class);
 
-        when(netexDatasetRepository.getServiceLinkById("SERVICE_LINK_1")).thenReturn(createServiceLink(59.72215, 10.512689, 59.722111, 10.512651));
-        when(netexDatasetRepository.getServiceLinkById("SERVICE_LINK_2")).thenReturn(createServiceLink(59.722111, 10.512651, 59.721984, 10.512528));
+        when(netexDatasetRepository.getServiceLinkById(TEST_SERVICE_LINK_1)).thenReturn(createServiceLink(59.72215, 10.512689, 59.722111, 10.512651));
+        when(netexDatasetRepository.getServiceLinkById(TEST_SERVICE_LINK_2)).thenReturn(createServiceLink(59.722111, 10.512651, 59.721984, 10.512528));
 
         double serviceLinkLength1 = GeometryUtil.distance(new Coordinate(59.72215, 10.512689), new Coordinate(59.722111, 10.512651));
         double serviceLinkLength2 = GeometryUtil.distance(new Coordinate(59.722111, 10.512651), new Coordinate(59.721984, 10.512528));
-
 
         GtfsDatasetRepository gtfsDatasetRepository = mock(GtfsDatasetRepository.class);
         when(gtfsDatasetRepository.getDefaultAgency()).thenReturn(new Agency());
@@ -113,7 +114,6 @@ class ShapeProducerTest {
         Assertions.assertEquals(0, shape.getDistanceTravelledToStop(1));
         Assertions.assertEquals(Math.round(serviceLinkLength1), shape.getDistanceTravelledToStop(2));
         Assertions.assertEquals(Math.round(serviceLinkLength1 + serviceLinkLength2), shape.getDistanceTravelledToStop(3));
-
 
     }
 
@@ -156,10 +156,10 @@ class ShapeProducerTest {
 
         LinksInJourneyPattern_RelStructure linksInJourneyPatternRelStructure = new LinksInJourneyPattern_RelStructure();
 
-        ServiceLinkInJourneyPattern_VersionedChildStructure serviceLinkInJourneyPatternVersionedChildStructure1 = getServiceLinkInJourneyPattern_versionedChildStructure(BigInteger.ONE, "SERVICE_LINK_1");
+        ServiceLinkInJourneyPattern_VersionedChildStructure serviceLinkInJourneyPatternVersionedChildStructure1 = getServiceLinkInJourneyPattern_versionedChildStructure(BigInteger.ONE, TEST_SERVICE_LINK_1);
         linksInJourneyPatternRelStructure.getServiceLinkInJourneyPatternOrTimingLinkInJourneyPattern().add(0, serviceLinkInJourneyPatternVersionedChildStructure1);
 
-        ServiceLinkInJourneyPattern_VersionedChildStructure serviceLinkInJourneyPatternVersionedChildStructure2 = getServiceLinkInJourneyPattern_versionedChildStructure(BigInteger.TWO, "SERVICE_LINK_2");
+        ServiceLinkInJourneyPattern_VersionedChildStructure serviceLinkInJourneyPatternVersionedChildStructure2 = getServiceLinkInJourneyPattern_versionedChildStructure(BigInteger.TWO, TEST_SERVICE_LINK_2);
         linksInJourneyPatternRelStructure.getServiceLinkInJourneyPatternOrTimingLinkInJourneyPattern().add(1, serviceLinkInJourneyPatternVersionedChildStructure2);
 
         journeyPattern.setLinksInSequence(linksInJourneyPatternRelStructure);
