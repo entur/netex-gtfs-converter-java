@@ -23,6 +23,9 @@ import net.opengis.gml._3.DirectPositionType;
 import net.opengis.gml._3.LineStringType;
 import net.opengis.gml._3.PointPropertyType;
 import org.apache.commons.lang3.StringUtils;
+import org.entur.netex.gtfs.export.exception.GtfsExportException;
+import org.geotools.geometry.jts.JTS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.CoordinateSequenceFilter;
@@ -31,6 +34,7 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequence;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory;
+import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,11 +57,6 @@ public final class GeometryUtil {
     private static final int DEFAULT_SRID_AS_INT = 4326;
 
     /**
-     * Earth radius on the equator for the WGS84 system, in meters.
-     */
-    private static final int EQUATORIAL_RADIUS = 6378137;
-
-    /**
      * A geometry factory based on the WGS84 system.
      */
     private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory(new PrecisionModel(), DEFAULT_SRID_AS_INT);
@@ -76,8 +75,16 @@ public final class GeometryUtil {
         if (from == null) {
             return 0;
         }
-        LineString lineString = GEOMETRY_FACTORY.createLineString(new Coordinate[]{from, to});
-        return lineString.getLength() * (Math.PI / 180) * EQUATORIAL_RADIUS;
+
+        try {
+            return JTS.orthodromicDistance(
+                    from,
+                    to,
+                    DefaultGeographicCRS.WGS84);
+        } catch (TransformException e) {
+            throw new GtfsExportException(e);
+        }
+
     }
 
     /**
