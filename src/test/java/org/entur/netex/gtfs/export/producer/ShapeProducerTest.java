@@ -92,10 +92,11 @@ class ShapeProducerTest {
     public static final String TEST_SERVICE_LINK_1 = "SERVICE_LINK_1";
     public static final String TEST_SERVICE_LINK_2 = "SERVICE_LINK_2";
 
-    private static final Coordinate A1 = new Coordinate(59.72215, 10.512689);
-    private static final Coordinate A2 = new Coordinate(59.722111, 10.512651);
-    private static final Coordinate A3 = new Coordinate(59.721984, 10.512528);
-    private static final Coordinate A4 = new Coordinate(59.721627, 10.512238);
+    // JTS coordinates long/lat
+    private static final Coordinate A1 = new Coordinate(10.512689, 59.72215);
+    private static final Coordinate A2 = new Coordinate(10.512651, 59.722111 );
+    private static final Coordinate A3 = new Coordinate(10.512528, 59.721984 );
+    private static final Coordinate A4 = new Coordinate(10.512238, 59.721627 );
 
 
     /**
@@ -109,8 +110,9 @@ class ShapeProducerTest {
 
         NetexDatasetRepository netexDatasetRepository = mock(NetexDatasetRepository.class);
 
-        when(netexDatasetRepository.getServiceLinkById(TEST_SERVICE_LINK_1)).thenReturn(createServiceLink(A1.x, A1.y, A2.x, A2.y, A3.x, A3.y));
-        when(netexDatasetRepository.getServiceLinkById(TEST_SERVICE_LINK_2)).thenReturn(createServiceLink(A3.x, A3.y, A4.x, A4.y));
+        // GML coordinates lat/long
+        when(netexDatasetRepository.getServiceLinkById(TEST_SERVICE_LINK_1)).thenReturn(createServiceLink(A1.y, A1.x, A2.y, A2.x, A3.y, A3.x));
+        when(netexDatasetRepository.getServiceLinkById(TEST_SERVICE_LINK_2)).thenReturn(createServiceLink(A3.y, A3.x, A4.y, A4.x));
 
         double serviceLinkLength1 = GeometryUtil.distance(A1, A2) + GeometryUtil.distance(A2, A3);
         double serviceLinkLength2 = GeometryUtil.distance(A3, A4);
@@ -130,7 +132,7 @@ class ShapeProducerTest {
         Assertions.assertEquals(0, shape.getShapePoints().get(0).getDistTraveled());
         Assertions.assertEquals(Math.round(GeometryUtil.distance(A1, A2)), shape.getShapePoints().get(1).getDistTraveled());
         Assertions.assertEquals(Math.round(GeometryUtil.distance(A1, A2) + GeometryUtil.distance(A2, A3)), shape.getShapePoints().get(2).getDistTraveled());
-        Assertions.assertEquals(Math.round(GeometryUtil.distance(A1, A2) + GeometryUtil.distance(A2, A3) + +GeometryUtil.distance(A3, A4)), shape.getShapePoints().get(3).getDistTraveled());
+        Assertions.assertEquals(Math.round(GeometryUtil.distance(A1, A2) + GeometryUtil.distance(A2, A3) + GeometryUtil.distance(A3, A4)), shape.getShapePoints().get(3).getDistTraveled());
 
 
     }

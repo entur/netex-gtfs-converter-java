@@ -58,4 +58,12 @@ class GeometryUtilTest {
         Assertions.assertNull(jtsLineString);
     }
 
+    @Test
+    void testDistance() {
+        Coordinate from = new Coordinate(10.784823, 59.963926 );
+        Coordinate to = new Coordinate(10.784564, 59.963652);
+
+        Assertions.assertEquals(34, Math.round(GeometryUtil.distance(from, to)));
+    }
+
 }
