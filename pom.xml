@@ -118,7 +118,6 @@
             <artifactId>jts-core</artifactId>
             <version>${jts.version}</version>
         </dependency>
-        <!-- Geotools needed for calculating speed between stops-->
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-main</artifactId>
