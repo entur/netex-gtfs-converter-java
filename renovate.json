@@ -1,5 +1,17 @@
 {
   "extends": [
-    "config:base"
+    "github>entur/ror-renovate-config"
+  ],
+  "baseBranch": "main",
+  "minor": {
+    "automerge": false
+  },
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "org.onebusaway:onebusaway-gtfs"
+      ],
+      "automerge": false
+    }
   ]
 }
