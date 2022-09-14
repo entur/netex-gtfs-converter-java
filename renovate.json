@@ -6,6 +6,7 @@
   "minor": {
     "automerge": false
   },
+  "separateMinorPatch": true,
   "packageRules": [
     {
       "matchPackageNames": [
