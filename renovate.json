@@ -3,9 +3,6 @@
     "github>entur/ror-renovate-config"
   ],
   "baseBranch": "main",
-  "minor": {
-    "automerge": false
-  },
   "separateMinorPatch": true,
   "packageRules": [
     {
