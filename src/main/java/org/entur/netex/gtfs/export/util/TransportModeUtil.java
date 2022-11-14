@@ -192,10 +192,14 @@ public final class TransportModeUtil {
      * @return the GTFS extended route type code.
      */
     public static int getGtfsExtendedRouteType(Line line) {
-        String transportMode = line.getTransportMode().value();
-        String transportSubMode = getSubMode(line.getTransportSubmode());
-        return getGtfsExtendedRouteType(transportMode, transportSubMode).getValue();
+        return getGtfsExtendedRouteType(line.getTransportMode(), line.getTransportSubmode());
     }
+
+    public static int getGtfsExtendedRouteType(AllVehicleModesOfTransportEnumeration transportMode, TransportSubmodeStructure transportSubmode) {
+        return getGtfsExtendedRouteType(transportMode.value(), getSubMode(transportSubmode)).getValue();
+    }
+
+
 
     /**
      * Return the GTFS extended route type code for a NeTEx netexTransportMode:

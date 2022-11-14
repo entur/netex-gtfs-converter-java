@@ -57,6 +57,7 @@ import org.onebusaway.gtfs.model.Route;
 import org.onebusaway.gtfs.model.ServiceCalendar;
 import org.onebusaway.gtfs.model.StopTime;
 import org.onebusaway.gtfs.model.Trip;
+import org.rutebanken.netex.model.AllVehicleModesOfTransportEnumeration;
 import org.rutebanken.netex.model.DestinationDisplay;
 import org.rutebanken.netex.model.JourneyPattern;
 import org.rutebanken.netex.model.Line;
@@ -71,6 +72,7 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -199,8 +201,10 @@ public class DefaultGtfsExporter implements GtfsExporter {
 
     protected void convertRoutes() {
         for (Line netexLine : netexDatasetRepository.getLines()) {
-            Route gtfsRoute = routeProducer.produce(netexLine);
-            gtfsDatasetRepository.saveEntity(gtfsRoute);
+
+            Map<AllVehicleModesOfTransportEnumeration, Route> gtfsRoutes = routeProducer.produceAll(netexLine);
+            gtfsRoutes.values().forEach(gtfsDatasetRepository::saveEntity);
+
             for (org.rutebanken.netex.model.Route netexRoute : netexDatasetRepository.getRoutesByLine(netexLine)) {
                 for (JourneyPattern journeyPattern : netexDatasetRepository.getJourneyPatternsByRoute(netexRoute)) {
                     GtfsShape gtfsShape = shapeProducer.produce(journeyPattern);
@@ -215,6 +219,7 @@ public class DefaultGtfsExporter implements GtfsExporter {
                     DestinationDisplay initialDestinationDisplay = DestinationDisplayUtil.getInitialDestinationDisplay(journeyPattern, netexDatasetRepository);
 
                     for (ServiceJourney serviceJourney : netexDatasetRepository.getServiceJourneysByJourneyPattern(journeyPattern)) {
+                        Route gtfsRoute = gtfsRoutes.get(serviceJourney.getTransportMode()) != null ? gtfsRoutes.get(serviceJourney.getTransportMode()) : gtfsRoutes.get(netexLine.getTransportMode());
                         Trip trip = tripProducer.produce(serviceJourney, netexRoute, gtfsRoute, shapeId, initialDestinationDisplay);
                         if (trip != null) {
                             gtfsDatasetRepository.saveEntity(trip);

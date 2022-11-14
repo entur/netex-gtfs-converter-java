@@ -67,6 +67,11 @@ class GtfsExportTest {
     }
 
     @Test
+    void testExportMultipleModePerLine() throws IOException {
+        testExport("SJN", "/rb_sjn-aggregated-netex.zip", "/CurrentAndFuture_latest.zip");
+    }
+
+    @Test
     void testExportStops() throws IOException {
         DefaultStopAreaRepository defaultStopAreaRepository = new DefaultStopAreaRepository();
         defaultStopAreaRepository.loadStopAreas(getClass().getResourceAsStream("/RailStations_latest.zip"));

@@ -19,7 +19,10 @@
 package org.entur.netex.gtfs.export.producer;
 
 import org.onebusaway.gtfs.model.Route;
+import org.rutebanken.netex.model.AllVehicleModesOfTransportEnumeration;
 import org.rutebanken.netex.model.Line;
+
+import java.util.Map;
 
 
 /**
@@ -28,8 +31,15 @@ import org.rutebanken.netex.model.Line;
 public interface RouteProducer {
     /**
      * Produce a GTFS Route for a given NeTEx Line.
-     * @param line the NeTEx line.
-     * @return the GTFS Route
+     * The route type is mapped from the TransportMode and TransportSubmode of the Line, without taking into account TransportModes and TransportSubmodes overridden at the ServiceJourneyLevel.
+     * @deprecated a NeTEx line referencing Service Journeys using different TransportModes cannot be mapped to a single GTFS Route. Use {@link #produceAll(Line)}
      */
+    @Deprecated
     Route produce(Line line);
+
+    /**
+     * Produce a GTFS routes for each TransportMode used in this NeTEx line.
+     *
+     */
+    Map<AllVehicleModesOfTransportEnumeration, Route> produceAll(Line netexLine);
 }
