@@ -18,6 +18,7 @@
 
 package org.entur.netex.gtfs.export.util;
 
+import org.apache.commons.lang3.StringUtils;
 import org.entur.netex.gtfs.export.model.GtfsRouteType;
 import org.rutebanken.netex.model.AirSubmodeEnumeration;
 import org.rutebanken.netex.model.AllVehicleModesOfTransportEnumeration;
@@ -32,9 +33,9 @@ import org.rutebanken.netex.model.WaterSubmodeEnumeration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 
 import static org.entur.netex.gtfs.export.model.GtfsRouteType.AIR_SERVICE;
 import static org.entur.netex.gtfs.export.model.GtfsRouteType.BUS_SERVICE;
@@ -90,7 +91,7 @@ public final class TransportModeUtil {
     /**
      * Represent a pair (TransportMode, TransportSubMode)
      */
-    private static class TransportModeAndSubMode {
+    private static class TransportModeAndSubMode implements Comparable<TransportModeAndSubMode> {
         private final String transportMode;
         private final String transportSubMode;
 
@@ -115,12 +116,20 @@ public final class TransportModeUtil {
         public int hashCode() {
             return Objects.hash(transportMode, transportSubMode);
         }
+
+        @Override
+        public int compareTo(TransportModeAndSubMode o) {
+            if (this.transportMode.equals(o.transportMode)) {
+                return StringUtils.compare(this.transportSubMode, o.transportSubMode);
+            }
+            return this.transportMode.compareTo(o.transportMode);
+        }
     }
 
     private static final Map<TransportModeAndSubMode, GtfsRouteType> ROUTE_TYPE_FOR_TRANSPORT_MODE_AND_SUB_MODE;
 
     static {
-        ROUTE_TYPE_FOR_TRANSPORT_MODE_AND_SUB_MODE = new HashMap<>();
+        ROUTE_TYPE_FOR_TRANSPORT_MODE_AND_SUB_MODE = new TreeMap<>();
         ROUTE_TYPE_FOR_TRANSPORT_MODE_AND_SUB_MODE.put(new TransportModeAndSubMode(AllVehicleModesOfTransportEnumeration.AIR.value(), null), AIR_SERVICE);
         ROUTE_TYPE_FOR_TRANSPORT_MODE_AND_SUB_MODE.put(new TransportModeAndSubMode(AllVehicleModesOfTransportEnumeration.AIR.value(), AirSubmodeEnumeration.DOMESTIC_FLIGHT.value()), DOMESTIC_AIR_SERVICE);
         ROUTE_TYPE_FOR_TRANSPORT_MODE_AND_SUB_MODE.put(new TransportModeAndSubMode(AllVehicleModesOfTransportEnumeration.AIR.value(), AirSubmodeEnumeration.HELICOPTER_SERVICE.value()), HELICOPTER_AIR_SERVICE);
@@ -230,12 +239,13 @@ public final class TransportModeUtil {
 
     /**
      * Return the sub mode as a String for a given TransportModeStructure, or null if the transport mode is not set.
+     *
      * @param subModeStructure a transport sub mode structure.
      * @return the submode as a String for a given TransportModeStructure, or null if the transport mode is not set.
      */
     private static String getSubMode(TransportSubmodeStructure subModeStructure) {
 
-        if(subModeStructure == null) {
+        if (subModeStructure == null) {
             return null;
         }
 
@@ -270,5 +280,22 @@ public final class TransportModeUtil {
             return subModeStructure.getWaterSubmode().value();
         }
         return null;
+    }
+
+    public static void main(String[] args) {
+        printMappingTable();
+    }
+
+    private static void printMappingTable() {
+        ROUTE_TYPE_FOR_TRANSPORT_MODE_AND_SUB_MODE.forEach((key, value) -> System.out.println(
+                " | "
+                        + key.transportMode
+                        + " | "
+                        + (key.transportSubMode == null ? "" : key.transportSubMode)
+                        + " | "
+                        + value.name()
+                        + " | "
+                        + value.getValue()
+                        + " | "));
     }
 }
