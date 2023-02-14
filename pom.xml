@@ -349,10 +349,14 @@
                     <failOnError>false</failOnError>
                     <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
                     <ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
-                    <suppressionFiles>
-                        <suppressionFile>dependencycheck-suppression.xml</suppressionFile>
-                    </suppressionFiles>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
