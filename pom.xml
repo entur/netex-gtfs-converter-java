@@ -82,7 +82,7 @@
         <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
         <sonar-maven-plugin.version>3.9.1.2184</sonar-maven-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
-        <dependency-check-maven.version>8.1.0</dependency-check-maven.version>
+        <dependency-check-maven.version>8.1.1</dependency-check-maven.version>
         <!-- empty argLine property, the value is set up by Jacoco during unit tests execution -->
         <argLine />
 
