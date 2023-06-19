@@ -18,6 +18,8 @@
 
 package org.entur.netex.gtfs.export.stop;
 
+import java.io.InputStream;
+
 /**
  * Factory for creating stop area repositories.
  */
@@ -30,4 +32,11 @@ public interface StopAreaRepositoryFactory {
      * @return an initialized instance of a stop area repository.
      */
     StopAreaRepository getStopAreaRepository();
+
+    /**
+     * Refresh the cached stop area.
+     *
+     * @param stopDataset an input stream on a NeTEX dataset archive.
+     */
+    void refreshStopAreaRepository(InputStream stopDataset);
 }

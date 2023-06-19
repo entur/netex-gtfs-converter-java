@@ -37,7 +37,7 @@ package org.entur.netex.gtfs.export;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.IOUtils;
-import org.entur.netex.gtfs.export.stop.DefaultStopAreaRepository;
+import org.entur.netex.gtfs.export.stop.DefaultStopAreaRepositoryFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.zeroturnaround.zip.ZipUtil;
@@ -75,9 +75,9 @@ class GtfsExportTest {
 
     @Test
     void testExportStops() throws IOException {
-        DefaultStopAreaRepository defaultStopAreaRepository = new DefaultStopAreaRepository();
-        defaultStopAreaRepository.loadStopAreas(getClass().getResourceAsStream("/RailStations_latest.zip"));
-        GtfsExporter gtfsExport = new DefaultGtfsExporter(defaultStopAreaRepository);
+        DefaultStopAreaRepositoryFactory factory = new DefaultStopAreaRepositoryFactory();
+        factory.refreshStopAreaRepository(getClass().getResourceAsStream("/RailStations_latest.zip"));
+        GtfsExporter gtfsExport = new DefaultGtfsExporter(factory, null);
 
         InputStream exportedGtfs = gtfsExport.convertStopsToGtfs();
 
@@ -94,14 +94,14 @@ class GtfsExportTest {
 
     void testExport(String codespace, String timetableDataset, String stopDataset, boolean singleAgency) throws IOException {
 
-        DefaultStopAreaRepository defaultStopAreaRepository = new DefaultStopAreaRepository();
-        defaultStopAreaRepository.loadStopAreas(getClass().getResourceAsStream(stopDataset));
+        DefaultStopAreaRepositoryFactory factory = new DefaultStopAreaRepositoryFactory();
+        factory.refreshStopAreaRepository(getClass().getResourceAsStream(stopDataset));
 
         InputStream netexTimetableDataset = getClass().getResourceAsStream(timetableDataset);
 
-        GtfsExporter gtfsExport = new DefaultGtfsExporter(codespace, defaultStopAreaRepository);
+        GtfsExporter gtfsExport = new DefaultGtfsExporter(factory, null);
 
-        InputStream exportedGtfs = gtfsExport.convertTimetablesToGtfs(netexTimetableDataset);
+        InputStream exportedGtfs = gtfsExport.convertTimetablesToGtfs(codespace, netexTimetableDataset, false);
 
         File gtfsFile = new File("export-gtfs.zip");
         java.nio.file.Files.copy(
