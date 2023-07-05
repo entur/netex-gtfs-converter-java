@@ -23,13 +23,7 @@ import org.entur.netex.gtfs.export.model.GtfsService;
 import org.entur.netex.gtfs.export.model.ServiceCalendarPeriod;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 import org.apache.commons.lang3.StringUtils;
-import org.rutebanken.netex.model.DayOfWeekEnumeration;
-import org.rutebanken.netex.model.DayType;
-import org.rutebanken.netex.model.DayTypeAssignment;
-import org.rutebanken.netex.model.EntityStructure;
-import org.rutebanken.netex.model.OperatingDay;
-import org.rutebanken.netex.model.OperatingPeriod;
-import org.rutebanken.netex.model.PropertyOfDay;
+import org.rutebanken.netex.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -168,7 +162,7 @@ public class DefaultGtfsServiceRepository implements GtfsServiceRepository {
         DayType dayTypeWithAPeriod = netexDatasetRepository.getDayTypeByDayTypeAssignment(dayTypeAssignmentWithPeriod);
         OperatingPeriod operatingPeriod = netexDatasetRepository.getOperatingPeriodByDayTypeAssignment(dayTypeAssignmentWithPeriod);
         Set<DayOfWeek> daysOfWeek = getDaysOfWeek(dayTypeWithAPeriod);
-        ServiceCalendarPeriod serviceCalendarPeriod = new ServiceCalendarPeriod(operatingPeriod.getFromDate(), operatingPeriod.getToDate(), daysOfWeek);
+        ServiceCalendarPeriod serviceCalendarPeriod = new ServiceCalendarPeriod(getOperatingPeriodStartDate(operatingPeriod), getOperatingPeriodEndDate(operatingPeriod), daysOfWeek);
         gtfsService.setServiceCalendarPeriod(serviceCalendarPeriod);
 
         dayTypes.stream()
@@ -192,7 +186,9 @@ public class DefaultGtfsServiceRepository implements GtfsServiceRepository {
             for (DayTypeAssignment dayTypeAssignment : netexDatasetRepository.getDayTypeAssignmentsByDayType(dayType)) {
                 if (dayTypeAssignment.getOperatingPeriodRef() != null) {
                     OperatingPeriod operatingPeriod = netexDatasetRepository.getOperatingPeriodByDayTypeAssignment(dayTypeAssignment);
-                    for (LocalDateTime date = operatingPeriod.getFromDate(); date.isBefore(operatingPeriod.getToDate()) || date.equals(operatingPeriod.getToDate()); date = date.plusDays(1)) {
+                    LocalDateTime operatingPeriodStartDate = getOperatingPeriodStartDate(operatingPeriod);
+                    LocalDateTime operatingPeriodEndDate = getOperatingPeriodEndDate(operatingPeriod);
+                    for (LocalDateTime date = operatingPeriodStartDate; date.isBefore(operatingPeriodEndDate) || date.equals(operatingPeriodEndDate); date = date.plusDays(1)) {
                         if (isActiveDate(date, daysOfWeek)) {
                             gtfsService.addIncludedDate(date);
                         }
@@ -298,6 +294,35 @@ public class DefaultGtfsServiceRepository implements GtfsServiceRepository {
                 .filter(dayTypeAssignment -> dayTypeAssignment.getOperatingPeriodRef() != null)
                 .count()).mapToInt(Long::intValue).sum();
     }
+
+    private LocalDateTime getOperatingPeriodStartDate(OperatingPeriod operatingPeriod) {
+        if (operatingPeriod.getFromDate() != null) {
+            return operatingPeriod.getFromDate();
+        }
+        if (operatingPeriod.getFromOperatingDayRef() != null) {
+            return lookupOperatingDay(operatingPeriod.getFromOperatingDayRef());
+        }
+        throw new IllegalArgumentException(
+                "Missing start date for operating period " + operatingPeriod.getId()
+        );
+    }
+
+    private LocalDateTime getOperatingPeriodEndDate(OperatingPeriod operatingPeriod) {
+        if (operatingPeriod.getToDate() != null) {
+            return operatingPeriod.getToDate();
+        }
+        if (operatingPeriod.getToOperatingDayRef() != null) {
+            return lookupOperatingDay(operatingPeriod.getToOperatingDayRef());
+        }
+        throw new IllegalArgumentException(
+                "Missing end date for operating period " + operatingPeriod.getId()
+        );
+    }
+
+    private LocalDateTime lookupOperatingDay(OperatingDayRefStructure operatingDayRef) {
+        return netexDatasetRepository.getOperatingDayById(operatingDayRef.getRef()).getCalendarDate();
+    }
+
 
 
 }

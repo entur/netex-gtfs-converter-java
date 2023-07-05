@@ -58,12 +58,19 @@ class GtfsExportTest {
 
     @Test
     void testExportSimpleLine() throws IOException {
-        testExport("FLB", "/rb_flb-aggregated-netex.zip", "/RailStations_latest.zip");
+        testExport("FLB", "/rb_flb-aggregated-netex.zip", "/RailStations_latest.zip", true);
     }
+
+
 
     @Test
     void testExportDatedServiceJourney() throws IOException {
-        testExport("VYG", "/rb_vyg-aggregated-netex.zip", "/RailStations_latest.zip");
+        testExport("VYG", "/rb_vyg-aggregated-netex.zip", "/RailStations_latest.zip", true);
+    }
+
+    @Test
+    void testExportOperatingPeriodDayInOperatingPeriod() throws IOException {
+        testExport("SJV", "/rb_sjv-aggregated-netex.zip", "/RailStations_latest.zip", false);
     }
 
     @Test
@@ -85,7 +92,7 @@ class GtfsExportTest {
         Files.deleteIfExists(gtfsFile.toPath());
     }
 
-    void testExport(String codespace, String timetableDataset, String stopDataset) throws IOException {
+    void testExport(String codespace, String timetableDataset, String stopDataset, boolean singleAgency) throws IOException {
 
         DefaultStopAreaRepository defaultStopAreaRepository = new DefaultStopAreaRepository();
         defaultStopAreaRepository.loadStopAreas(getClass().getResourceAsStream(stopDataset));
@@ -102,7 +109,7 @@ class GtfsExportTest {
                 gtfsFile.toPath(),
                 StandardCopyOption.REPLACE_EXISTING);
 
-        checkAgency(gtfsFile, codespace);
+        checkAgency(gtfsFile, codespace, singleAgency);
         checkStop(gtfsFile);
         checkRoute(gtfsFile, codespace);
         checkTrip(gtfsFile, codespace);
@@ -113,13 +120,15 @@ class GtfsExportTest {
         Files.deleteIfExists(gtfsFile.toPath());
     }
 
-    private void checkAgency(File gtfsFile, String codespace) throws IOException {
+    private void checkAgency(File gtfsFile, String codespace, boolean singleAgency) throws IOException {
         Iterable<CSVRecord> records = getCsvRecords(gtfsFile, "agency.txt");
         Assertions.assertTrue(records.iterator().hasNext());
         CSVRecord record = records.iterator().next();
-        Assertions.assertNotNull(record.get("agency_id"));
-        Assertions.assertTrue(record.get("agency_id").startsWith(codespace + ':' + "Authority"));
-        Assertions.assertFalse(records.iterator().hasNext());
+        Assertions.assertNotNull(record.get("agency_id"), "There should be one agency in agency.txt");
+        Assertions.assertTrue(record.get("agency_id").startsWith(codespace + ':' + "Authority"), "The agency ID should start with <codespace>:Authority");
+        if(singleAgency) {
+            Assertions.assertFalse(records.iterator().hasNext(), "There should be only one agency in agency.txt");
+        }
     }
 
     private void checkStop(File gtfsFile) throws IOException {
