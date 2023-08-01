@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class StopsToGtfsConverter implements GtfsConverter {
+public class StopsToGtfsConverter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StopsToGtfsConverter.class);
 
@@ -26,7 +26,6 @@ public class StopsToGtfsConverter implements GtfsConverter {
         this.stopProducer = new DefaultStopProducer(stopAreaRepository, gtfsDatasetRepository);
     }
 
-    @Override
     public void convert() {
         LOGGER.debug("Converting only used stops");
 

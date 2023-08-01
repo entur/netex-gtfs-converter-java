@@ -22,7 +22,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class TimetablesToGtfsConverter implements GtfsConverter {
+public class TimetablesToGtfsConverter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TimetablesToGtfsConverter.class);
 
