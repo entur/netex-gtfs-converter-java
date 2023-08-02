@@ -47,9 +47,23 @@ public class DefaultStopAreaRepository implements StopAreaRepository {
 
     private final NetexDatasetLoader netexDatasetLoader;
 
+    private final NetexEntityFetcher<Quay, String> quayFetcher;
+    private final NetexEntityFetcher<StopPlace, String> stopPlaceFetcher;
 
     public DefaultStopAreaRepository() {
+        this(quayId -> {
+                    throw new QuayNotFoundException("Could not find Quay for id " + quayId);
+                },
+                quayId -> {
+                    throw new StopPlaceNotFoundException("Could not find StopPlace for quay id " + quayId);
+                });
+    }
+
+    public DefaultStopAreaRepository(NetexEntityFetcher<Quay, String> quayFetcher,
+                                     NetexEntityFetcher<StopPlace, String> stopPlaceFetcher) {
         this.netexDatasetLoader = new DefaultNetexDatasetLoader();
+        this.quayFetcher = quayFetcher;
+        this.stopPlaceFetcher = stopPlaceFetcher;
     }
 
     public void loadStopAreas(InputStream stopDataset) {
@@ -77,7 +91,7 @@ public class DefaultStopAreaRepository implements StopAreaRepository {
     public StopPlace getStopPlaceByQuayId(String quayId) {
         StopPlace stopPlace = stopPlaceByQuayId.get(quayId);
         if (stopPlace == null) {
-            throw new StopPlaceNotFoundException("Could not find StopPlace for quay id " + quayId);
+            return stopPlaceFetcher.tryFetch(quayId);
         }
         return stopPlace;
     }
@@ -91,7 +105,7 @@ public class DefaultStopAreaRepository implements StopAreaRepository {
     public Quay getQuayById(String quayId) {
         Quay quay = quayById.get(quayId);
         if (quay == null) {
-            throw new QuayNotFoundException("Could not find Quay for id " + quayId);
+            return quayFetcher.tryFetch(quayId);
         }
         return quay;
     }

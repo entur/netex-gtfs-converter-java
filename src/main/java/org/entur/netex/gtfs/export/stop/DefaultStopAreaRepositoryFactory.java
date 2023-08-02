@@ -36,6 +36,10 @@ public class DefaultStopAreaRepositoryFactory implements StopAreaRepositoryFacto
         return stopAreaRepository;
     }
 
+    protected synchronized void setStopAreaRepository(StopAreaRepository stopAreaRepository) {
+        this.stopAreaRepository = stopAreaRepository;
+    }
+
     /**
      * Refresh the cached stop area.
      *
