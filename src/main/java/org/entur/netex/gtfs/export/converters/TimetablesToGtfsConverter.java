@@ -120,8 +120,8 @@ public class TimetablesToGtfsConverter {
         // Retrieve and persist all the stop places that contain the quays
         allQuaysId.stream()
                 .map(stopAreaRepository::getStopPlaceByQuayId)
-                .distinct()
                 .map(stopProducer::produceStopFromStopPlace)
+                .distinct()
                 .forEach(gtfsDatasetRepository::saveEntity);
     }
 
