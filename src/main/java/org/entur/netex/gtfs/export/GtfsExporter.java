@@ -18,8 +18,6 @@
 
 package org.entur.netex.gtfs.export;
 
-import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
-
 import java.io.InputStream;
 
 /**
@@ -39,5 +37,4 @@ public interface GtfsExporter {
      * @return a GTFS ZIP archive containing all stops.
      */
     InputStream convertStopsToGtfs();
-    GtfsDatasetRepository getGtfsDatasetRepository();
 }

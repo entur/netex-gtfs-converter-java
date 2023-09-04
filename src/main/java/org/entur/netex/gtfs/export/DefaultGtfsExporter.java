@@ -38,14 +38,12 @@ public class DefaultGtfsExporter implements GtfsExporter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultGtfsExporter.class);
     private final StopAreaRepositoryFactory stopAreaRepositoryFactory;
-    private final GtfsDatasetRepository gtfsDatasetRepository;
     private final FeedInfoProducer feedInfoProducer;
 
     public DefaultGtfsExporter(StopAreaRepositoryFactory stopAreaRepositoryFactory,
                                FeedInfoProducer feedInfoProducer) {
         this.stopAreaRepositoryFactory = stopAreaRepositoryFactory;
         this.feedInfoProducer = feedInfoProducer;
-        this.gtfsDatasetRepository = new DefaultGtfsRepository();
     }
 
     @Override
@@ -65,6 +63,8 @@ public class DefaultGtfsExporter implements GtfsExporter {
                 codespace,
                 netexDatasetRepository);
 
+        GtfsDatasetRepository gtfsDatasetRepository = new DefaultGtfsRepository();
+
         TimetablesToGtfsConverter timetablesToGtfsConverter = new TimetablesToGtfsConverter(
                 netexDatasetRepository,
                 gtfsDatasetRepository,
@@ -73,7 +73,7 @@ public class DefaultGtfsExporter implements GtfsExporter {
                 generateStaySeatedTransfer
         );
         timetablesToGtfsConverter.convert();
-        addFeedInfo();
+        addFeedInfo(gtfsDatasetRepository);
 
         return gtfsDatasetRepository.writeGtfs();
     }
@@ -89,23 +89,19 @@ public class DefaultGtfsExporter implements GtfsExporter {
     @Override
     public InputStream convertStopsToGtfs() {
         StopAreaRepository stopAreaRepository = stopAreaRepositoryFactory.getStopAreaRepository();
+        GtfsDatasetRepository gtfsDatasetRepository = new DefaultGtfsRepository();
         StopsToGtfsConverter stopsToGtfsConverter = new StopsToGtfsConverter(stopAreaRepository, gtfsDatasetRepository);
         stopsToGtfsConverter.convert();
-        addFeedInfo();
+        addFeedInfo(gtfsDatasetRepository);
         return gtfsDatasetRepository.writeGtfs();
     }
 
-    protected void addFeedInfo() {
+    protected void addFeedInfo(GtfsDatasetRepository gtfsDatasetRepository) {
         if (feedInfoProducer != null) {
             FeedInfo feedInfo = feedInfoProducer.produceFeedInfo();
             if (feedInfo != null) {
                 gtfsDatasetRepository.saveEntity(feedInfo);
             }
         }
-    }
-
-    @Override
-    public GtfsDatasetRepository getGtfsDatasetRepository() {
-        return gtfsDatasetRepository;
     }
 }
