@@ -1,6 +1,23 @@
 version: 2
 
 aliases:
+  - &jfrog-login
+    name: Rename jfrog environment variable for maven setting.xml
+    command: |
+      echo "export JFROG_USER=$ARTIFACTORY_USER"  >> $BASH_ENV
+      echo "export JFROG_PASS=$ARTIFACTORY_PASSWORD"  >> $BASH_ENV
+  - &release
+    name: Release
+    command: |
+      echo "Start release"
+      git config --global user.email "circleci@entur.no"
+      git config --global user.name "circleci"
+      git checkout main
+      mvn gitflow:release-start gitflow:release-finish -DskipTests=true -Prelease -DpostReleaseGoals=deploy -DargLine='-Prelease -DskipTests -s .circleci/settings.xml' -B -s .circleci/settings.xml
+  - &import_gpg_key
+    name: Configure GPG private key for signing project artifacts in OSS Sonatype
+    command: |
+      echo $SONATYPE_GPG_KEY_BASE64 | base64 --decode | gpg --batch --no-tty --import --yes
   - &sonar-scan
     name: Sonar scan
     command: |
@@ -11,16 +28,11 @@ aliases:
         -Dsonar.projectName=${CIRCLE_PROJECT_REPONAME} \
         -Dsonar.host.url=https://sonarcloud.io \
         -Dsonar.login=${ENTUR_SONAR_PASSWORD}
-  - &jfrog-login
-    name: Rename jfrog environment variable for maven setting.xml
-    command: |
-      echo "export JFROG_USER=$ARTIFACTORY_USER"  >> $BASH_ENV
-      echo "export JFROG_PASS=$ARTIFACTORY_PASSWORD"  >> $BASH_ENV      
 
 jobs:
-  test:
+  build:
     docker:
-      - image:  cimg/openjdk:11.0
+      - image: cimg/openjdk:17.0
         auth:
           username: $DOCKERHUB_LOGIN
           password: $DOCKERHUB_PASSWORD
@@ -31,7 +43,6 @@ jobs:
       - restore_cache:
           keys:
             - dep-cache-{{ checksum "pom.xml" }}
-            # fallback to the most recent cache if there is no exact match for this pom.xml
             - dep-cache-
       - run:
           name: Download Maven settings
@@ -45,9 +56,8 @@ jobs:
             - ~/.m2
           key: dep-cache-{{ checksum "pom.xml" }}
       # Cannot use -o because of snapshot dependencies.
-      - run:
-          name: Run Maven verify
-          command: mvn verify -s .circleci/settings.xml
+      - run: mvn package -s .circleci/settings.xml
+      - run: *sonar-scan
       - run:
           name: Save test results
           command: |
@@ -62,62 +72,42 @@ jobs:
           root: ~/project
           paths:
             - target
-            - .circleci
-
-  sonar:
+  deploy-nexus:
     docker:
-      - image:  cimg/openjdk:11.0
+      - image: cimg/openjdk:17.0
         auth:
           username: $DOCKERHUB_LOGIN
           password: $DOCKERHUB_PASSWORD
-    environment:
-      MAVEN_OPTS: -Xmx3G
     steps:
+      - run: git config --global user.email "circleci@entur.no"
+      - run: git config --global user.name "circleci"
       - checkout
       - restore_cache:
           keys:
             - dep-cache-{{ checksum "pom.xml" }}
             # fallback to the most recent cache if there is no exact match for this pom.xml
             - dep-cache-
-      - attach_workspace:
-          at: ~/project
-      - run: *jfrog-login
-      - run: *sonar-scan
-
-  deploy:
-    docker:
-      - image:  cimg/openjdk:11.0
-        auth:
-          username: $DOCKERHUB_LOGIN
-          password: $DOCKERHUB_PASSWORD
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - dep-cache-{{ checksum "pom.xml" }}
-            # fallback to the most recent cache if there is no exact match for this pom.xml
-            - dep-cache-
-      - attach_workspace:
-          at: ~/project
-      - run: *jfrog-login
       - run:
-          name: Maven deploy
-          command: mvn deploy -s .circleci/settings.xml -DskipTests
-
+          name: Download Maven settings
+          command: wget https://raw.githubusercontent.com/entur/circleci-toolbox-image-java11/master/tools/m2/settings.xml -O .circleci/settings.xml
+      - run: *jfrog-login
+      - run: *import_gpg_key
+      - run: *release
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: dep-cache-{{ checksum "pom.xml" }}
 workflows:
   version: 2
   build_test_deploy:
     jobs:
-      - test:
+      - build:
           context: global
-      - sonar:
-          context: global
-          requires:
-            - test
-      - deploy:
+      - deploy-nexus:
           context: global
           requires:
-            - sonar
+            - build
           filters:
             branches:
-              only: main
+              only:
+                - main
