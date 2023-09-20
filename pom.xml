@@ -317,6 +317,7 @@
                     <commitMessagePrefix>[ci skip]</commitMessagePrefix>
                     <gitFlowConfig>
                         <developmentBranch>main</developmentBranch>
+                        <productionBranch>main</productionBranch>
                     </gitFlowConfig>
                 </configuration>
             </plugin>
