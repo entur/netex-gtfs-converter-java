@@ -54,6 +54,9 @@
 
 package org.entur.netex.gtfs.export.producer;
 
+import java.time.DayOfWeek;
+import java.util.Collections;
+import java.util.Set;
 import org.entur.netex.gtfs.export.repository.DefaultGtfsRepository;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.junit.jupiter.api.Assertions;
@@ -61,32 +64,38 @@ import org.junit.jupiter.api.Test;
 import org.onebusaway.gtfs.model.ServiceCalendar;
 import org.onebusaway.gtfs.model.calendar.ServiceDate;
 
-import java.time.DayOfWeek;
-import java.util.Collections;
-import java.util.Set;
-
 class ServiceCalendarProducerTest {
 
-    private static final String SERVICE_ID = "Service-ID";
+  private static final String SERVICE_ID = "Service-ID";
 
-    @Test
-    void testServiceCalendarProducer() {
+  @Test
+  void testServiceCalendarProducer() {
+    GtfsDatasetRepository gtfsDatasetRepository = new DefaultGtfsRepository();
 
-        GtfsDatasetRepository gtfsDatasetRepository = new DefaultGtfsRepository();
+    ServiceCalendarProducer serviceCalendarProducer =
+      new DefaultServiceCalendarProducer(gtfsDatasetRepository);
+    ServiceDate startDate = new ServiceDate();
+    ServiceDate endDate = new ServiceDate();
+    Set<DayOfWeek> daysOfWeek = Set.of(DayOfWeek.MONDAY);
+    ServiceCalendar serviceCalendar = serviceCalendarProducer.produce(
+      SERVICE_ID,
+      startDate,
+      endDate,
+      daysOfWeek
+    );
 
-        ServiceCalendarProducer serviceCalendarProducer = new DefaultServiceCalendarProducer(gtfsDatasetRepository);
-        ServiceDate startDate = new ServiceDate();
-        ServiceDate endDate = new ServiceDate();
-        Set<DayOfWeek> daysOfWeek = Set.of(DayOfWeek.MONDAY);
-        ServiceCalendar serviceCalendar = serviceCalendarProducer.produce(SERVICE_ID, startDate, endDate, daysOfWeek);
-
-        Assertions.assertNotNull(serviceCalendar);
-        Assertions.assertNotNull(serviceCalendar.getId());
-        Assertions.assertEquals(SERVICE_ID, serviceCalendar.getServiceId().getId());
-        Assertions.assertEquals(startDate, serviceCalendar.getStartDate());
-        Assertions.assertEquals(endDate, serviceCalendar.getEndDate());
-        Assertions.assertEquals(ServiceCalendarProducer.SERVICE_AVAILABLE, serviceCalendar.getMonday());
-        Assertions.assertEquals(ServiceCalendarProducer.SERVICE_UNAVAILABLE, serviceCalendar.getTuesday());
-
-    }
+    Assertions.assertNotNull(serviceCalendar);
+    Assertions.assertNotNull(serviceCalendar.getId());
+    Assertions.assertEquals(SERVICE_ID, serviceCalendar.getServiceId().getId());
+    Assertions.assertEquals(startDate, serviceCalendar.getStartDate());
+    Assertions.assertEquals(endDate, serviceCalendar.getEndDate());
+    Assertions.assertEquals(
+      ServiceCalendarProducer.SERVICE_AVAILABLE,
+      serviceCalendar.getMonday()
+    );
+    Assertions.assertEquals(
+      ServiceCalendarProducer.SERVICE_UNAVAILABLE,
+      serviceCalendar.getTuesday()
+    );
+  }
 }

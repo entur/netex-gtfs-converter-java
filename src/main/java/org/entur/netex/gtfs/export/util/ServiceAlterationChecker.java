@@ -18,50 +18,71 @@
 
 package org.entur.netex.gtfs.export.util;
 
+import java.util.Collection;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 import org.rutebanken.netex.model.DatedServiceJourney;
 import org.rutebanken.netex.model.ServiceAlterationEnumeration;
 import org.rutebanken.netex.model.ServiceJourney;
 
-import java.util.Collection;
-
 /**
  * Check the service alteration status for ServiceJourneys and DatedServiceJourneys.
  */
 public class ServiceAlterationChecker {
-    private final NetexDatasetRepository netexDatasetRepository;
 
-    public ServiceAlterationChecker(NetexDatasetRepository netexDatasetRepository) {
-        this.netexDatasetRepository = netexDatasetRepository;
-    }
+  private final NetexDatasetRepository netexDatasetRepository;
 
-    /**
-     * Return true if the service journey has a ServiceAlteration equals to CANCELLATION or REPLACED
-     * or if all its dated service journeys are cancelled or replaced.
-     *
-     * @param serviceJourney the service journey to check
-     * @return true if the service journey has a ServiceAlteration equals to CANCELLATION or REPLACED or if all its dated service journeys are cancelled or replaced.
-     * @see ServiceAlterationEnumeration
-     */
-    public boolean isReplacedOrCancelled(ServiceJourney serviceJourney) {
-        return ServiceAlterationEnumeration.CANCELLATION == serviceJourney.getServiceAlteration()
-                || ServiceAlterationEnumeration.REPLACED == serviceJourney.getServiceAlteration()
-                || hasAllCancelledOrReplacedDatedServiceJourneys(serviceJourney);
-    }
+  public ServiceAlterationChecker(
+    NetexDatasetRepository netexDatasetRepository
+  ) {
+    this.netexDatasetRepository = netexDatasetRepository;
+  }
 
-    private boolean hasAllCancelledOrReplacedDatedServiceJourneys(ServiceJourney serviceJourney) {
-        Collection<DatedServiceJourney> datedServiceJourneys = netexDatasetRepository.getDatedServiceJourneysByServiceJourneyId(serviceJourney.getId());
-        return !datedServiceJourneys.isEmpty() && datedServiceJourneys.stream().allMatch(this::isReplacedOrCancelled);
-    }
+  /**
+   * Return true if the service journey has a ServiceAlteration equals to CANCELLATION or REPLACED
+   * or if all its dated service journeys are cancelled or replaced.
+   *
+   * @param serviceJourney the service journey to check
+   * @return true if the service journey has a ServiceAlteration equals to CANCELLATION or REPLACED or if all its dated service journeys are cancelled or replaced.
+   * @see ServiceAlterationEnumeration
+   */
+  public boolean isReplacedOrCancelled(ServiceJourney serviceJourney) {
+    return (
+      ServiceAlterationEnumeration.CANCELLATION ==
+      serviceJourney.getServiceAlteration() ||
+      ServiceAlterationEnumeration.REPLACED ==
+      serviceJourney.getServiceAlteration() ||
+      hasAllCancelledOrReplacedDatedServiceJourneys(serviceJourney)
+    );
+  }
 
-    /**
-     * Return true if the dated service journey has a ServiceAlteration equals to CANCELLATION or REPLACED.
-     *
-     * @param datedServiceJourney the dated service journey to check
-     * @return true if the service journey has a ServiceAlteration equals to CANCELLATION or REPLACED.
-     * @see ServiceAlterationEnumeration
-     */
-    public boolean isReplacedOrCancelled(DatedServiceJourney datedServiceJourney) {
-        return ServiceAlterationEnumeration.CANCELLATION == datedServiceJourney.getServiceAlteration() || ServiceAlterationEnumeration.REPLACED == datedServiceJourney.getServiceAlteration();
-    }
+  private boolean hasAllCancelledOrReplacedDatedServiceJourneys(
+    ServiceJourney serviceJourney
+  ) {
+    Collection<DatedServiceJourney> datedServiceJourneys =
+      netexDatasetRepository.getDatedServiceJourneysByServiceJourneyId(
+        serviceJourney.getId()
+      );
+    return (
+      !datedServiceJourneys.isEmpty() &&
+      datedServiceJourneys.stream().allMatch(this::isReplacedOrCancelled)
+    );
+  }
+
+  /**
+   * Return true if the dated service journey has a ServiceAlteration equals to CANCELLATION or REPLACED.
+   *
+   * @param datedServiceJourney the dated service journey to check
+   * @return true if the service journey has a ServiceAlteration equals to CANCELLATION or REPLACED.
+   * @see ServiceAlterationEnumeration
+   */
+  public boolean isReplacedOrCancelled(
+    DatedServiceJourney datedServiceJourney
+  ) {
+    return (
+      ServiceAlterationEnumeration.CANCELLATION ==
+      datedServiceJourney.getServiceAlteration() ||
+      ServiceAlterationEnumeration.REPLACED ==
+      datedServiceJourney.getServiceAlteration()
+    );
+  }
 }

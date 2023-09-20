@@ -54,6 +54,13 @@
 
 package org.entur.netex.gtfs.export.producer;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
+import javax.xml.bind.JAXBElement;
 import net.opengis.gml._3.DirectPositionListType;
 import net.opengis.gml._3.LineStringType;
 import org.apache.commons.lang3.ArrayUtils;
@@ -78,122 +85,177 @@ import org.rutebanken.netex.model.ServiceLinkInJourneyPattern_VersionedChildStru
 import org.rutebanken.netex.model.ServiceLinkRefStructure;
 import org.rutebanken.netex.model.StopPointInJourneyPattern;
 
-import javax.xml.bind.JAXBElement;
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 class ShapeProducerTest {
 
-    private static final ObjectFactory NETEX_FACTORY = new ObjectFactory();
-    public static final String TEST_SERVICE_LINK_1 = "SERVICE_LINK_1";
-    public static final String TEST_SERVICE_LINK_2 = "SERVICE_LINK_2";
+  private static final ObjectFactory NETEX_FACTORY = new ObjectFactory();
+  public static final String TEST_SERVICE_LINK_1 = "SERVICE_LINK_1";
+  public static final String TEST_SERVICE_LINK_2 = "SERVICE_LINK_2";
 
-    // JTS coordinates long/lat
-    private static final Coordinate A1 = new Coordinate(10.512689, 59.72215);
-    private static final Coordinate A2 = new Coordinate(10.512651, 59.722111 );
-    private static final Coordinate A3 = new Coordinate(10.512528, 59.721984 );
-    private static final Coordinate A4 = new Coordinate(10.512238, 59.721627 );
+  // JTS coordinates long/lat
+  private static final Coordinate A1 = new Coordinate(10.512689, 59.72215);
+  private static final Coordinate A2 = new Coordinate(10.512651, 59.722111);
+  private static final Coordinate A3 = new Coordinate(10.512528, 59.721984);
+  private static final Coordinate A4 = new Coordinate(10.512238, 59.721627);
 
+  /**
+   * Create a JourneyPattern with 3 stops linked by 2 contiguous service links.
+   * The first service link contains 3 points, the second one contains 2 points.
+   * Verify that the ShapeProducer produces a GTFSShape containing 4 shape points with travelled distances
+   * consistent with the input ServiceLinks.
+   */
+  @Test
+  void testShapeProducer() {
+    NetexDatasetRepository netexDatasetRepository = mock(
+      NetexDatasetRepository.class
+    );
 
-    /**
-     * Create a JourneyPattern with 3 stops linked by 2 contiguous service links.
-     * The first service link contains 3 points, the second one contains 2 points.
-     * Verify that the ShapeProducer produces a GTFSShape containing 4 shape points with travelled distances
-     * consistent with the input ServiceLinks.
-     */
-    @Test
-    void testShapeProducer() {
+    // GML coordinates lat/long
+    when(netexDatasetRepository.getServiceLinkById(TEST_SERVICE_LINK_1))
+      .thenReturn(createServiceLink(A1.y, A1.x, A2.y, A2.x, A3.y, A3.x));
+    when(netexDatasetRepository.getServiceLinkById(TEST_SERVICE_LINK_2))
+      .thenReturn(createServiceLink(A3.y, A3.x, A4.y, A4.x));
 
-        NetexDatasetRepository netexDatasetRepository = mock(NetexDatasetRepository.class);
+    double serviceLinkLength1 =
+      GeometryUtil.distance(A1, A2) + GeometryUtil.distance(A2, A3);
+    double serviceLinkLength2 = GeometryUtil.distance(A3, A4);
 
-        // GML coordinates lat/long
-        when(netexDatasetRepository.getServiceLinkById(TEST_SERVICE_LINK_1)).thenReturn(createServiceLink(A1.y, A1.x, A2.y, A2.x, A3.y, A3.x));
-        when(netexDatasetRepository.getServiceLinkById(TEST_SERVICE_LINK_2)).thenReturn(createServiceLink(A3.y, A3.x, A4.y, A4.x));
+    GtfsDatasetRepository gtfsDatasetRepository = mock(
+      GtfsDatasetRepository.class
+    );
+    when(gtfsDatasetRepository.getDefaultAgency()).thenReturn(new Agency());
 
-        double serviceLinkLength1 = GeometryUtil.distance(A1, A2) + GeometryUtil.distance(A2, A3);
-        double serviceLinkLength2 = GeometryUtil.distance(A3, A4);
+    ShapeProducer shapeProducer = new DefaultShapeProducer(
+      netexDatasetRepository,
+      gtfsDatasetRepository
+    );
+    GtfsShape shape = shapeProducer.produce(createTestJourneyPattern());
+    Assertions.assertNotNull(shape);
+    Assertions.assertEquals(4, shape.getShapePoints().size());
 
-        GtfsDatasetRepository gtfsDatasetRepository = mock(GtfsDatasetRepository.class);
-        when(gtfsDatasetRepository.getDefaultAgency()).thenReturn(new Agency());
+    Assertions.assertEquals(0, shape.getDistanceTravelledToStop(1));
+    Assertions.assertEquals(
+      Math.round(serviceLinkLength1),
+      shape.getDistanceTravelledToStop(2)
+    );
+    Assertions.assertEquals(
+      Math.round(serviceLinkLength1 + serviceLinkLength2),
+      shape.getDistanceTravelledToStop(3)
+    );
 
-        ShapeProducer shapeProducer = new DefaultShapeProducer(netexDatasetRepository, gtfsDatasetRepository);
-        GtfsShape shape = shapeProducer.produce(createTestJourneyPattern());
-        Assertions.assertNotNull(shape);
-        Assertions.assertEquals(4, shape.getShapePoints().size());
+    Assertions.assertEquals(0, shape.getShapePoints().get(0).getDistTraveled());
+    Assertions.assertEquals(
+      Math.round(GeometryUtil.distance(A1, A2)),
+      shape.getShapePoints().get(1).getDistTraveled()
+    );
+    Assertions.assertEquals(
+      Math.round(GeometryUtil.distance(A1, A2) + GeometryUtil.distance(A2, A3)),
+      shape.getShapePoints().get(2).getDistTraveled()
+    );
+    Assertions.assertEquals(
+      Math.round(
+        GeometryUtil.distance(A1, A2) +
+        GeometryUtil.distance(A2, A3) +
+        GeometryUtil.distance(A3, A4)
+      ),
+      shape.getShapePoints().get(3).getDistTraveled()
+    );
+  }
 
-        Assertions.assertEquals(0, shape.getDistanceTravelledToStop(1));
-        Assertions.assertEquals(Math.round(serviceLinkLength1), shape.getDistanceTravelledToStop(2));
-        Assertions.assertEquals(Math.round(serviceLinkLength1 + serviceLinkLength2), shape.getDistanceTravelledToStop(3));
+  private static ServiceLink createServiceLink(double... coordinates) {
+    List<Double> coordinateList = Arrays.asList(
+      ArrayUtils.toObject(coordinates)
+    );
 
-        Assertions.assertEquals(0, shape.getShapePoints().get(0).getDistTraveled());
-        Assertions.assertEquals(Math.round(GeometryUtil.distance(A1, A2)), shape.getShapePoints().get(1).getDistTraveled());
-        Assertions.assertEquals(Math.round(GeometryUtil.distance(A1, A2) + GeometryUtil.distance(A2, A3)), shape.getShapePoints().get(2).getDistTraveled());
-        Assertions.assertEquals(Math.round(GeometryUtil.distance(A1, A2) + GeometryUtil.distance(A2, A3) + GeometryUtil.distance(A3, A4)), shape.getShapePoints().get(3).getDistTraveled());
+    ServiceLink serviceLink = new ServiceLink();
+    Projections_RelStructure projectionsRelStructure =
+      new Projections_RelStructure();
+    LinkSequenceProjection linkSequenceProjection =
+      new LinkSequenceProjection();
+    LineStringType lineStringType = new LineStringType();
+    DirectPositionListType directPositionListType =
+      new DirectPositionListType();
+    directPositionListType.withValue(coordinateList);
+    lineStringType.setPosList(directPositionListType);
+    linkSequenceProjection.setLineString(lineStringType);
 
+    JAXBElement<?> jaxbProjectionVersionStructure =
+      NETEX_FACTORY.createProjection(linkSequenceProjection);
 
-    }
+    projectionsRelStructure
+      .getProjectionRefOrProjection()
+      .add(0, jaxbProjectionVersionStructure);
+    serviceLink.setProjections(projectionsRelStructure);
 
-    private static ServiceLink createServiceLink(double... coordinates) {
-        List<Double> coordinateList = Arrays.asList(ArrayUtils.toObject(coordinates));
+    return serviceLink;
+  }
 
-        ServiceLink serviceLink = new ServiceLink();
-        Projections_RelStructure projectionsRelStructure = new Projections_RelStructure();
-        LinkSequenceProjection linkSequenceProjection = new LinkSequenceProjection();
-        LineStringType lineStringType = new LineStringType();
-        DirectPositionListType directPositionListType = new DirectPositionListType();
-        directPositionListType.withValue(coordinateList);
-        lineStringType.setPosList(directPositionListType);
-        linkSequenceProjection.setLineString(lineStringType);
+  private static JourneyPattern createTestJourneyPattern() {
+    JourneyPattern journeyPattern = new JourneyPattern();
 
-        JAXBElement<?> jaxbProjectionVersionStructure = NETEX_FACTORY.createProjection(linkSequenceProjection);
+    PointsInJourneyPattern_RelStructure pointInSequences =
+      new PointsInJourneyPattern_RelStructure();
+    StopPointInJourneyPattern pointLinkInSequence1 =
+      new StopPointInJourneyPattern();
+    ScheduledStopPointRefStructure scheduledStopPointRefStructure =
+      NETEX_FACTORY.createScheduledStopPointRefStructure();
 
-        projectionsRelStructure.getProjectionRefOrProjection().add(0, jaxbProjectionVersionStructure);
-        serviceLink.setProjections(projectionsRelStructure);
+    JAXBElement<ScheduledStopPointRefStructure> scheduledStopPointRef =
+      NETEX_FACTORY.createScheduledStopPointRef(scheduledStopPointRefStructure);
+    pointLinkInSequence1.setScheduledStopPointRef(scheduledStopPointRef);
+    pointInSequences
+      .getPointInJourneyPatternOrStopPointInJourneyPatternOrTimingPointInJourneyPattern()
+      .add(0, pointLinkInSequence1);
+    PointInLinkSequence_VersionedChildStructure pointLinkInSequence2 =
+      new StopPointInJourneyPattern();
+    pointInSequences
+      .getPointInJourneyPatternOrStopPointInJourneyPatternOrTimingPointInJourneyPattern()
+      .add(1, pointLinkInSequence2);
+    PointInLinkSequence_VersionedChildStructure pointLinkInSequence3 =
+      new StopPointInJourneyPattern();
+    pointInSequences
+      .getPointInJourneyPatternOrStopPointInJourneyPatternOrTimingPointInJourneyPattern()
+      .add(2, pointLinkInSequence3);
+    journeyPattern.setPointsInSequence(pointInSequences);
 
-        return serviceLink;
-    }
+    LinksInJourneyPattern_RelStructure linksInJourneyPatternRelStructure =
+      new LinksInJourneyPattern_RelStructure();
 
-    private static JourneyPattern createTestJourneyPattern() {
+    ServiceLinkInJourneyPattern_VersionedChildStructure serviceLinkInJourneyPatternVersionedChildStructure1 =
+      getServiceLinkInJourneyPattern_versionedChildStructure(
+        BigInteger.ONE,
+        TEST_SERVICE_LINK_1
+      );
+    linksInJourneyPatternRelStructure
+      .getServiceLinkInJourneyPatternOrTimingLinkInJourneyPattern()
+      .add(0, serviceLinkInJourneyPatternVersionedChildStructure1);
 
-        JourneyPattern journeyPattern = new JourneyPattern();
+    ServiceLinkInJourneyPattern_VersionedChildStructure serviceLinkInJourneyPatternVersionedChildStructure2 =
+      getServiceLinkInJourneyPattern_versionedChildStructure(
+        BigInteger.TWO,
+        TEST_SERVICE_LINK_2
+      );
+    linksInJourneyPatternRelStructure
+      .getServiceLinkInJourneyPatternOrTimingLinkInJourneyPattern()
+      .add(1, serviceLinkInJourneyPatternVersionedChildStructure2);
 
-        PointsInJourneyPattern_RelStructure pointInSequences = new PointsInJourneyPattern_RelStructure();
-        StopPointInJourneyPattern pointLinkInSequence1 = new StopPointInJourneyPattern();
-        ScheduledStopPointRefStructure scheduledStopPointRefStructure = NETEX_FACTORY.createScheduledStopPointRefStructure();
+    journeyPattern.setLinksInSequence(linksInJourneyPatternRelStructure);
 
-        JAXBElement<ScheduledStopPointRefStructure> scheduledStopPointRef = NETEX_FACTORY.createScheduledStopPointRef(scheduledStopPointRefStructure);
-        pointLinkInSequence1.setScheduledStopPointRef(scheduledStopPointRef);
-        pointInSequences.getPointInJourneyPatternOrStopPointInJourneyPatternOrTimingPointInJourneyPattern().add(0, pointLinkInSequence1);
-        PointInLinkSequence_VersionedChildStructure pointLinkInSequence2 = new StopPointInJourneyPattern();
-        pointInSequences.getPointInJourneyPatternOrStopPointInJourneyPatternOrTimingPointInJourneyPattern().add(1, pointLinkInSequence2);
-        PointInLinkSequence_VersionedChildStructure pointLinkInSequence3 = new StopPointInJourneyPattern();
-        pointInSequences.getPointInJourneyPatternOrStopPointInJourneyPatternOrTimingPointInJourneyPattern().add(2, pointLinkInSequence3);
-        journeyPattern.setPointsInSequence(pointInSequences);
+    return journeyPattern;
+  }
 
-        LinksInJourneyPattern_RelStructure linksInJourneyPatternRelStructure = new LinksInJourneyPattern_RelStructure();
-
-        ServiceLinkInJourneyPattern_VersionedChildStructure serviceLinkInJourneyPatternVersionedChildStructure1 = getServiceLinkInJourneyPattern_versionedChildStructure(BigInteger.ONE, TEST_SERVICE_LINK_1);
-        linksInJourneyPatternRelStructure.getServiceLinkInJourneyPatternOrTimingLinkInJourneyPattern().add(0, serviceLinkInJourneyPatternVersionedChildStructure1);
-
-        ServiceLinkInJourneyPattern_VersionedChildStructure serviceLinkInJourneyPatternVersionedChildStructure2 = getServiceLinkInJourneyPattern_versionedChildStructure(BigInteger.TWO, TEST_SERVICE_LINK_2);
-        linksInJourneyPatternRelStructure.getServiceLinkInJourneyPatternOrTimingLinkInJourneyPattern().add(1, serviceLinkInJourneyPatternVersionedChildStructure2);
-
-        journeyPattern.setLinksInSequence(linksInJourneyPatternRelStructure);
-
-        return journeyPattern;
-    }
-
-    private static ServiceLinkInJourneyPattern_VersionedChildStructure getServiceLinkInJourneyPattern_versionedChildStructure(BigInteger order, String id) {
-        ServiceLinkInJourneyPattern_VersionedChildStructure serviceLinkInJourneyPatternVersionedChildStructure1 = new ServiceLinkInJourneyPattern_VersionedChildStructure();
-        serviceLinkInJourneyPatternVersionedChildStructure1.setOrder(order);
-        ServiceLinkRefStructure serviceLinkRefStructure1 = new ServiceLinkRefStructure();
-        serviceLinkRefStructure1.setRef(id);
-        serviceLinkInJourneyPatternVersionedChildStructure1.setServiceLinkRef(serviceLinkRefStructure1);
-        return serviceLinkInJourneyPatternVersionedChildStructure1;
-    }
-
+  private static ServiceLinkInJourneyPattern_VersionedChildStructure getServiceLinkInJourneyPattern_versionedChildStructure(
+    BigInteger order,
+    String id
+  ) {
+    ServiceLinkInJourneyPattern_VersionedChildStructure serviceLinkInJourneyPatternVersionedChildStructure1 =
+      new ServiceLinkInJourneyPattern_VersionedChildStructure();
+    serviceLinkInJourneyPatternVersionedChildStructure1.setOrder(order);
+    ServiceLinkRefStructure serviceLinkRefStructure1 =
+      new ServiceLinkRefStructure();
+    serviceLinkRefStructure1.setRef(id);
+    serviceLinkInJourneyPatternVersionedChildStructure1.setServiceLinkRef(
+      serviceLinkRefStructure1
+    );
+    return serviceLinkInJourneyPatternVersionedChildStructure1;
+  }
 }

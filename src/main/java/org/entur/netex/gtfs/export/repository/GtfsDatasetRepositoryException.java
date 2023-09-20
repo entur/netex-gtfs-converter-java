@@ -19,7 +19,8 @@
 package org.entur.netex.gtfs.export.repository;
 
 public class GtfsDatasetRepositoryException extends RuntimeException {
-    public GtfsDatasetRepositoryException(String message) {
-        super(message);
-    }
+
+  public GtfsDatasetRepositoryException(String message) {
+    super(message);
+  }
 }

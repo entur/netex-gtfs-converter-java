@@ -24,19 +24,18 @@ import java.io.InputStream;
  * Factory for creating stop area repositories.
  */
 public interface StopAreaRepositoryFactory {
+  /**
+   * Return an initialized instance of a stop area repository.
+   * Multiple calls to the method may return different repositories if the underlying implementation allows for refreshing the dataset at runtime.
+   *
+   * @return an initialized instance of a stop area repository.
+   */
+  StopAreaRepository getStopAreaRepository();
 
-    /**
-     * Return an initialized instance of a stop area repository.
-     * Multiple calls to the method may return different repositories if the underlying implementation allows for refreshing the dataset at runtime.
-     *
-     * @return an initialized instance of a stop area repository.
-     */
-    StopAreaRepository getStopAreaRepository();
-
-    /**
-     * Refresh the cached stop area.
-     *
-     * @param stopDataset an input stream on a NeTEX dataset archive.
-     */
-    void refreshStopAreaRepository(InputStream stopDataset);
+  /**
+   * Refresh the cached stop area.
+   *
+   * @param stopDataset an input stream on a NeTEX dataset archive.
+   */
+  void refreshStopAreaRepository(InputStream stopDataset);
 }

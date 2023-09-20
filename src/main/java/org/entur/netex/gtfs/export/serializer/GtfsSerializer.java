@@ -18,20 +18,18 @@
 
 package org.entur.netex.gtfs.export.serializer;
 
-import org.onebusaway.gtfs.services.GtfsDao;
-
 import java.io.InputStream;
+import org.onebusaway.gtfs.services.GtfsDao;
 
 /**
  * Serialize a GTFS dataset into a zip archive.
  */
 public interface GtfsSerializer {
-
-    /**
-     * Generate a GTFS archive from an in-memory GTFS data model.
-     *
-     * @param gtfsDao the in-memory GTFS data model.
-     * @return an input stream pointing to a GTFS archive.
-     */
-    InputStream writeGtfs(GtfsDao gtfsDao);
+  /**
+   * Generate a GTFS archive from an in-memory GTFS data model.
+   *
+   * @param gtfsDao the in-memory GTFS data model.
+   * @return an input stream pointing to a GTFS archive.
+   */
+  InputStream writeGtfs(GtfsDao gtfsDao);
 }

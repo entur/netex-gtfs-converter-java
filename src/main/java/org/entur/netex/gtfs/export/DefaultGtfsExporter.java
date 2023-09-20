@@ -18,6 +18,7 @@
 
 package org.entur.netex.gtfs.export;
 
+import java.io.InputStream;
 import org.entur.netex.gtfs.export.converters.StopsToGtfsConverter;
 import org.entur.netex.gtfs.export.converters.TimetablesToGtfsConverter;
 import org.entur.netex.gtfs.export.loader.DefaultNetexDatasetLoader;
@@ -32,76 +33,94 @@ import org.onebusaway.gtfs.model.FeedInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
-
 public class DefaultGtfsExporter implements GtfsExporter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultGtfsExporter.class);
-    private final StopAreaRepositoryFactory stopAreaRepositoryFactory;
-    private final FeedInfoProducer feedInfoProducer;
+  private static final Logger LOGGER = LoggerFactory.getLogger(
+    DefaultGtfsExporter.class
+  );
+  private final StopAreaRepositoryFactory stopAreaRepositoryFactory;
+  private final FeedInfoProducer feedInfoProducer;
 
-    public DefaultGtfsExporter(StopAreaRepositoryFactory stopAreaRepositoryFactory,
-                               FeedInfoProducer feedInfoProducer) {
-        this.stopAreaRepositoryFactory = stopAreaRepositoryFactory;
-        this.feedInfoProducer = feedInfoProducer;
+  public DefaultGtfsExporter(
+    StopAreaRepositoryFactory stopAreaRepositoryFactory,
+    FeedInfoProducer feedInfoProducer
+  ) {
+    this.stopAreaRepositoryFactory = stopAreaRepositoryFactory;
+    this.feedInfoProducer = feedInfoProducer;
+  }
+
+  @Override
+  public InputStream convertTimetablesToGtfs(
+    String codespace,
+    InputStream netexTimetableDataset,
+    boolean generateStaySeatedTransfer
+  ) {
+    if (codespace == null) {
+      throw new IllegalStateException(
+        "Missing required codespace for timetable data export"
+      );
     }
 
-    @Override
-    public InputStream convertTimetablesToGtfs(String codespace,
-                                               InputStream netexTimetableDataset,
-                                               boolean generateStaySeatedTransfer) {
-        if (codespace == null) {
-            throw new IllegalStateException("Missing required codespace for timetable data export");
-        }
+    StopAreaRepository stopAreaRepository =
+      stopAreaRepositoryFactory.getStopAreaRepository();
+    NetexDatasetRepository netexDatasetRepository =
+      new DefaultNetexDatasetRepository();
 
-        StopAreaRepository stopAreaRepository = stopAreaRepositoryFactory.getStopAreaRepository();
-        NetexDatasetRepository netexDatasetRepository = new DefaultNetexDatasetRepository();
+    loadNetexTimetableDatasetToRepository(
+      netexTimetableDataset,
+      netexDatasetRepository
+    );
 
-        loadNetexTimetableDatasetToRepository(netexTimetableDataset, netexDatasetRepository);
+    DefaultGtfsServiceRepository gtfsServiceRepository =
+      new DefaultGtfsServiceRepository(codespace, netexDatasetRepository);
 
-        DefaultGtfsServiceRepository gtfsServiceRepository = new DefaultGtfsServiceRepository(
-                codespace,
-                netexDatasetRepository);
+    GtfsDatasetRepository gtfsDatasetRepository = new DefaultGtfsRepository();
 
-        GtfsDatasetRepository gtfsDatasetRepository = new DefaultGtfsRepository();
+    TimetablesToGtfsConverter timetablesToGtfsConverter =
+      new TimetablesToGtfsConverter(
+        netexDatasetRepository,
+        gtfsDatasetRepository,
+        stopAreaRepository,
+        gtfsServiceRepository,
+        generateStaySeatedTransfer
+      );
+    timetablesToGtfsConverter.convert();
+    addFeedInfo(gtfsDatasetRepository);
 
-        TimetablesToGtfsConverter timetablesToGtfsConverter = new TimetablesToGtfsConverter(
-                netexDatasetRepository,
-                gtfsDatasetRepository,
-                stopAreaRepository,
-                gtfsServiceRepository,
-                generateStaySeatedTransfer
-        );
-        timetablesToGtfsConverter.convert();
-        addFeedInfo(gtfsDatasetRepository);
+    return gtfsDatasetRepository.writeGtfs();
+  }
 
-        return gtfsDatasetRepository.writeGtfs();
+  protected void loadNetexTimetableDatasetToRepository(
+    InputStream netexTimetableDataset,
+    NetexDatasetRepository netexDatasetRepository
+  ) {
+    LOGGER.info("Importing NeTEx Timetable dataset");
+    DefaultNetexDatasetLoader netexDatasetLoader =
+      new DefaultNetexDatasetLoader();
+    netexDatasetLoader.load(netexTimetableDataset, netexDatasetRepository);
+    LOGGER.info("Imported NeTEx Timetable dataset");
+  }
+
+  @Override
+  public InputStream convertStopsToGtfs() {
+    StopAreaRepository stopAreaRepository =
+      stopAreaRepositoryFactory.getStopAreaRepository();
+    GtfsDatasetRepository gtfsDatasetRepository = new DefaultGtfsRepository();
+    StopsToGtfsConverter stopsToGtfsConverter = new StopsToGtfsConverter(
+      stopAreaRepository,
+      gtfsDatasetRepository
+    );
+    stopsToGtfsConverter.convert();
+    addFeedInfo(gtfsDatasetRepository);
+    return gtfsDatasetRepository.writeGtfs();
+  }
+
+  protected void addFeedInfo(GtfsDatasetRepository gtfsDatasetRepository) {
+    if (feedInfoProducer != null) {
+      FeedInfo feedInfo = feedInfoProducer.produceFeedInfo();
+      if (feedInfo != null) {
+        gtfsDatasetRepository.saveEntity(feedInfo);
+      }
     }
-
-    protected void loadNetexTimetableDatasetToRepository(InputStream netexTimetableDataset,
-                                                         NetexDatasetRepository netexDatasetRepository) {
-        LOGGER.info("Importing NeTEx Timetable dataset");
-        DefaultNetexDatasetLoader netexDatasetLoader = new DefaultNetexDatasetLoader();
-        netexDatasetLoader.load(netexTimetableDataset, netexDatasetRepository);
-        LOGGER.info("Imported NeTEx Timetable dataset");
-    }
-
-    @Override
-    public InputStream convertStopsToGtfs() {
-        StopAreaRepository stopAreaRepository = stopAreaRepositoryFactory.getStopAreaRepository();
-        GtfsDatasetRepository gtfsDatasetRepository = new DefaultGtfsRepository();
-        StopsToGtfsConverter stopsToGtfsConverter = new StopsToGtfsConverter(stopAreaRepository, gtfsDatasetRepository);
-        stopsToGtfsConverter.convert();
-        addFeedInfo(gtfsDatasetRepository);
-        return gtfsDatasetRepository.writeGtfs();
-    }
-
-    protected void addFeedInfo(GtfsDatasetRepository gtfsDatasetRepository) {
-        if (feedInfoProducer != null) {
-            FeedInfo feedInfo = feedInfoProducer.produceFeedInfo();
-            if (feedInfo != null) {
-                gtfsDatasetRepository.saveEntity(feedInfo);
-            }
-        }
-    }
+  }
 }

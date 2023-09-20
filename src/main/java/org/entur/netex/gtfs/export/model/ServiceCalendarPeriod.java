@@ -18,43 +18,46 @@
 
 package org.entur.netex.gtfs.export.model;
 
-import org.onebusaway.gtfs.model.calendar.ServiceDate;
-
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.Set;
+import org.onebusaway.gtfs.model.calendar.ServiceDate;
 
 /**
  * A GTFS service calendar period defined by an interval [startDate, endDate] and a set of days of week for which the service is running.
  */
 public class ServiceCalendarPeriod {
 
-    private final ServiceDate startDate;
-    private final ServiceDate endDate;
+  private final ServiceDate startDate;
+  private final ServiceDate endDate;
 
-    private final Set<DayOfWeek> daysOfWeek;
+  private final Set<DayOfWeek> daysOfWeek;
 
-    public ServiceCalendarPeriod(LocalDateTime startDateTime, LocalDateTime endDateTime, Set<DayOfWeek> daysOfWeek) {
-        startDate = new ServiceDate(toGtfsDate(startDateTime));
-        endDate = new ServiceDate(toGtfsDate(endDateTime));
-        this.daysOfWeek = daysOfWeek;
-    }
+  public ServiceCalendarPeriod(
+    LocalDateTime startDateTime,
+    LocalDateTime endDateTime,
+    Set<DayOfWeek> daysOfWeek
+  ) {
+    startDate = new ServiceDate(toGtfsDate(startDateTime));
+    endDate = new ServiceDate(toGtfsDate(endDateTime));
+    this.daysOfWeek = daysOfWeek;
+  }
 
-    public ServiceDate getStartDate() {
-        return startDate;
-    }
+  public ServiceDate getStartDate() {
+    return startDate;
+  }
 
-    public ServiceDate getEndDate() {
-        return endDate;
-    }
+  public ServiceDate getEndDate() {
+    return endDate;
+  }
 
-    public Set<DayOfWeek> getDaysOfWeek() {
-        return daysOfWeek;
-    }
+  public Set<DayOfWeek> getDaysOfWeek() {
+    return daysOfWeek;
+  }
 
-    private static Date toGtfsDate(LocalDateTime netexDate) {
-        return Date.from(netexDate.atZone(ZoneId.systemDefault()).toInstant());
-    }
+  private static Date toGtfsDate(LocalDateTime netexDate) {
+    return Date.from(netexDate.atZone(ZoneId.systemDefault()).toInstant());
+  }
 }

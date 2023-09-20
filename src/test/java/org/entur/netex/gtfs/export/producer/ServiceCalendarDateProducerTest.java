@@ -54,6 +54,8 @@
 
 package org.entur.netex.gtfs.export.producer;
 
+import java.text.ParseException;
+import java.time.LocalDateTime;
 import org.entur.netex.gtfs.export.repository.DefaultGtfsRepository;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.junit.jupiter.api.Assertions;
@@ -61,28 +63,31 @@ import org.junit.jupiter.api.Test;
 import org.onebusaway.gtfs.model.ServiceCalendarDate;
 import org.onebusaway.gtfs.model.calendar.ServiceDate;
 
-import java.text.ParseException;
-import java.time.LocalDateTime;
-
 class ServiceCalendarDateProducerTest {
 
-    private static final String SERVICE_ID = "Service-ID";
+  private static final String SERVICE_ID = "Service-ID";
 
-    @Test
-    void testServiceCalendarDateProducer() throws ParseException {
+  @Test
+  void testServiceCalendarDateProducer() throws ParseException {
+    GtfsDatasetRepository gtfsDatasetRepository = new DefaultGtfsRepository();
 
-        GtfsDatasetRepository gtfsDatasetRepository = new DefaultGtfsRepository();
+    ServiceCalendarDateProducer serviceCalendarDateProducer =
+      new DefaultServiceCalendarDateProducer(gtfsDatasetRepository);
+    LocalDateTime now = LocalDateTime.of(2021, 10, 15, 0, 0);
+    ServiceDate serviceDate = ServiceDate.parseString("20211015");
+    ServiceCalendarDate serviceCalendarDate =
+      serviceCalendarDateProducer.produce(SERVICE_ID, now, true);
 
-        ServiceCalendarDateProducer serviceCalendarDateProducer = new DefaultServiceCalendarDateProducer(gtfsDatasetRepository);
-        LocalDateTime now = LocalDateTime.of(2021, 10, 15, 0, 0);
-        ServiceDate serviceDate = ServiceDate.parseString("20211015");
-        ServiceCalendarDate serviceCalendarDate = serviceCalendarDateProducer.produce(SERVICE_ID, now, true);
-
-        Assertions.assertNotNull(serviceCalendarDate);
-        Assertions.assertNotNull(serviceCalendarDate.getId());
-        Assertions.assertEquals(SERVICE_ID, serviceCalendarDate.getServiceId().getId());
-        Assertions.assertEquals(serviceDate, serviceCalendarDate.getDate());
-        Assertions.assertEquals(ServiceCalendarDateProducer.SERVICE_ADDED, serviceCalendarDate.getExceptionType());
-
-    }
+    Assertions.assertNotNull(serviceCalendarDate);
+    Assertions.assertNotNull(serviceCalendarDate.getId());
+    Assertions.assertEquals(
+      SERVICE_ID,
+      serviceCalendarDate.getServiceId().getId()
+    );
+    Assertions.assertEquals(serviceDate, serviceCalendarDate.getDate());
+    Assertions.assertEquals(
+      ServiceCalendarDateProducer.SERVICE_ADDED,
+      serviceCalendarDate.getExceptionType()
+    );
+  }
 }

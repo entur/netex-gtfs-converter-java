@@ -22,7 +22,8 @@ package org.entur.netex.gtfs.export.exception;
  * Exception triggered when a referenced quay cannot be found in the stop area repository.
  */
 public class QuayNotFoundException extends GtfsExportException {
-    public QuayNotFoundException(String message) {
-        super(message);
-    }
+
+  public QuayNotFoundException(String message) {
+    super(message);
+  }
 }
