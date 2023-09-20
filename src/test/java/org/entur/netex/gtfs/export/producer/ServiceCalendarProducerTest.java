@@ -55,7 +55,6 @@
 package org.entur.netex.gtfs.export.producer;
 
 import java.time.DayOfWeek;
-import java.util.Collections;
 import java.util.Set;
 import org.entur.netex.gtfs.export.repository.DefaultGtfsRepository;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;

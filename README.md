@@ -31,7 +31,7 @@ Supporting other NeTEx profiles is possible by overriding the default conversion
         GtfsExporter gtfsExport = new DefaultGtfsExporter(codespace, defaultStopAreaRepository);
 
         // the returned Inputstream points to a GTFS zip archive
-        InputStream exportedGtfs = gtfsExport.convertNetexToGtfs(netexTimetableDataset);
+        InputStream exportedGtfs = gtfsExport.convertTimetablesToGtfs(netexTimetableDataset);
 
 
 # Extension points
