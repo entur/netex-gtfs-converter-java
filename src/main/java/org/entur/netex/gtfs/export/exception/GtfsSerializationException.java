@@ -25,7 +25,7 @@ package org.entur.netex.gtfs.export.exception;
  */
 public class GtfsSerializationException extends RuntimeException {
 
-    public GtfsSerializationException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public GtfsSerializationException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

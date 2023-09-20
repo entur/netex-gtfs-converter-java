@@ -54,6 +54,10 @@
 
 package org.entur.netex.gtfs.export.producer;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.math.BigDecimal;
 import org.entur.netex.gtfs.export.exception.GtfsExportException;
 import org.entur.netex.gtfs.export.repository.DefaultGtfsRepository;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
@@ -68,96 +72,102 @@ import org.rutebanken.netex.model.Quay;
 import org.rutebanken.netex.model.SimplePoint_VersionStructure;
 import org.rutebanken.netex.model.StopPlace;
 
-import java.math.BigDecimal;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 class StopProducerTest {
 
-    private static final ObjectFactory NETEX_FACTORY = new ObjectFactory();
+  private static final ObjectFactory NETEX_FACTORY = new ObjectFactory();
 
+  private static final String QUAY_ID = "ENT:Quay:1";
+  private static final String STOP_PLACE_ID = "ENT:StopPlace:1";
+  private static final double LONGITUDE = 10.0;
+  private static final double LATITUDE = 1.0;
+  private static final String TEST_STOP_PLACE_NAME = "StopPlace name";
 
-    private static final String QUAY_ID = "ENT:Quay:1";
-    private static final String STOP_PLACE_ID = "ENT:StopPlace:1";
-    private static final double LONGITUDE = 10.0;
-    private static final double LATITUDE = 1.0;
-    private static final String TEST_STOP_PLACE_NAME = "StopPlace name";
+  @Test
+  void testStopProducerFromQuay() {
+    Quay quay = createTestQuay(QUAY_ID, LONGITUDE, LATITUDE);
+    StopPlace stopPlace = createTestStopPlace(STOP_PLACE_ID);
 
-    @Test
-    void testStopProducerFromQuay() {
+    StopAreaRepository stopAreaRepository = mock(StopAreaRepository.class);
+    when(stopAreaRepository.getQuayById(QUAY_ID)).thenReturn(quay);
+    when(stopAreaRepository.getStopPlaceByQuayId(QUAY_ID))
+      .thenReturn(stopPlace);
 
-        Quay quay = createTestQuay(QUAY_ID, LONGITUDE, LATITUDE);
-        StopPlace stopPlace = createTestStopPlace(STOP_PLACE_ID);
+    GtfsDatasetRepository gtfsDatasetRepository = new DefaultGtfsRepository();
+    StopProducer stopProducer = new DefaultStopProducer(
+      stopAreaRepository,
+      gtfsDatasetRepository
+    );
+    Stop stop = stopProducer.produceStopFromQuay(quay);
 
-        StopAreaRepository stopAreaRepository = mock(StopAreaRepository.class);
-        when(stopAreaRepository.getQuayById(QUAY_ID)).thenReturn(quay);
-        when(stopAreaRepository.getStopPlaceByQuayId(QUAY_ID)).thenReturn(stopPlace);
+    Assertions.assertNotNull(stop);
+    Assertions.assertNotNull(stop.getId());
+    Assertions.assertEquals(QUAY_ID, stop.getId().getId());
+    Assertions.assertEquals(LONGITUDE, stop.getLon());
+    Assertions.assertEquals(LATITUDE, stop.getLat());
+  }
 
-        GtfsDatasetRepository gtfsDatasetRepository = new DefaultGtfsRepository();
-        StopProducer stopProducer = new DefaultStopProducer(stopAreaRepository, gtfsDatasetRepository);
-        Stop stop = stopProducer.produceStopFromQuay(quay);
+  @Test
+  void testStopProducerFromQuayWithoutName() {
+    testStopProducerFromQuayWithName(null);
+  }
 
-        Assertions.assertNotNull(stop);
-        Assertions.assertNotNull(stop.getId());
-        Assertions.assertEquals(QUAY_ID, stop.getId().getId());
-        Assertions.assertEquals(LONGITUDE, stop.getLon());
-        Assertions.assertEquals(LATITUDE, stop.getLat());
+  @Test
+  void testStopProducerFromQuayWithEmptyName() {
+    testStopProducerFromQuayWithName(new MultilingualString());
+  }
 
-    }
+  @Test
+  void testStopProducerFromQuayWithBlankName() {
+    MultilingualString name = new MultilingualString();
+    name.setValue(" ");
+    testStopProducerFromQuayWithName(name);
+  }
 
-    @Test
-    void testStopProducerFromQuayWithoutName() {
-        testStopProducerFromQuayWithName(null);
-    }
+  private void testStopProducerFromQuayWithName(MultilingualString name) {
+    Quay quay = createTestQuay(QUAY_ID, LONGITUDE, LATITUDE);
+    StopPlace stopPlace = createTestStopPlace(STOP_PLACE_ID);
+    stopPlace.setName(name);
 
-    @Test
-    void testStopProducerFromQuayWithEmptyName() {
-        testStopProducerFromQuayWithName(new MultilingualString());
-    }
+    StopAreaRepository stopAreaRepository = mock(StopAreaRepository.class);
+    when(stopAreaRepository.getQuayById(QUAY_ID)).thenReturn(quay);
+    when(stopAreaRepository.getStopPlaceByQuayId(QUAY_ID))
+      .thenReturn(stopPlace);
 
-    @Test
-    void testStopProducerFromQuayWithBlankName() {
-        MultilingualString name = new MultilingualString();
-        name.setValue(" ");
-        testStopProducerFromQuayWithName(name);
-    }
+    GtfsDatasetRepository gtfsDatasetRepository = new DefaultGtfsRepository();
+    StopProducer stopProducer = new DefaultStopProducer(
+      stopAreaRepository,
+      gtfsDatasetRepository
+    );
+    Assertions.assertThrows(
+      GtfsExportException.class,
+      () -> stopProducer.produceStopFromQuay(quay)
+    );
+  }
 
-    private void testStopProducerFromQuayWithName(MultilingualString name) {
+  private StopPlace createTestStopPlace(String stopPlaceId) {
+    StopPlace stopPlace = new StopPlace();
+    stopPlace.setId(stopPlaceId);
+    MultilingualString stopPlaceName = NETEX_FACTORY.createMultilingualString();
+    stopPlaceName.setValue(TEST_STOP_PLACE_NAME);
+    stopPlace.setName(stopPlaceName);
 
-        Quay quay = createTestQuay(QUAY_ID, LONGITUDE, LATITUDE);
-        StopPlace stopPlace = createTestStopPlace(STOP_PLACE_ID);
-        stopPlace.setName(name);
+    return stopPlace;
+  }
 
-        StopAreaRepository stopAreaRepository = mock(StopAreaRepository.class);
-        when(stopAreaRepository.getQuayById(QUAY_ID)).thenReturn(quay);
-        when(stopAreaRepository.getStopPlaceByQuayId(QUAY_ID)).thenReturn(stopPlace);
+  private Quay createTestQuay(
+    String quayId,
+    double longitude,
+    double latitude
+  ) {
+    Quay quay = new Quay();
+    quay.setId(quayId);
+    SimplePoint_VersionStructure centroid = new SimplePoint_VersionStructure();
+    LocationStructure location = new LocationStructure();
+    location.setLongitude(BigDecimal.valueOf(longitude));
+    location.setLatitude(BigDecimal.valueOf(latitude));
+    centroid.setLocation(location);
+    quay.setCentroid(centroid);
 
-        GtfsDatasetRepository gtfsDatasetRepository = new DefaultGtfsRepository();
-        StopProducer stopProducer = new DefaultStopProducer(stopAreaRepository, gtfsDatasetRepository);
-        Assertions.assertThrows(GtfsExportException.class, () -> stopProducer.produceStopFromQuay(quay));
-    }
-
-    private StopPlace createTestStopPlace(String stopPlaceId) {
-        StopPlace stopPlace = new StopPlace();
-        stopPlace.setId(stopPlaceId);
-        MultilingualString stopPlaceName = NETEX_FACTORY.createMultilingualString();
-        stopPlaceName.setValue(TEST_STOP_PLACE_NAME);
-        stopPlace.setName(stopPlaceName);
-
-        return stopPlace;
-    }
-
-    private Quay createTestQuay(String quayId, double longitude, double latitude) {
-        Quay quay = new Quay();
-        quay.setId(quayId);
-        SimplePoint_VersionStructure centroid = new SimplePoint_VersionStructure();
-        LocationStructure location = new LocationStructure();
-        location.setLongitude(BigDecimal.valueOf(longitude));
-        location.setLatitude(BigDecimal.valueOf(latitude));
-        centroid.setLocation(location);
-        quay.setCentroid(centroid);
-
-        return quay;
-    }
+    return quay;
+  }
 }

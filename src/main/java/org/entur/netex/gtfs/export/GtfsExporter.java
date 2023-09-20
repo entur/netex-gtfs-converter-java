@@ -24,17 +24,20 @@ import java.io.InputStream;
  * Entry point class for generating a GTFS dataset from a NeTEx dataset
  */
 public interface GtfsExporter {
+  /**
+   * Convert a Netex timetable dataset into a GTFS dataset.
+   * @param netexTimetableDataset a ZIP archive containing a NeTEx timetable dataset.
+   * @return a ZIP archive containing a GTFS dataset.
+   */
+  InputStream convertTimetablesToGtfs(
+    String codespace,
+    InputStream netexTimetableDataset,
+    boolean generateStaySeatedTransfer
+  );
 
-    /**
-     * Convert a Netex timetable dataset into a GTFS dataset.
-     * @param netexTimetableDataset a ZIP archive containing a NeTEx timetable dataset.
-     * @return a ZIP archive containing a GTFS dataset.
-     */
-    InputStream convertTimetablesToGtfs(String codespace, InputStream netexTimetableDataset, boolean generateStaySeatedTransfer);
-
-    /**
-     * Export the stop area repository to GTFS. No timetable data is exported.
-     * @return a GTFS ZIP archive containing all stops.
-     */
-    InputStream convertStopsToGtfs();
+  /**
+   * Export the stop area repository to GTFS. No timetable data is exported.
+   * @return a GTFS ZIP archive containing all stops.
+   */
+  InputStream convertStopsToGtfs();
 }

@@ -18,39 +18,34 @@
 
 package org.entur.netex.gtfs.export.stop;
 
+import java.util.Collection;
 import org.rutebanken.netex.model.Quay;
 import org.rutebanken.netex.model.StopPlace;
-
-import java.util.Collection;
 
 /**
  * A repository containing NeTEx quays and stop places.
  */
 public interface StopAreaRepository {
+  /**
+   * Return the Quay identified by its id.
+   *
+   * @param quayId the quay id.
+   * @return the quay identified by this id.
+   */
+  Quay getQuayById(String quayId);
 
+  /**
+   * Return the stop place associated to a given quay.
+   *
+   * @param quayId the id of the quay
+   * @return the stop place that contains that quay.
+   */
+  StopPlace getStopPlaceByQuayId(String quayId);
 
-    /**
-     * Return the Quay identified by its id.
-     *
-     * @param quayId the quay id.
-     * @return the quay identified by this id.
-     */
-    Quay getQuayById(String quayId);
-
-    /**
-     * Return the stop place associated to a given quay.
-     *
-     * @param quayId the id of the quay
-     * @return the stop place that contains that quay.
-     */
-    StopPlace getStopPlaceByQuayId(String quayId);
-
-
-    /**
-     * Return all quays in the repository.
-     *
-     * @return all quays in the repository.
-     */
-    Collection<Quay> getAllQuays();
+  /**
+   * Return all quays in the repository.
+   *
+   * @return all quays in the repository.
+   */
+  Collection<Quay> getAllQuays();
 }
-

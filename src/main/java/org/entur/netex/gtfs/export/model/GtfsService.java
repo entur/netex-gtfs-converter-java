@@ -27,50 +27,51 @@ import java.util.Set;
  */
 public class GtfsService {
 
-    private final String id;
+  private final String id;
 
-    private ServiceCalendarPeriod serviceCalendarPeriod;
-    private final Set<LocalDateTime> includedDates = new HashSet<>();
-    private final Set<LocalDateTime> excludedDates = new HashSet<>();
+  private ServiceCalendarPeriod serviceCalendarPeriod;
+  private final Set<LocalDateTime> includedDates = new HashSet<>();
+  private final Set<LocalDateTime> excludedDates = new HashSet<>();
 
-    public GtfsService(String id) {
-        this.id = id;
-    }
+  public GtfsService(String id) {
+    this.id = id;
+  }
 
-    public String getId() {
-        return id;
-    }
+  public String getId() {
+    return id;
+  }
 
-    public void addExcludedDate(LocalDateTime date) {
-        excludedDates.add(date);
-    }
+  public void addExcludedDate(LocalDateTime date) {
+    excludedDates.add(date);
+  }
 
-    public void addIncludedDate(LocalDateTime date) {
-        includedDates.add(date);
-    }
+  public void addIncludedDate(LocalDateTime date) {
+    includedDates.add(date);
+  }
 
-    public Set<LocalDateTime> getIncludedDates() {
-        return new HashSet<>(includedDates);
-    }
+  public Set<LocalDateTime> getIncludedDates() {
+    return new HashSet<>(includedDates);
+  }
 
-    public Set<LocalDateTime> getExcludedDates() {
-        return new HashSet<>(excludedDates);
-    }
+  public Set<LocalDateTime> getExcludedDates() {
+    return new HashSet<>(excludedDates);
+  }
 
-    public ServiceCalendarPeriod getServiceCalendarPeriod() {
-        return serviceCalendarPeriod;
-    }
+  public ServiceCalendarPeriod getServiceCalendarPeriod() {
+    return serviceCalendarPeriod;
+  }
 
+  public void setServiceCalendarPeriod(
+    ServiceCalendarPeriod serviceCalendarPeriod
+  ) {
+    this.serviceCalendarPeriod = serviceCalendarPeriod;
+  }
 
-    public void setServiceCalendarPeriod(ServiceCalendarPeriod serviceCalendarPeriod) {
-        this.serviceCalendarPeriod = serviceCalendarPeriod;
-    }
+  public void removeIncludedDates(Set<LocalDateTime> removedIncludedDates) {
+    includedDates.removeAll(removedIncludedDates);
+  }
 
-    public void removeIncludedDates(Set<LocalDateTime> removedIncludedDates) {
-        includedDates.removeAll(removedIncludedDates);
-    }
-
-    public void removeAllExcludedDates() {
-        excludedDates.clear();
-    }
+  public void removeAllExcludedDates() {
+    excludedDates.clear();
+  }
 }

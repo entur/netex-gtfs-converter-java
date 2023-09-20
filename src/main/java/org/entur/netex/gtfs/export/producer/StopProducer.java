@@ -22,26 +22,24 @@ import org.onebusaway.gtfs.model.Stop;
 import org.rutebanken.netex.model.Quay;
 import org.rutebanken.netex.model.StopPlace;
 
-
 /**
  * Produce a GTFS Stop.
  */
 public interface StopProducer {
+  int WHEELCHAIR_BOARDING_TRUE = 1;
+  int WHEELCHAIR_BOARDING_FALSE = 2;
 
-    int WHEELCHAIR_BOARDING_TRUE = 1;
-    int WHEELCHAIR_BOARDING_FALSE = 2;
+  /**
+   * Produce a GTFS Stop from a NeTEx StopPlace
+   * @param stopPlace a NeTEx StopPlace
+   * @return a GTFS stop
+   */
+  Stop produceStopFromStopPlace(StopPlace stopPlace);
 
-    /**
-     * Produce a GTFS Stop from a NeTEx StopPlace
-     * @param stopPlace a NeTEx StopPlace
-     * @return a GTFS stop
-     */
-    Stop produceStopFromStopPlace(StopPlace stopPlace);
-
-    /**
-     * Produce a GTFS Stop from a NeTEx Quay
-     * @param quay a NeTEx Quay
-     * @return a GTFS stop
-     */
-    Stop produceStopFromQuay(Quay quay);
+  /**
+   * Produce a GTFS Stop from a NeTEx Quay
+   * @param quay a NeTEx Quay
+   * @return a GTFS stop
+   */
+  Stop produceStopFromQuay(Quay quay);
 }

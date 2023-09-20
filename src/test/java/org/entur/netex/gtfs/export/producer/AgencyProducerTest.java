@@ -54,6 +54,9 @@
 
 package org.entur.netex.gtfs.export.producer;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -62,43 +65,43 @@ import org.rutebanken.netex.model.Authority;
 import org.rutebanken.netex.model.ContactStructure;
 import org.rutebanken.netex.model.MultilingualString;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 class AgencyProducerTest {
 
-    private static final String AUTHORITY_ID = "ENT:Authority:1";
-    private static final String AUTHORITY_NAME = "Authority-name";
-    private static final String AUTHORITY_URL = "https://testUrl";
-    private static final String TIMEZONE = "Europe/Oslo";
+  private static final String AUTHORITY_ID = "ENT:Authority:1";
+  private static final String AUTHORITY_NAME = "Authority-name";
+  private static final String AUTHORITY_URL = "https://testUrl";
+  private static final String TIMEZONE = "Europe/Oslo";
 
-    @Test
-    void testAgencyProducer() {
-        Authority authority = createTestAuthority();
+  @Test
+  void testAgencyProducer() {
+    Authority authority = createTestAuthority();
 
-        NetexDatasetRepository netexDatasetRepository = mock(NetexDatasetRepository.class);
-        when(netexDatasetRepository.getTimeZone()).thenReturn(TIMEZONE);
+    NetexDatasetRepository netexDatasetRepository = mock(
+      NetexDatasetRepository.class
+    );
+    when(netexDatasetRepository.getTimeZone()).thenReturn(TIMEZONE);
 
+    AgencyProducer agencyProducer = new DefaultAgencyProducer(
+      netexDatasetRepository
+    );
 
-        AgencyProducer agencyProducer = new DefaultAgencyProducer(netexDatasetRepository);
+    Agency agency = agencyProducer.produce(authority);
+    Assertions.assertNotNull(agency);
+    Assertions.assertEquals(AUTHORITY_ID, agency.getId());
+    Assertions.assertEquals(AUTHORITY_NAME, agency.getName());
+    Assertions.assertEquals(AUTHORITY_URL, agency.getUrl());
+    Assertions.assertEquals(TIMEZONE, agency.getTimezone());
+  }
 
-        Agency agency = agencyProducer.produce(authority);
-        Assertions.assertNotNull(agency);
-        Assertions.assertEquals(AUTHORITY_ID, agency.getId());
-        Assertions.assertEquals(AUTHORITY_NAME, agency.getName());
-        Assertions.assertEquals(AUTHORITY_URL, agency.getUrl());
-        Assertions.assertEquals(TIMEZONE, agency.getTimezone());
-    }
-
-    private Authority createTestAuthority() {
-        Authority authority = new Authority();
-        authority.setId(AUTHORITY_ID);
-        MultilingualString name = new MultilingualString();
-        name.setValue(AUTHORITY_NAME);
-        authority.setName(name);
-        ContactStructure contactDetails = new ContactStructure();
-        contactDetails.setUrl(AUTHORITY_URL);
-        authority.setContactDetails(contactDetails);
-        return authority;
-    }
+  private Authority createTestAuthority() {
+    Authority authority = new Authority();
+    authority.setId(AUTHORITY_ID);
+    MultilingualString name = new MultilingualString();
+    name.setValue(AUTHORITY_NAME);
+    authority.setName(name);
+    ContactStructure contactDetails = new ContactStructure();
+    contactDetails.setUrl(AUTHORITY_URL);
+    authority.setContactDetails(contactDetails);
+    return authority;
+  }
 }

@@ -24,11 +24,10 @@ import org.onebusaway.gtfs.model.FeedInfo;
  * Produce an optional GTFS feed info or null if undefined.
  */
 public interface FeedInfoProducer {
-
-    /**
-     * Produce an optional GTFS feed info or null if undefined.
-     *
-     * @return an optional GTFS feed info or null if undefined.
-     */
-    FeedInfo produceFeedInfo();
+  /**
+   * Produce an optional GTFS feed info or null if undefined.
+   *
+   * @return an optional GTFS feed info or null if undefined.
+   */
+  FeedInfo produceFeedInfo();
 }

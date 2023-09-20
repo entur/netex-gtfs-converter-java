@@ -25,8 +25,7 @@ package org.entur.netex.gtfs.export.exception;
  */
 public class NetexParsingException extends RuntimeException {
 
-    public NetexParsingException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
+  public NetexParsingException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

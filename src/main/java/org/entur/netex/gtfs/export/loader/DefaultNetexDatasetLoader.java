@@ -18,48 +18,57 @@
 
 package org.entur.netex.gtfs.export.loader;
 
-import org.entur.netex.gtfs.export.exception.NetexParsingException;
-import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
-import org.entur.netex.NetexParser;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import org.entur.netex.NetexParser;
+import org.entur.netex.gtfs.export.exception.NetexParsingException;
+import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 
 public class DefaultNetexDatasetLoader implements NetexDatasetLoader {
 
-    protected final NetexParser netexParser;
+  protected final NetexParser netexParser;
 
-    public DefaultNetexDatasetLoader() {
-        this.netexParser = new NetexParser();
+  public DefaultNetexDatasetLoader() {
+    this.netexParser = new NetexParser();
+  }
+
+  @Override
+  public void load(
+    InputStream timetableDataset,
+    NetexDatasetRepository netexDatasetRepository
+  ) {
+    try (ZipInputStream zipInputStream = new ZipInputStream(timetableDataset)) {
+      parseDataset(zipInputStream, netexDatasetRepository);
+    } catch (IOException e) {
+      throw new NetexParsingException(
+        "Error while parsing the NeTEx timetable dataset",
+        e
+      );
     }
+  }
 
-    @Override
-    public void load(InputStream timetableDataset, NetexDatasetRepository netexDatasetRepository) {
-        try (ZipInputStream zipInputStream = new ZipInputStream(timetableDataset)) {
-            parseDataset(zipInputStream, netexDatasetRepository);
-        } catch (IOException e) {
-            throw new NetexParsingException("Error while parsing the NeTEx timetable dataset", e);
-        }
+  /**
+   * Parse a zip file containing a NeTEx archive.
+   *
+   * @param zipInputStream a stream on a NeTEx zip archive.
+   * @param netexDatasetRepository the NeTEx dataset repository to be updated with the content of the NeTEx archive.
+   * @throws IOException if the zip file cannot be read.
+   */
+  protected void parseDataset(
+    ZipInputStream zipInputStream,
+    NetexDatasetRepository netexDatasetRepository
+  ) throws IOException {
+    ZipEntry zipEntry = zipInputStream.getNextEntry();
+    while (zipEntry != null) {
+      byte[] allBytes = zipInputStream.readAllBytes();
+      netexParser.parse(
+        new ByteArrayInputStream(allBytes),
+        netexDatasetRepository.getIndex()
+      );
+      zipEntry = zipInputStream.getNextEntry();
     }
-
-
-    /**
-     * Parse a zip file containing a NeTEx archive.
-      *
-     * @param zipInputStream a stream on a NeTEx zip archive.
-     * @param netexDatasetRepository the NeTEx dataset repository to be updated with the content of the NeTEx archive.
-     * @throws IOException if the zip file cannot be read.
-     */
-    protected void parseDataset(ZipInputStream zipInputStream, NetexDatasetRepository netexDatasetRepository) throws IOException {
-        ZipEntry zipEntry = zipInputStream.getNextEntry();
-        while (zipEntry != null) {
-            byte[] allBytes = zipInputStream.readAllBytes();
-            netexParser.parse(new ByteArrayInputStream(allBytes), netexDatasetRepository.getIndex());
-            zipEntry = zipInputStream.getNextEntry();
-        }
-
-    }
+  }
 }

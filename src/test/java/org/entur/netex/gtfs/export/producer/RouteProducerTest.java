@@ -54,6 +54,9 @@
 
 package org.entur.netex.gtfs.export.producer;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.entur.netex.gtfs.export.model.GtfsRouteType;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
@@ -68,107 +71,153 @@ import org.rutebanken.netex.model.Line;
 import org.rutebanken.netex.model.MultilingualString;
 import org.rutebanken.netex.model.TransportSubmodeStructure;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 class RouteProducerTest {
 
-    private static final String TEST_LINE_ID = "ENT:Line:1";
-    private static final String LINE_NAME = "Line-Name";
-    private static final String LINE_SHORT_NAME = "Line-Short-Name";
-    private static final String TEST_AUTHORITY_ID = "ENT:Authority:1";
-    private static final String TEST_NETWORK_ID = "ENT:Network:1";
+  private static final String TEST_LINE_ID = "ENT:Line:1";
+  private static final String LINE_NAME = "Line-Name";
+  private static final String LINE_SHORT_NAME = "Line-Short-Name";
+  private static final String TEST_AUTHORITY_ID = "ENT:Authority:1";
+  private static final String TEST_NETWORK_ID = "ENT:Network:1";
 
-    @Test
-    void testRouteProducer() {
+  @Test
+  void testRouteProducer() {
+    Line line = createTestLine();
 
-        Line line = createTestLine();
+    NetexDatasetRepository netexDatasetRepository = mock(
+      NetexDatasetRepository.class
+    );
+    when(netexDatasetRepository.getAuthorityIdForLine(line))
+      .thenReturn(TEST_AUTHORITY_ID);
 
-        NetexDatasetRepository netexDatasetRepository = mock(NetexDatasetRepository.class);
-        when(netexDatasetRepository.getAuthorityIdForLine(line)).thenReturn(TEST_AUTHORITY_ID);
+    GtfsDatasetRepository gtfsDatasetRepository = mock(
+      GtfsDatasetRepository.class
+    );
+    when(gtfsDatasetRepository.getAgencyById(TEST_AUTHORITY_ID))
+      .thenReturn(new Agency());
 
-        GtfsDatasetRepository gtfsDatasetRepository = mock(GtfsDatasetRepository.class);
-        when(gtfsDatasetRepository.getAgencyById(TEST_AUTHORITY_ID)).thenReturn(new Agency());
+    RouteProducer routeProducer = new DefaultRouteProducer(
+      netexDatasetRepository,
+      gtfsDatasetRepository
+    );
+    Route route = routeProducer.produce(line);
 
-        RouteProducer routeProducer = new DefaultRouteProducer(netexDatasetRepository, gtfsDatasetRepository);
-        Route route = routeProducer.produce(line);
+    Assertions.assertNotNull(route);
+    Assertions.assertNotNull(route.getId());
+    Assertions.assertEquals(TEST_LINE_ID, route.getId().getId());
+    Assertions.assertEquals(
+      line.getPublicCode(),
+      route.getShortName(),
+      "The GTFS route short name should be the NeTEx Line public code"
+    );
+    Assertions.assertEquals(
+      line.getShortName().getValue(),
+      route.getLongName(),
+      "The GTFS route long name should be the NeTEx Line short name"
+    );
 
-        Assertions.assertNotNull(route);
-        Assertions.assertNotNull(route.getId());
-        Assertions.assertEquals(TEST_LINE_ID, route.getId().getId());
-        Assertions.assertEquals(line.getPublicCode(), route.getShortName(), "The GTFS route short name should be the NeTEx Line public code");
-        Assertions.assertEquals(line.getShortName().getValue(), route.getLongName(), "The GTFS route long name should be the NeTEx Line short name");
+    Assertions.assertEquals(
+      GtfsRouteType.LOCAL_BUS_SERVICE.getValue(),
+      route.getType()
+    );
+  }
 
-        Assertions.assertEquals(GtfsRouteType.LOCAL_BUS_SERVICE.getValue(), route.getType());
+  @Test
+  void testRouteProducerWithoutShortName() {
+    Line line = createTestLine();
+    line.setShortName(null);
 
-    }
+    NetexDatasetRepository netexDatasetRepository = mock(
+      NetexDatasetRepository.class
+    );
+    when(netexDatasetRepository.getAuthorityIdForLine(line))
+      .thenReturn(TEST_AUTHORITY_ID);
 
-    @Test
-    void testRouteProducerWithoutShortName() {
+    GtfsDatasetRepository gtfsDatasetRepository = mock(
+      GtfsDatasetRepository.class
+    );
+    Agency agency = new Agency();
+    agency.setId(TEST_AUTHORITY_ID);
+    when(gtfsDatasetRepository.getAgencyById(TEST_AUTHORITY_ID))
+      .thenReturn(agency);
 
-        Line line = createTestLine();
-        line.setShortName(null);
+    RouteProducer routeProducer = new DefaultRouteProducer(
+      netexDatasetRepository,
+      gtfsDatasetRepository
+    );
 
-        NetexDatasetRepository netexDatasetRepository = mock(NetexDatasetRepository.class);
-        when(netexDatasetRepository.getAuthorityIdForLine(line)).thenReturn(TEST_AUTHORITY_ID);
+    Route route = routeProducer.produce(line);
 
-        GtfsDatasetRepository gtfsDatasetRepository = mock(GtfsDatasetRepository.class);
-        Agency agency = new Agency();
-        agency.setId(TEST_AUTHORITY_ID);
-        when(gtfsDatasetRepository.getAgencyById(TEST_AUTHORITY_ID)).thenReturn(agency);
+    Assertions.assertEquals(
+      line.getPublicCode(),
+      route.getShortName(),
+      "The GTFS route short name should be the NeTEx Line public code"
+    );
+    Assertions.assertEquals(
+      line.getName().getValue(),
+      route.getLongName(),
+      "The GTFS route long name should be the NeTEx Line name if the NeTEx Line short name is missing"
+    );
+  }
 
-        RouteProducer routeProducer = new DefaultRouteProducer(netexDatasetRepository, gtfsDatasetRepository);
+  @Test
+  void testRouteProducerWithIdenticalPublicCodeAndShortName() {
+    Line line = createTestLine();
+    line.setPublicCode(LINE_SHORT_NAME);
 
-        Route route = routeProducer.produce(line);
+    NetexDatasetRepository netexDatasetRepository = mock(
+      NetexDatasetRepository.class
+    );
+    when(netexDatasetRepository.getAuthorityIdForLine(line))
+      .thenReturn(TEST_AUTHORITY_ID);
 
-        Assertions.assertEquals(line.getPublicCode(), route.getShortName(), "The GTFS route short name should be the NeTEx Line public code");
-        Assertions.assertEquals(line.getName().getValue(), route.getLongName(), "The GTFS route long name should be the NeTEx Line name if the NeTEx Line short name is missing");
-    }
+    GtfsDatasetRepository gtfsDatasetRepository = mock(
+      GtfsDatasetRepository.class
+    );
+    Agency agency = new Agency();
+    agency.setId(TEST_AUTHORITY_ID);
+    when(gtfsDatasetRepository.getAgencyById(TEST_AUTHORITY_ID))
+      .thenReturn(agency);
 
-    @Test
-    void testRouteProducerWithIdenticalPublicCodeAndShortName() {
+    RouteProducer routeProducer = new DefaultRouteProducer(
+      netexDatasetRepository,
+      gtfsDatasetRepository
+    );
 
-        Line line = createTestLine();
-        line.setPublicCode(LINE_SHORT_NAME);
+    Route route = routeProducer.produce(line);
 
-        NetexDatasetRepository netexDatasetRepository = mock(NetexDatasetRepository.class);
-        when(netexDatasetRepository.getAuthorityIdForLine(line)).thenReturn(TEST_AUTHORITY_ID);
+    Assertions.assertEquals(
+      line.getPublicCode(),
+      route.getShortName(),
+      "The GTFS route short name should be the NeTEx Line public code"
+    );
+    Assertions.assertNull(
+      route.getLongName(),
+      "The GTFS route long name is not set when NeTEx public code and short name are identical"
+    );
+  }
 
-        GtfsDatasetRepository gtfsDatasetRepository = mock(GtfsDatasetRepository.class);
-        Agency agency = new Agency();
-        agency.setId(TEST_AUTHORITY_ID);
-        when(gtfsDatasetRepository.getAgencyById(TEST_AUTHORITY_ID)).thenReturn(agency);
+  private Line createTestLine() {
+    Line line = new Line();
+    line.setId(TEST_LINE_ID);
 
-        RouteProducer routeProducer = new DefaultRouteProducer(netexDatasetRepository, gtfsDatasetRepository);
+    MultilingualString lineName = new MultilingualString();
+    lineName.setValue(LINE_NAME);
+    line.setName(lineName);
 
-        Route route = routeProducer.produce(line);
+    MultilingualString lineShortName = new MultilingualString();
+    lineShortName.setValue(LINE_SHORT_NAME);
+    line.setShortName(lineShortName);
 
-        Assertions.assertEquals(line.getPublicCode(), route.getShortName(), "The GTFS route short name should be the NeTEx Line public code");
-        Assertions.assertNull(route.getLongName(), "The GTFS route long name is not set when NeTEx public code and short name are identical");
-    }
+    line.setTransportMode(AllVehicleModesOfTransportEnumeration.BUS);
+    TransportSubmodeStructure transportSubmode =
+      new TransportSubmodeStructure();
+    transportSubmode.setBusSubmode(BusSubmodeEnumeration.LOCAL_BUS);
+    line.setTransportSubmode(transportSubmode);
 
+    GroupOfLinesRefStructure groupOfLineRef = new GroupOfLinesRefStructure();
+    groupOfLineRef.setRef(TEST_NETWORK_ID);
+    line.setRepresentedByGroupRef(groupOfLineRef);
 
-    private Line createTestLine() {
-        Line line = new Line();
-        line.setId(TEST_LINE_ID);
-
-        MultilingualString lineName = new MultilingualString();
-        lineName.setValue(LINE_NAME);
-        line.setName(lineName);
-
-        MultilingualString lineShortName = new MultilingualString();
-        lineShortName.setValue(LINE_SHORT_NAME);
-        line.setShortName(lineShortName);
-
-        line.setTransportMode(AllVehicleModesOfTransportEnumeration.BUS);
-        TransportSubmodeStructure transportSubmode = new TransportSubmodeStructure();
-        transportSubmode.setBusSubmode(BusSubmodeEnumeration.LOCAL_BUS);
-        line.setTransportSubmode(transportSubmode);
-
-        GroupOfLinesRefStructure groupOfLineRef = new GroupOfLinesRefStructure();
-        groupOfLineRef.setRef(TEST_NETWORK_ID);
-        line.setRepresentedByGroupRef(groupOfLineRef);
-
-        return line;
-    }
+    return line;
+  }
 }

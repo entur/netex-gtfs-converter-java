@@ -18,19 +18,20 @@
 
 package org.entur.netex.gtfs.export.loader;
 
-import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
-
 import java.io.InputStream;
+import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 
 /**
  * Load a NeTEx dataset into memory.
  */
 public interface NetexDatasetLoader {
-
-    /**
-     * Load a NeTEX dataset archive into an in-memory repository
-     * @param timetableDataset a ZIP file containing the NeTEx dataset
-     * @param netexDatasetRepository an in-memory repository containing the NeTEx entities.
-     */
-    void load(InputStream timetableDataset, NetexDatasetRepository netexDatasetRepository);
+  /**
+   * Load a NeTEX dataset archive into an in-memory repository
+   * @param timetableDataset a ZIP file containing the NeTEx dataset
+   * @param netexDatasetRepository an in-memory repository containing the NeTEx entities.
+   */
+  void load(
+    InputStream timetableDataset,
+    NetexDatasetRepository netexDatasetRepository
+  );
 }

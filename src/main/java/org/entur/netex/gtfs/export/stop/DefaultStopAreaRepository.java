@@ -18,6 +18,10 @@
 
 package org.entur.netex.gtfs.export.stop;
 
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.entur.netex.gtfs.export.exception.QuayNotFoundException;
 import org.entur.netex.gtfs.export.exception.StopPlaceNotFoundException;
 import org.entur.netex.gtfs.export.loader.DefaultNetexDatasetLoader;
@@ -30,83 +34,106 @@ import org.rutebanken.netex.model.StopPlace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 /**
  * A Stop area repository that loads data from a NeTEx dataset archive.
  */
 public class DefaultStopAreaRepository implements StopAreaRepository {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultStopAreaRepository.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(
+    DefaultStopAreaRepository.class
+  );
 
-    private Map<String, StopPlace> stopPlaceByQuayId;
-    private Map<String, Quay> quayById;
+  private Map<String, StopPlace> stopPlaceByQuayId;
+  private Map<String, Quay> quayById;
 
-    private final NetexDatasetLoader netexDatasetLoader;
+  private final NetexDatasetLoader netexDatasetLoader;
 
-    private final NetexEntityFetcher<Quay, String> quayFetcher;
-    private final NetexEntityFetcher<StopPlace, String> stopPlaceFetcher;
+  private final NetexEntityFetcher<Quay, String> quayFetcher;
+  private final NetexEntityFetcher<StopPlace, String> stopPlaceFetcher;
 
-    public DefaultStopAreaRepository() {
-        this(quayId -> {
-                    throw new QuayNotFoundException("Could not find Quay for id " + quayId);
-                },
-                quayId -> {
-                    throw new StopPlaceNotFoundException("Could not find StopPlace for quay id " + quayId);
-                });
+  public DefaultStopAreaRepository() {
+    this(
+      quayId -> {
+        throw new QuayNotFoundException("Could not find Quay for id " + quayId);
+      },
+      quayId -> {
+        throw new StopPlaceNotFoundException(
+          "Could not find StopPlace for quay id " + quayId
+        );
+      }
+    );
+  }
+
+  public DefaultStopAreaRepository(
+    NetexEntityFetcher<Quay, String> quayFetcher,
+    NetexEntityFetcher<StopPlace, String> stopPlaceFetcher
+  ) {
+    this.netexDatasetLoader = new DefaultNetexDatasetLoader();
+    this.quayFetcher = quayFetcher;
+    this.stopPlaceFetcher = stopPlaceFetcher;
+  }
+
+  public void loadStopAreas(InputStream stopDataset) {
+    LOGGER.info("Importing NeTEx Stop dataset");
+    NetexDatasetRepository netexStopRepository =
+      new DefaultNetexDatasetRepository();
+    netexDatasetLoader.load(stopDataset, netexStopRepository);
+    NetexEntitiesIndex netexStopEntitiesIndex = netexStopRepository.getIndex();
+
+    stopPlaceByQuayId =
+      netexStopEntitiesIndex
+        .getStopPlaceIdByQuayIdIndex()
+        .entrySet()
+        .stream()
+        .collect(
+          Collectors.toMap(
+            Map.Entry::getKey,
+            entry ->
+              netexStopEntitiesIndex
+                .getStopPlaceIndex()
+                .getLatestVersion(entry.getValue())
+          )
+        );
+
+    quayById =
+      netexStopEntitiesIndex
+        .getQuayIndex()
+        .getAllVersions()
+        .entrySet()
+        .stream()
+        .collect(
+          Collectors.toMap(
+            Map.Entry::getKey,
+            entry ->
+              netexStopEntitiesIndex
+                .getQuayIndex()
+                .getLatestVersion(entry.getKey())
+          )
+        );
+
+    LOGGER.info("Imported NeTEx Stop dataset");
+  }
+
+  @Override
+  public StopPlace getStopPlaceByQuayId(String quayId) {
+    StopPlace stopPlace = stopPlaceByQuayId.get(quayId);
+    if (stopPlace == null) {
+      return stopPlaceFetcher.tryFetch(quayId);
     }
+    return stopPlace;
+  }
 
-    public DefaultStopAreaRepository(NetexEntityFetcher<Quay, String> quayFetcher,
-                                     NetexEntityFetcher<StopPlace, String> stopPlaceFetcher) {
-        this.netexDatasetLoader = new DefaultNetexDatasetLoader();
-        this.quayFetcher = quayFetcher;
-        this.stopPlaceFetcher = stopPlaceFetcher;
+  @Override
+  public Collection<Quay> getAllQuays() {
+    return quayById.values();
+  }
+
+  @Override
+  public Quay getQuayById(String quayId) {
+    Quay quay = quayById.get(quayId);
+    if (quay == null) {
+      return quayFetcher.tryFetch(quayId);
     }
-
-    public void loadStopAreas(InputStream stopDataset) {
-
-        LOGGER.info("Importing NeTEx Stop dataset");
-        NetexDatasetRepository netexStopRepository = new DefaultNetexDatasetRepository();
-        netexDatasetLoader.load(stopDataset, netexStopRepository);
-        NetexEntitiesIndex netexStopEntitiesIndex = netexStopRepository.getIndex();
-
-        stopPlaceByQuayId = netexStopEntitiesIndex.getStopPlaceIdByQuayIdIndex()
-                .entrySet()
-                .stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> netexStopEntitiesIndex.getStopPlaceIndex().getLatestVersion(entry.getValue())));
-
-        quayById = netexStopEntitiesIndex.getQuayIndex().getAllVersions()
-                .entrySet()
-                .stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> netexStopEntitiesIndex.getQuayIndex().getLatestVersion(entry.getKey())));
-
-        LOGGER.info("Imported NeTEx Stop dataset");
-
-    }
-
-    @Override
-    public StopPlace getStopPlaceByQuayId(String quayId) {
-        StopPlace stopPlace = stopPlaceByQuayId.get(quayId);
-        if (stopPlace == null) {
-            return stopPlaceFetcher.tryFetch(quayId);
-        }
-        return stopPlace;
-    }
-
-    @Override
-    public Collection<Quay> getAllQuays() {
-        return quayById.values();
-    }
-
-    @Override
-    public Quay getQuayById(String quayId) {
-        Quay quay = quayById.get(quayId);
-        if (quay == null) {
-            return quayFetcher.tryFetch(quayId);
-        }
-        return quay;
-    }
+    return quay;
+  }
 }

@@ -18,6 +18,7 @@
 
 package org.entur.netex.gtfs.export.repository;
 
+import java.util.Collection;
 import org.entur.netex.index.api.NetexEntitiesIndex;
 import org.rutebanken.netex.model.Authority;
 import org.rutebanken.netex.model.DatedServiceJourney;
@@ -33,71 +34,77 @@ import org.rutebanken.netex.model.ServiceJourney;
 import org.rutebanken.netex.model.ServiceJourneyInterchange;
 import org.rutebanken.netex.model.ServiceLink;
 
-import java.util.Collection;
-
 /**
  * Repository giving read access to the input NeTEx dataset.
  */
 public interface NetexDatasetRepository {
+  NetexEntitiesIndex getIndex();
 
-    NetexEntitiesIndex getIndex();
+  Collection<ServiceJourneyInterchange> getServiceJourneyInterchanges();
 
-    Collection<ServiceJourneyInterchange> getServiceJourneyInterchanges();
+  Collection<DayTypeAssignment> getDayTypeAssignmentsByDayType(DayType dayType);
 
-    Collection<DayTypeAssignment> getDayTypeAssignmentsByDayType(DayType dayType);
+  OperatingDay getOperatingDayByDayTypeAssignment(
+    DayTypeAssignment dayTypeAssignment
+  );
 
-    OperatingDay getOperatingDayByDayTypeAssignment(DayTypeAssignment dayTypeAssignment);
+  OperatingPeriod getOperatingPeriodByDayTypeAssignment(
+    DayTypeAssignment dayTypeAssignment
+  );
 
-    OperatingPeriod getOperatingPeriodByDayTypeAssignment(DayTypeAssignment dayTypeAssignment);
+  DayType getDayTypeByDayTypeAssignment(DayTypeAssignment dayTypeAssignment);
 
-    DayType getDayTypeByDayTypeAssignment(DayTypeAssignment dayTypeAssignment);
+  /**
+   * Return the dataset default timezone
+   * This is the timezone set at the CompositeFrame level.
+   *
+   * @return the dataset default timezone
+   * @throws org.entur.netex.gtfs.export.exception.GtfsExportException if there is no default timezone or if there is more than one default timezone.
+   */
+  String getTimeZone();
 
-    /**
-     * Return the dataset default timezone
-     * This is the timezone set at the CompositeFrame level.
-     *
-     * @return the dataset default timezone
-     * @throws org.entur.netex.gtfs.export.exception.GtfsExportException if there is no default timezone or if there is more than one default timezone.
-     */
-    String getTimeZone();
+  /**
+   * Return the authority id for a given line.
+   * This is the authority of the network or group of lines referenced by the line.
+   *
+   * @param line a NeTEx line
+   * @return the line authority
+   */
+  String getAuthorityIdForLine(Line line);
 
-    /**
-     * Return the authority id for a given line.
-     * This is the authority of the network or group of lines referenced by the line.
-     *
-     * @param line a NeTEx line
-     * @return the line authority
-     */
-    String getAuthorityIdForLine(Line line);
+  Collection<Line> getLines();
 
-    Collection<Line> getLines();
+  Authority getAuthorityById(String authorityId);
 
-    Authority getAuthorityById(String authorityId);
+  ServiceJourney getServiceJourneyById(String serviceJourneyId);
 
-    ServiceJourney getServiceJourneyById(String serviceJourneyId);
+  String getFlexibleStopPlaceIdByScheduledStopPointId(
+    String scheduledStopPointId
+  );
 
-    String getFlexibleStopPlaceIdByScheduledStopPointId(String scheduledStopPointId);
+  String getQuayIdByScheduledStopPointId(String scheduledStopPointId);
 
-    String getQuayIdByScheduledStopPointId(String scheduledStopPointId);
+  Collection<ServiceJourney> getServiceJourneys();
 
-    Collection<ServiceJourney> getServiceJourneys();
+  JourneyPattern getJourneyPatternById(String journeyPatternId);
 
-    JourneyPattern getJourneyPatternById(String journeyPatternId);
+  Collection<ServiceJourney> getServiceJourneysByJourneyPattern(
+    JourneyPattern journeyPattern
+  );
 
-    Collection<ServiceJourney> getServiceJourneysByJourneyPattern(JourneyPattern journeyPattern);
+  Collection<Route> getRoutesByLine(Line line);
 
-    Collection<Route> getRoutesByLine(Line line);
+  Collection<JourneyPattern> getJourneyPatternsByRoute(Route route);
 
-    Collection<JourneyPattern> getJourneyPatternsByRoute(Route route);
+  ServiceLink getServiceLinkById(String serviceLinkId);
 
-    ServiceLink getServiceLinkById(String serviceLinkId);
+  DestinationDisplay getDestinationDisplayById(String destinationDisplayId);
 
-    DestinationDisplay getDestinationDisplayById(String destinationDisplayId);
+  DayType getDayTypeById(String dayTypeId);
 
-    DayType getDayTypeById(String dayTypeId);
+  Collection<DatedServiceJourney> getDatedServiceJourneysByServiceJourneyId(
+    String serviceJourneyId
+  );
 
-    Collection<DatedServiceJourney> getDatedServiceJourneysByServiceJourneyId(String serviceJourneyId);
-
-    OperatingDay getOperatingDayById(String operatingDayId);
-
+  OperatingDay getOperatingDayById(String operatingDayId);
 }
