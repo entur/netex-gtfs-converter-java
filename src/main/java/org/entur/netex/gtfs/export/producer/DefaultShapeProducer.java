@@ -18,11 +18,11 @@
 
 package org.entur.netex.gtfs.export.producer;
 
+import jakarta.xml.bind.JAXBElement;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import javax.xml.bind.JAXBElement;
 import org.entur.netex.gtfs.export.exception.GtfsExportException;
 import org.entur.netex.gtfs.export.model.GtfsShape;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;

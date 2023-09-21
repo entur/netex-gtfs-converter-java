@@ -4,7 +4,7 @@
 
     <groupId>org.entur</groupId>
     <artifactId>netex-gtfs-converter-java</artifactId>
-    <version>1.25.5-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
 
     <name>netex-gtfs-converter-java</name>
     <description>Library for converting NeTEx datasets into GTFS datasets.</description>
@@ -51,23 +51,23 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jdk.version>11</jdk.version>
+        <jdk.version>17</jdk.version>
 
         <commons-io.version>2.13.0</commons-io.version>
-        <netex-parser-java.version>2.2.0</netex-parser-java.version>
-        <netex-java-model.version>1.0.14</netex-java-model.version>
+        <netex-parser-java.version>3.0.2</netex-parser-java.version>
+        <netex-java-model.version>2.0.14</netex-java-model.version>
         <onebusaway.version>1.4.9</onebusaway.version>
         <jts.version>1.19.0</jts.version>
-        <slf4j.version>1.7.36</slf4j.version>
+        <slf4j.version>2.0.9</slf4j.version>
         <junit.version>5.10.0</junit.version>
         <mockito-core.version>5.5.0</mockito-core.version>
         <zt-zip.version>1.16</zt-zip.version>
         <commons-csv.version>1.10.0</commons-csv.version>
-        <logback-classic.version>1.2.12</logback-classic.version>
+        <logback-classic.version>1.4.11</logback-classic.version>
         <geotools.version>29.2</geotools.version>
 
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
 
         <maven-exec-plugin.version>1.6.0</maven-exec-plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>

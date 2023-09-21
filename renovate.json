@@ -3,6 +3,9 @@
     "github>entur/ror-renovate-config",
     "github>entur/ror-renovate-config:groupNonMajorWeekly"
   ],
-  "baseBranch": "main",
+  "baseBranches": [
+    "main",
+    "1.x"
+  ],
   "separateMinorPatch": true
 }
