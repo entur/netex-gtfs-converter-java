@@ -51,6 +51,10 @@ public class DefaultStopAreaRepository implements StopAreaRepository {
   private final NetexEntityFetcher<Quay, String> quayFetcher;
   private final NetexEntityFetcher<StopPlace, String> stopPlaceFetcher;
 
+  /**
+   * Create a default stop area repository.
+   * If a quay/stop place is missing in the repository, an exception is thrown.
+   */
   public DefaultStopAreaRepository() {
     this(
       quayId -> {
@@ -64,6 +68,11 @@ public class DefaultStopAreaRepository implements StopAreaRepository {
     );
   }
 
+  /**
+   * Create a default stop area repository.
+   * If a quay/stop place is missing in the repository, a quayFetcher/stopPlaceFetcher attempts to retrieve it from an
+   * external resource.
+   */
   public DefaultStopAreaRepository(
     NetexEntityFetcher<Quay, String> quayFetcher,
     NetexEntityFetcher<StopPlace, String> stopPlaceFetcher

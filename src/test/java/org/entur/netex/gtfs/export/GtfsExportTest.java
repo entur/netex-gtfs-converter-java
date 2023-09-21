@@ -45,7 +45,7 @@ import java.nio.file.StandardCopyOption;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.IOUtils;
-import org.entur.netex.gtfs.export.stop.DefaultStopAreaRepositoryFactory;
+import org.entur.netex.gtfs.export.stop.DefaultStopAreaRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.zeroturnaround.zip.ZipUtil;
@@ -87,12 +87,14 @@ class GtfsExportTest {
 
   @Test
   void testExportStops() throws IOException {
-    DefaultStopAreaRepositoryFactory factory =
-      new DefaultStopAreaRepositoryFactory();
-    factory.refreshStopAreaRepository(
+    DefaultStopAreaRepository defaultStopAreaRepository =
+      new DefaultStopAreaRepository();
+    defaultStopAreaRepository.loadStopAreas(
       getClass().getResourceAsStream("/RailStations_latest.zip")
     );
-    GtfsExporter gtfsExport = new DefaultGtfsExporter(factory, null);
+    GtfsExporter gtfsExport = new DefaultGtfsExporter(
+      defaultStopAreaRepository
+    );
 
     InputStream exportedGtfs = gtfsExport.convertStopsToGtfs();
 
@@ -114,21 +116,22 @@ class GtfsExportTest {
     String stopDataset,
     boolean singleAgency
   ) throws IOException {
-    DefaultStopAreaRepositoryFactory factory =
-      new DefaultStopAreaRepositoryFactory();
-    factory.refreshStopAreaRepository(
+    DefaultStopAreaRepository defaultStopAreaRepository =
+      new DefaultStopAreaRepository();
+    defaultStopAreaRepository.loadStopAreas(
       getClass().getResourceAsStream(stopDataset)
     );
 
     InputStream netexTimetableDataset = getClass()
       .getResourceAsStream(timetableDataset);
 
-    GtfsExporter gtfsExport = new DefaultGtfsExporter(factory, null);
+    GtfsExporter gtfsExport = new DefaultGtfsExporter(
+      codespace,
+      defaultStopAreaRepository
+    );
 
     InputStream exportedGtfs = gtfsExport.convertTimetablesToGtfs(
-      codespace,
-      netexTimetableDataset,
-      false
+      netexTimetableDataset
     );
 
     File gtfsFile = new File("export-gtfs.zip");

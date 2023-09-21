@@ -29,11 +29,7 @@ public interface GtfsExporter {
    * @param netexTimetableDataset a ZIP archive containing a NeTEx timetable dataset.
    * @return a ZIP archive containing a GTFS dataset.
    */
-  InputStream convertTimetablesToGtfs(
-    String codespace,
-    InputStream netexTimetableDataset,
-    boolean generateStaySeatedTransfer
-  );
+  InputStream convertTimetablesToGtfs(InputStream netexTimetableDataset);
 
   /**
    * Export the stop area repository to GTFS. No timetable data is exported.
