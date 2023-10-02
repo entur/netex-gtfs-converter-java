@@ -4,13 +4,5 @@
     "github>entur/ror-renovate-config:groupNonMajorWeekly"
   ],
   "baseBranch": "main",
-  "separateMinorPatch": true,
-  "packageRules": [
-    {
-      "matchPackageNames": [
-        "org.onebusaway:onebusaway-gtfs"
-      ],
-      "automerge": false
-    }
-  ]
+  "separateMinorPatch": true
 }
