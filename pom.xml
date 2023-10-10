@@ -117,6 +117,12 @@
             <groupId>org.onebusaway</groupId>
             <artifactId>onebusaway-gtfs</artifactId>
             <version>${onebusaway.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Other -->
