@@ -63,7 +63,6 @@ import static org.entur.netex.gtfs.export.model.GtfsRouteType.TROLLEYBUS_SERVICE
 import static org.entur.netex.gtfs.export.model.GtfsRouteType.WATER_TRANSPORT_SERVICE;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.TreeMap;
 import org.apache.commons.lang3.StringUtils;
 import org.entur.netex.gtfs.export.model.GtfsRouteType;
@@ -92,37 +91,11 @@ public final class TransportModeUtil {
   /**
    * Represent a pair (TransportMode, TransportSubMode)
    */
-  private static class TransportModeAndSubMode
+  private record TransportModeAndSubMode(
+    String transportMode,
+    String transportSubMode
+  )
     implements Comparable<TransportModeAndSubMode> {
-
-    private final String transportMode;
-    private final String transportSubMode;
-
-    TransportModeAndSubMode(String transportMode, String transportSubMode) {
-      this.transportMode = transportMode;
-      this.transportSubMode = transportSubMode;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      TransportModeAndSubMode that = (TransportModeAndSubMode) o;
-      return (
-        transportMode.equals(that.transportMode) &&
-        Objects.equals(transportSubMode, that.transportSubMode)
-      );
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(transportMode, transportSubMode);
-    }
-
     @Override
     public int compareTo(TransportModeAndSubMode o) {
       if (this.transportMode.equals(o.transportMode)) {

@@ -57,6 +57,7 @@ package org.entur.netex.gtfs.export.repository;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import jakarta.xml.bind.JAXBElement;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -64,7 +65,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.xml.bind.JAXBElement;
 import org.entur.netex.gtfs.export.model.GtfsService;
 import org.entur.netex.gtfs.export.model.ServiceCalendarPeriod;
 import org.entur.netex.gtfs.export.producer.DefaultGtfsServiceRepository;

@@ -130,8 +130,7 @@ public final class GeometryUtil {
       ) {
         coordinates = new ArrayList<>();
         for (Object o : gmlLineString.getPosOrPointProperty()) {
-          if (o instanceof DirectPositionType) {
-            DirectPositionType directPositionType = (DirectPositionType) o;
+          if (o instanceof DirectPositionType directPositionType) {
             coordinates.addAll(directPositionType.getValue());
           } else if (o instanceof PointPropertyType) {
             LOGGER.warn(

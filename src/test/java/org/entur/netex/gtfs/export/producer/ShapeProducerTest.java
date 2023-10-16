@@ -57,10 +57,10 @@ package org.entur.netex.gtfs.export.producer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import jakarta.xml.bind.JAXBElement;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
-import javax.xml.bind.JAXBElement;
 import net.opengis.gml._3.DirectPositionListType;
 import net.opengis.gml._3.LineStringType;
 import org.apache.commons.lang3.ArrayUtils;

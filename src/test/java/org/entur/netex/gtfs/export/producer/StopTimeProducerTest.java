@@ -57,10 +57,10 @@ package org.entur.netex.gtfs.export.producer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import jakarta.xml.bind.JAXBElement;
 import java.math.BigInteger;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import javax.xml.bind.JAXBElement;
 import org.entur.netex.gtfs.export.model.GtfsShape;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;

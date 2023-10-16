@@ -57,9 +57,9 @@ package org.entur.netex.gtfs.export.producer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import jakarta.xml.bind.JAXBElement;
 import java.time.LocalDateTime;
 import java.util.Set;
-import javax.xml.bind.JAXBElement;
 import org.entur.netex.gtfs.export.repository.DefaultGtfsRepository;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
