@@ -464,7 +464,7 @@ public final class TransportModeUtil {
    * @return the GTFS extended route type code.
    */
   public static int getGtfsExtendedRouteType(
-    VehicleModeEnumeration transportMode
+    AllVehicleModesOfTransportEnumeration transportMode
   ) {
     return getGtfsExtendedRouteType(transportMode.value(), null).getValue();
   }
