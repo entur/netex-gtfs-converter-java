@@ -91,7 +91,7 @@ public class DefaultNetexDatasetRepository implements NetexDatasetRepository {
     }
     OperatingPeriod operatingPeriod = netexEntitiesIndex
       .getOperatingPeriodIndex()
-      .get(dayTypeAssignment.getOperatingPeriodRef().getRef());
+      .get(dayTypeAssignment.getOperatingPeriodRef().getValue().getRef());
     if (operatingPeriod == null) {
       throw new GtfsExportException(
         "OperatingPeriod not found: " +

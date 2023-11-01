@@ -4,7 +4,7 @@
 
     <groupId>org.entur</groupId>
     <artifactId>netex-gtfs-converter-java</artifactId>
-    <version>1.25.5-SNAPSHOT</version>
+    <version>1.26.0-SNAPSHOT</version>
 
     <name>netex-gtfs-converter-java</name>
     <description>Library for converting NeTEx datasets into GTFS datasets.</description>
@@ -54,8 +54,8 @@
         <jdk.version>11</jdk.version>
 
         <commons-io.version>2.13.0</commons-io.version>
-        <netex-parser-java.version>2.2.0</netex-parser-java.version>
-        <netex-java-model.version>1.0.14</netex-java-model.version>
+        <netex-parser-java.version>2.3.0</netex-parser-java.version>
+        <netex-java-model.version>1.0.15</netex-java-model.version>
         <onebusaway.version>1.4.9</onebusaway.version>
         <jts.version>1.19.0</jts.version>
         <slf4j.version>1.7.36</slf4j.version>
