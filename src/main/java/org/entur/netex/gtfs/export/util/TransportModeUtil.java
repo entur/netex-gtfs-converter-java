@@ -75,7 +75,6 @@ import org.rutebanken.netex.model.Line;
 import org.rutebanken.netex.model.RailSubmodeEnumeration;
 import org.rutebanken.netex.model.TramSubmodeEnumeration;
 import org.rutebanken.netex.model.TransportSubmodeStructure;
-import org.rutebanken.netex.model.VehicleModeEnumeration;
 import org.rutebanken.netex.model.WaterSubmodeEnumeration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -266,7 +265,10 @@ public final class TransportModeUtil {
     );
 
     ROUTE_TYPE_FOR_TRANSPORT_MODE_AND_SUB_MODE.put(
-      new TransportModeAndSubMode(VehicleModeEnumeration.FERRY.value(), null),
+      new TransportModeAndSubMode(
+        AllVehicleModesOfTransportEnumeration.FERRY.value(),
+        null
+      ),
       FERRY_SERVICE
     );
 
@@ -444,7 +446,10 @@ public final class TransportModeUtil {
       TELECABIN_SERVICE
     );
     ROUTE_TYPE_FOR_TRANSPORT_MODE_AND_SUB_MODE.put(
-      new TransportModeAndSubMode(VehicleModeEnumeration.LIFT.value(), null),
+      new TransportModeAndSubMode(
+        AllVehicleModesOfTransportEnumeration.LIFT.value(),
+        null
+      ),
       TELECABIN_SERVICE
     );
 
@@ -465,7 +470,10 @@ public final class TransportModeUtil {
     );
 
     ROUTE_TYPE_FOR_TRANSPORT_MODE_AND_SUB_MODE.put(
-      new TransportModeAndSubMode(VehicleModeEnumeration.OTHER.value(), null),
+      new TransportModeAndSubMode(
+        AllVehicleModesOfTransportEnumeration.OTHER.value(),
+        null
+      ),
       MISCELLANEOUS_SERVICE
     );
   }
@@ -491,7 +499,7 @@ public final class TransportModeUtil {
    * @return the GTFS extended route type code.
    */
   public static int getGtfsExtendedRouteType(
-    VehicleModeEnumeration transportMode
+    AllVehicleModesOfTransportEnumeration transportMode
   ) {
     return getGtfsExtendedRouteType(transportMode.value(), null).getValue();
   }
