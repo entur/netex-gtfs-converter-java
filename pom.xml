@@ -325,8 +325,8 @@
                     <verbose>true</verbose>
                     <commitMessagePrefix>[ci skip]</commitMessagePrefix>
                     <gitFlowConfig>
-                        <developmentBranch>main</developmentBranch>
-                        <productionBranch>main</productionBranch>
+                        <developmentBranch>1.x</developmentBranch>
+                        <productionBranch>1.x</productionBranch>
                     </gitFlowConfig>
                 </configuration>
             </plugin>
