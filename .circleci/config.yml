@@ -12,7 +12,7 @@ aliases:
       echo "Start release"
       git config --global user.email "circleci@entur.no"
       git config --global user.name "circleci"
-      git checkout main
+      git checkout 1.x
       mvn gitflow:release-start gitflow:release-finish -DskipTests=true -Prelease -DpostReleaseGoals=deploy -DargLine='-Prelease -DskipTests -s .circleci/settings.xml' -B -s .circleci/settings.xml
   - &import_gpg_key
     name: Configure GPG private key for signing project artifacts in OSS Sonatype
@@ -110,5 +110,4 @@ workflows:
           filters:
             branches:
               only:
-                - main
                 - 1.x
