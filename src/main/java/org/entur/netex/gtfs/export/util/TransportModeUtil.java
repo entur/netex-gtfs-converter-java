@@ -18,64 +18,14 @@
 
 package org.entur.netex.gtfs.export.util;
 
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.AIR_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.BUS_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.CAR_HIGH_SPEED_FERRY_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.CITY_TRAM_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.COACH_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.DOMESTIC_AIR_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.EXPRESS_BUS_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.FERRY_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.FUNICULAR_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.HELICOPTER_AIR_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.HIGH_SPEED_RAIL_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.INTERNATIONAL_AIR_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.INTERNATIONAL_CAR_FERRY_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.INTERNATIONAL_COACH_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.INTERNATIONAL_PASSENGER_FERRY_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.INTER_REGIONAL_RAIL_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.LOCAL_BUS_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.LOCAL_CAR_FERRY_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.LOCAL_PASSENGER_FERRY_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.LOCAL_TRAM_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.LONG_DISTANCE_TRAINS;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.METRO_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.MISCELLANEOUS_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.NATIONAL_CAR_FERRY_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.NATIONAL_COACH_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.NIGHT_BUS_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.PASSENGER_HIGH_SPEED_FERRY_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.RAILWAY_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.RAIL_REPLACEMENT_BUS_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.REGIONAL_BUS_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.REGIONAL_RAIL_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.SCHOOL_BUS;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.SHUTTLE_BUS;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.SIGHTSEEING_BOAT_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.SIGHTSEEING_BUS;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.SLEEPER_RAIL_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.TAXI_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.TELECABIN_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.TOURIST_COACH_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.TOURIST_RAILWAY_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.TRAM_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.TROLLEYBUS_SERVICE;
-import static org.entur.netex.gtfs.export.model.GtfsRouteType.WATER_TRANSPORT_SERVICE;
+import static org.entur.netex.gtfs.export.model.GtfsRouteType.*;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 import org.apache.commons.lang3.StringUtils;
 import org.entur.netex.gtfs.export.model.GtfsRouteType;
-import org.rutebanken.netex.model.AirSubmodeEnumeration;
-import org.rutebanken.netex.model.AllVehicleModesOfTransportEnumeration;
-import org.rutebanken.netex.model.BusSubmodeEnumeration;
-import org.rutebanken.netex.model.CoachSubmodeEnumeration;
-import org.rutebanken.netex.model.Line;
-import org.rutebanken.netex.model.RailSubmodeEnumeration;
-import org.rutebanken.netex.model.TramSubmodeEnumeration;
-import org.rutebanken.netex.model.TransportSubmodeStructure;
-import org.rutebanken.netex.model.WaterSubmodeEnumeration;
+import org.rutebanken.netex.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -467,6 +417,14 @@ public final class TransportModeUtil {
         null
       ),
       TAXI_SERVICE
+    );
+
+    ROUTE_TYPE_FOR_TRANSPORT_MODE_AND_SUB_MODE.put(
+      new TransportModeAndSubMode(
+        AllVehicleModesOfTransportEnumeration.TAXI.value(),
+        TaxiSubmodeEnumeration.COMMUNAL_TAXI.value()
+      ),
+      COMMUNAL_TAXI_SERVICE
     );
 
     ROUTE_TYPE_FOR_TRANSPORT_MODE_AND_SUB_MODE.put(
