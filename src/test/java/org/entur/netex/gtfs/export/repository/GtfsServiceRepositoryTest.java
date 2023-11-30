@@ -1001,7 +1001,9 @@ class GtfsServiceRepositoryTest {
       NETEX_FACTORY.createOperatingPeriodRefStructure();
     operatingPeriodRef.setRef(operatingPeriodId);
 
-    dayTypeAssignment.setOperatingPeriodRef(operatingPeriodRef);
+    dayTypeAssignment.setOperatingPeriodRef(
+      NETEX_FACTORY.createOperatingPeriodRef(operatingPeriodRef)
+    );
     return dayTypeAssignment;
   }
 
