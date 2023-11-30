@@ -53,17 +53,17 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jdk.version>17</jdk.version>
 
-        <commons-io.version>2.15.0</commons-io.version>
+        <commons-io.version>2.15.1</commons-io.version>
         <netex-parser-java.version>3.1.3</netex-parser-java.version>
         <netex-java-model.version>2.0.15</netex-java-model.version>
         <onebusaway.version>1.4.9</onebusaway.version>
         <jts.version>1.19.0</jts.version>
         <slf4j.version>2.0.9</slf4j.version>
-        <junit.version>5.10.0</junit.version>
+        <junit.version>5.10.1</junit.version>
         <mockito-core.version>5.6.0</mockito-core.version>
         <zt-zip.version>1.16</zt-zip.version>
         <commons-csv.version>1.10.0</commons-csv.version>
-        <logback-classic.version>1.4.12</logback-classic.version>
+        <logback-classic.version>1.4.13</logback-classic.version>
         <geotools.version>29.3</geotools.version>
 
         <maven.compiler.source>17</maven.compiler.source>
@@ -73,7 +73,7 @@
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
         <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
-        <maven-javadoc-plugin.version>3.6.0</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>3.6.2</maven-javadoc-plugin.version>
         <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
@@ -88,7 +88,7 @@
         <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
         <sonar-maven-plugin.version>3.10.0.2594</sonar-maven-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
-        <dependency-check-maven.version>8.4.2</dependency-check-maven.version>
+        <dependency-check-maven.version>8.4.3</dependency-check-maven.version>
         <gitflow-maven-plugin.version>1.20.0</gitflow-maven-plugin.version>
         <prettier-java.version>2.1.0</prettier-java.version>
         <prettier-maven-plugin.version>0.21</prettier-maven-plugin.version>
