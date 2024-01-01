@@ -54,11 +54,11 @@
         <jdk.version>17</jdk.version>
 
         <commons-io.version>2.15.1</commons-io.version>
-        <netex-parser-java.version>3.1.5</netex-parser-java.version>
+        <netex-parser-java.version>3.1.6</netex-parser-java.version>
         <netex-java-model.version>2.0.15</netex-java-model.version>
         <onebusaway.version>1.4.10</onebusaway.version>
         <jts.version>1.19.0</jts.version>
-        <slf4j.version>2.0.9</slf4j.version>
+        <slf4j.version>2.0.10</slf4j.version>
         <junit.version>5.10.1</junit.version>
         <mockito-core.version>5.8.0</mockito-core.version>
         <zt-zip.version>1.16</zt-zip.version>
