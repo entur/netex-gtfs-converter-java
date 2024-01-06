@@ -88,7 +88,7 @@
         <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
         <sonar-maven-plugin.version>3.9.1.2184</sonar-maven-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
-        <dependency-check-maven.version>8.4.3</dependency-check-maven.version>
+        <dependency-check-maven.version>9.0.8</dependency-check-maven.version>
         <gitflow-maven-plugin.version>1.20.0</gitflow-maven-plugin.version>
         <prettier-java.version>2.1.0</prettier-java.version>
         <prettier-maven-plugin.version>0.21</prettier-maven-plugin.version>
