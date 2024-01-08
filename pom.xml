@@ -58,7 +58,7 @@
         <netex-java-model.version>1.0.15</netex-java-model.version>
         <onebusaway.version>1.4.10</onebusaway.version>
         <jts.version>1.19.0</jts.version>
-        <slf4j.version>1.7.36</slf4j.version>
+        <slf4j.version>2.0.11</slf4j.version>
         <junit.version>5.10.1</junit.version>
         <mockito-core.version>5.5.0</mockito-core.version>
         <zt-zip.version>1.16</zt-zip.version>
