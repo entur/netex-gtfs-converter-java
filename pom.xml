@@ -60,8 +60,8 @@
         <jts.version>1.19.0</jts.version>
         <slf4j.version>2.0.12</slf4j.version>
         <junit.version>5.10.2</junit.version>
-        <mockito-core.version>5.8.0</mockito-core.version>
-        <zt-zip.version>1.16</zt-zip.version>
+        <mockito-core.version>5.10.0</mockito-core.version>
+        <zt-zip.version>1.17</zt-zip.version>
         <commons-csv.version>1.10.0</commons-csv.version>
         <logback-classic.version>1.4.14</logback-classic.version>
         <geotools.version>29.4</geotools.version>
@@ -91,7 +91,7 @@
         <dependency-check-maven.version>8.4.3</dependency-check-maven.version>
         <gitflow-maven-plugin.version>1.21.0</gitflow-maven-plugin.version>
         <prettier-java.version>2.1.0</prettier-java.version>
-        <prettier-maven-plugin.version>0.21</prettier-maven-plugin.version>
+        <prettier-maven-plugin.version>0.22</prettier-maven-plugin.version>
         <plugin.prettier.goal>write</plugin.prettier.goal>
         <!-- empty argLine property, the value is set up by Jacoco during unit tests execution -->
         <argLine />
