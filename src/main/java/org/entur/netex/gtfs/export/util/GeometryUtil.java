@@ -27,6 +27,7 @@ import net.opengis.gml._3.LineStringType;
 import net.opengis.gml._3.PointPropertyType;
 import org.apache.commons.lang3.StringUtils;
 import org.entur.netex.gtfs.export.exception.GtfsExportException;
+import org.geotools.api.referencing.operation.TransformException;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.locationtech.jts.geom.Coordinate;
@@ -37,7 +38,6 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequence;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory;
-import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
