@@ -88,9 +88,6 @@ public class DefaultStopProducer implements StopProducer {
     ) {
       stop.setDesc(stopPlace.getDescription().getValue());
     }
-    if (stopPlace.getPrivateCode() != null) {
-      stop.setPlatformCode(stopPlace.getPrivateCode().getValue());
-    }
 
     // latitude and longitude
     stop.setLon(
@@ -175,8 +172,8 @@ public class DefaultStopProducer implements StopProducer {
     ) {
       stop.setDesc(quay.getDescription().getValue());
     }
-    if (quay.getPrivateCode() != null) {
-      stop.setPlatformCode(quay.getPrivateCode().getValue());
+    if (quay.getPublicCode() != null) {
+      stop.setPlatformCode(quay.getPublicCode());
     }
 
     // latitude and longitude
