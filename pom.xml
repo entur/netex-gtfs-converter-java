@@ -53,7 +53,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jdk.version>17</jdk.version>
 
-        <commons-io.version>2.15.1</commons-io.version>
+        <commons-io.version>2.16.0</commons-io.version>
         <netex-parser-java.version>3.1.12</netex-parser-java.version>
         <netex-java-model.version>2.0.15</netex-java-model.version>
         <onebusaway.version>1.4.15</onebusaway.version>
@@ -88,7 +88,7 @@
         <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
         <sonar-maven-plugin.version>3.11.0.3922</sonar-maven-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
-        <dependency-check-maven.version>9.0.10</dependency-check-maven.version>
+        <dependency-check-maven.version>9.1.0</dependency-check-maven.version>
         <gitflow-maven-plugin.version>1.21.0</gitflow-maven-plugin.version>
         <prettier-java.version>2.1.0</prettier-java.version>
         <prettier-maven-plugin.version>0.22</prettier-maven-plugin.version>
