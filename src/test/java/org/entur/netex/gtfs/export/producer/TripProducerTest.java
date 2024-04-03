@@ -54,6 +54,8 @@
 
 package org.entur.netex.gtfs.export.producer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -64,22 +66,11 @@ import org.entur.netex.gtfs.export.repository.DefaultGtfsRepository;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.onebusaway.gtfs.model.AgencyAndId;
 import org.onebusaway.gtfs.model.Trip;
-import org.rutebanken.netex.model.DatedServiceJourney;
-import org.rutebanken.netex.model.DayType;
-import org.rutebanken.netex.model.DayTypeRefStructure;
-import org.rutebanken.netex.model.DayTypeRefs_RelStructure;
-import org.rutebanken.netex.model.DestinationDisplay;
-import org.rutebanken.netex.model.DirectionTypeEnumeration;
-import org.rutebanken.netex.model.MultilingualString;
-import org.rutebanken.netex.model.ObjectFactory;
-import org.rutebanken.netex.model.OperatingDay;
-import org.rutebanken.netex.model.OperatingDayRefStructure;
-import org.rutebanken.netex.model.Route;
-import org.rutebanken.netex.model.ServiceJourney;
-import org.rutebanken.netex.model.ServiceJourneyRefStructure;
+import org.rutebanken.netex.model.*;
 
 class TripProducerTest {
 
@@ -93,61 +84,77 @@ class TripProducerTest {
   private static final String TEST_DATED_SERVICE_JOURNEY_ID =
     "ENT:DatedServiceJourney:1";
   private static final String TEST_OPERATING_DAY_ID = "ENT:OperatingDay:1";
-  private static final LocalDateTime TEST_DATE = LocalDateTime.now();
+  private static final LocalDateTime TEST_DATE = LocalDateTime.of(
+    2024,
+    4,
+    3,
+    12,
+    0,
+    0
+  );
+  private DefaultGtfsRepository gtfsDatasetRepository;
+  private DefaultGtfsServiceRepository gtfsServiceRepository;
+  private NetexDatasetRepository netexDatasetRepository;
+
+  @BeforeEach
+  void setup() {
+    netexDatasetRepository = mock(NetexDatasetRepository.class);
+    gtfsDatasetRepository = new DefaultGtfsRepository();
+    gtfsServiceRepository =
+      new DefaultGtfsServiceRepository(CODESPACE, netexDatasetRepository);
+  }
 
   @Test
   void testTripProducer() {
-    NetexDatasetRepository netexDatasetRepository = mock(
-      NetexDatasetRepository.class
-    );
-    DayType dayType = NETEX_FACTORY.createDayType();
-    dayType.setId(TEST_DAY_TYPE_ID);
-    when(netexDatasetRepository.getDayTypeById(TEST_DAY_TYPE_ID))
-      .thenReturn(dayType);
-
-    GtfsDatasetRepository gtfsDatasetRepository = new DefaultGtfsRepository();
-    GtfsServiceRepository gtfsServiceRepository =
-      new DefaultGtfsServiceRepository(CODESPACE, netexDatasetRepository);
-
-    TripProducer tripProducer = new DefaultTripProducer(
-      netexDatasetRepository,
-      gtfsDatasetRepository,
-      gtfsServiceRepository
-    );
-
-    Route netexRoute = new Route();
-    netexRoute.setDirectionType(DirectionTypeEnumeration.INBOUND);
-    org.onebusaway.gtfs.model.Route gtfsRoute =
-      new org.onebusaway.gtfs.model.Route();
-    AgencyAndId shapeId = new AgencyAndId();
-    DestinationDisplay initialDestinationDisplay = new DestinationDisplay();
-    MultilingualString frontText = new MultilingualString();
-    frontText.setValue(FRONT_TEXT);
-    initialDestinationDisplay.setFrontText(frontText);
-
     ServiceJourney serviceJourney = createTestServiceJourney(
       TEST_SERVICE_JOURNEY_ID,
       TEST_DAY_TYPE_ID
     );
-
-    Trip trip = tripProducer.produce(
-      serviceJourney,
-      netexRoute,
-      gtfsRoute,
-      shapeId,
-      initialDestinationDisplay
+    DayType dayType = createTestDayType(TEST_DAY_TYPE_ID);
+    DayTypeAssignment dayTypeAssignment = createTestDayTypeAssignment(
+      dayType,
+      TEST_DATE
     );
 
-    Assertions.assertNotNull(trip);
-    Assertions.assertNotNull(trip.getId());
-    Assertions.assertEquals(TEST_SERVICE_JOURNEY_ID, trip.getId().getId());
-    Assertions.assertEquals(
-      TripProducer.GTFS_DIRECTION_INBOUND,
-      trip.getDirectionId()
-    );
-    Assertions.assertEquals(FRONT_TEXT, trip.getTripHeadsign());
+    when(netexDatasetRepository.getDayTypeById(TEST_DAY_TYPE_ID))
+      .thenReturn(dayType);
+    when(netexDatasetRepository.getDayTypeAssignmentsByDayType(dayType))
+      .thenReturn(Set.of(dayTypeAssignment));
 
-    Assertions.assertEquals(TEST_DAY_TYPE_ID, trip.getServiceId().getId());
+    Trip trip = produceTrip(
+      netexDatasetRepository,
+      gtfsDatasetRepository,
+      gtfsServiceRepository,
+      serviceJourney
+    );
+
+    assertNotNull(trip);
+    assertNotNull(trip.getId());
+    assertEquals(TEST_SERVICE_JOURNEY_ID, trip.getId().getId());
+    assertEquals(TripProducer.GTFS_DIRECTION_INBOUND, trip.getDirectionId());
+    assertEquals(FRONT_TEXT, trip.getTripHeadsign());
+
+    assertEquals(TEST_DAY_TYPE_ID, trip.getServiceId().getId());
+  }
+
+  @Test
+  void testTripProducerWithoutDayTypeAssignment() {
+    ServiceJourney serviceJourney = createTestServiceJourney(
+      TEST_SERVICE_JOURNEY_ID,
+      TEST_DAY_TYPE_ID
+    );
+    DayType dayType = createTestDayType(TEST_DAY_TYPE_ID);
+
+    when(netexDatasetRepository.getDayTypeById(TEST_DAY_TYPE_ID))
+      .thenReturn(dayType);
+
+    Trip trip = produceTrip(
+      netexDatasetRepository,
+      gtfsDatasetRepository,
+      gtfsServiceRepository,
+      serviceJourney
+    );
+    Assertions.assertNull(trip);
   }
 
   @Test
@@ -157,23 +164,15 @@ class TripProducerTest {
       null
     );
 
-    OperatingDay operatingDay = NETEX_FACTORY.createOperatingDay();
-    operatingDay.setId(TEST_OPERATING_DAY_ID);
-    operatingDay.setCalendarDate(TEST_DATE);
-
+    OperatingDay operatingDay = createTestOperatingDay(
+      TEST_OPERATING_DAY_ID,
+      TEST_DATE
+    );
     DatedServiceJourney datedServiceJourney = createTestDatedServiceJourney(
       TEST_SERVICE_JOURNEY_ID,
       TEST_OPERATING_DAY_ID
     );
 
-    NetexDatasetRepository netexDatasetRepository = mock(
-      NetexDatasetRepository.class
-    );
-    DayType dayType = NETEX_FACTORY.createDayType();
-    dayType.setId(TEST_DAY_TYPE_ID);
-
-    when(netexDatasetRepository.getDayTypeById(TEST_DAY_TYPE_ID))
-      .thenReturn(dayType);
     when(
       netexDatasetRepository.getDatedServiceJourneysByServiceJourneyId(
         TEST_SERVICE_JOURNEY_ID
@@ -183,16 +182,28 @@ class TripProducerTest {
     when(netexDatasetRepository.getOperatingDayById(TEST_OPERATING_DAY_ID))
       .thenReturn(operatingDay);
 
-    GtfsDatasetRepository gtfsDatasetRepository = new DefaultGtfsRepository();
-    GtfsServiceRepository gtfsServiceRepository =
-      new DefaultGtfsServiceRepository(CODESPACE, netexDatasetRepository);
-
-    TripProducer tripProducer = new DefaultTripProducer(
+    Trip trip = produceTrip(
       netexDatasetRepository,
       gtfsDatasetRepository,
-      gtfsServiceRepository
+      gtfsServiceRepository,
+      serviceJourney
     );
 
+    assertNotNull(trip);
+    assertNotNull(trip.getId());
+    assertEquals(TEST_SERVICE_JOURNEY_ID, trip.getId().getId());
+    assertEquals(TripProducer.GTFS_DIRECTION_INBOUND, trip.getDirectionId());
+    assertEquals(FRONT_TEXT, trip.getTripHeadsign());
+
+    assertEquals(TEST_OPERATING_DAY_ID, trip.getServiceId().getId());
+  }
+
+  private static Trip produceTrip(
+    NetexDatasetRepository netexDatasetRepository,
+    GtfsDatasetRepository gtfsDatasetRepository,
+    GtfsServiceRepository gtfsServiceRepository,
+    ServiceJourney serviceJourney
+  ) {
     Route netexRoute = new Route();
     netexRoute.setDirectionType(DirectionTypeEnumeration.INBOUND);
     org.onebusaway.gtfs.model.Route gtfsRoute =
@@ -203,24 +214,19 @@ class TripProducerTest {
     frontText.setValue(FRONT_TEXT);
     initialDestinationDisplay.setFrontText(frontText);
 
-    Trip trip = tripProducer.produce(
+    TripProducer tripProducer = new DefaultTripProducer(
+      netexDatasetRepository,
+      gtfsDatasetRepository,
+      gtfsServiceRepository
+    );
+
+    return tripProducer.produce(
       serviceJourney,
       netexRoute,
       gtfsRoute,
       shapeId,
       initialDestinationDisplay
     );
-
-    Assertions.assertNotNull(trip);
-    Assertions.assertNotNull(trip.getId());
-    Assertions.assertEquals(TEST_SERVICE_JOURNEY_ID, trip.getId().getId());
-    Assertions.assertEquals(
-      TripProducer.GTFS_DIRECTION_INBOUND,
-      trip.getDirectionId()
-    );
-    Assertions.assertEquals(FRONT_TEXT, trip.getTripHeadsign());
-
-    Assertions.assertEquals(TEST_OPERATING_DAY_ID, trip.getServiceId().getId());
   }
 
   private ServiceJourney createTestServiceJourney(
@@ -267,5 +273,34 @@ class TripProducerTest {
     datedServiceJourney.setOperatingDayRef(operatingDayRef);
 
     return datedServiceJourney;
+  }
+
+  private static DayType createTestDayType(String dayTypeId) {
+    return NETEX_FACTORY.createDayType().withId(dayTypeId);
+  }
+
+  private static DayTypeAssignment createTestDayTypeAssignment(
+    DayType dayType,
+    LocalDateTime date
+  ) {
+    DayTypeRefStructure dayTypeRefStructure = NETEX_FACTORY
+      .createDayTypeRefStructure()
+      .withRef(dayType.getId());
+    JAXBElement<? extends DayTypeRefStructure> dayTypeRef =
+      NETEX_FACTORY.createDayTypeRef(dayTypeRefStructure);
+    return NETEX_FACTORY
+      .createDayTypeAssignment()
+      .withDayTypeRef(dayTypeRef)
+      .withDate(date);
+  }
+
+  private static OperatingDay createTestOperatingDay(
+    String operatingDayId,
+    LocalDateTime date
+  ) {
+    return NETEX_FACTORY
+      .createOperatingDay()
+      .withId(operatingDayId)
+      .withCalendarDate(date);
   }
 }

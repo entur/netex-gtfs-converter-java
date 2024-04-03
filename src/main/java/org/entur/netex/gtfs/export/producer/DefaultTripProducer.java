@@ -106,7 +106,19 @@ public class DefaultTripProducer implements TripProducer {
         .stream()
         .map(jaxbElement -> jaxbElement.getValue().getRef())
         .map(netexDatasetRepository::getDayTypeById)
+        .filter(dayType ->
+          !netexDatasetRepository
+            .getDayTypeAssignmentsByDayType(dayType)
+            .isEmpty()
+        )
         .collect(Collectors.toSet());
+      if (dayTypes.isEmpty()) {
+        LOGGER.info(
+          "Skipping ServiceJourney {} without DayTypeAssignment",
+          serviceJourney.getId()
+        );
+        return null;
+      }
       serviceAgencyAndId.setId(
         gtfsServiceRepository.getServiceForDayTypes(dayTypes).getId()
       );
