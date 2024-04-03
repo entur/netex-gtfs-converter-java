@@ -210,10 +210,7 @@ public class DefaultStopProducer implements StopProducer {
   }
 
   /**
-   * Return true if the MultilingualString string is blank.
-   *
-   * @param multilingualString
-   * @return true if the multilingual string is null or its value is blank.
+   * Return true if the MultilingualString string is null or blank.
    */
   private static boolean isBlankMultilingualString(
     MultilingualString multilingualString

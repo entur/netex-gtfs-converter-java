@@ -389,8 +389,6 @@ public class DefaultGtfsServiceRepository implements GtfsServiceRepository {
 
   /**
    * Return the set of active days of week for a day type.
-   * @param dayType
-   * @return the set of active days of week for a day type.
    */
   private static Set<DayOfWeek> getDaysOfWeek(DayType dayType) {
     List<DayOfWeekEnumeration> netexDaysOfWeek = getNetexDaysOfWeek(dayType);
