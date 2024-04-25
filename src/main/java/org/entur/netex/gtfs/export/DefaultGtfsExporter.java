@@ -194,13 +194,16 @@ public class DefaultGtfsExporter implements GtfsExporter {
   }
 
   private void loadNetex(InputStream netexTimetableDataset) {
-    LOGGER.info("Importing NeTEx Timetable dataset");
+    LOGGER.info(
+      "Importing NeTEx Timetable dataset for codespace {}",
+      codespace
+    );
     netexDatasetLoader.load(netexTimetableDataset, netexDatasetRepository);
-    LOGGER.info("Imported NeTEx Timetable dataset");
+    LOGGER.info("Imported NeTEx Timetable dataset for codespace {}", codespace);
   }
 
   private void convertNetexToGtfs() {
-    LOGGER.info("Converting NeTEx to GTFS");
+    LOGGER.info("Converting NeTEx to GTFS for codespace {}", codespace);
     // create agencies only for authorities that are effectively referenced from a NeTex line
     netexDatasetRepository
       .getLines()
@@ -216,6 +219,7 @@ public class DefaultGtfsExporter implements GtfsExporter {
     convertServices();
     convertTransfers();
     addFeedInfo();
+    LOGGER.info("Converted NeTEx to GTFS for codespace {}", codespace);
   }
 
   protected void addFeedInfo() {
