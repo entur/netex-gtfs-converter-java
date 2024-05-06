@@ -56,7 +56,7 @@
         <commons-io.version>2.13.0</commons-io.version>
         <netex-parser-java.version>2.3.0</netex-parser-java.version>
         <netex-java-model.version>1.0.15</netex-java-model.version>
-        <onebusaway.version>1.4.16</onebusaway.version>
+        <onebusaway.version>1.4.17</onebusaway.version>
         <jts.version>1.19.0</jts.version>
         <slf4j.version>1.7.36</slf4j.version>
         <junit.version>5.10.2</junit.version>
