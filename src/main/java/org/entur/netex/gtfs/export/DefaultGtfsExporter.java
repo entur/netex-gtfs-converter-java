@@ -21,6 +21,7 @@ package org.entur.netex.gtfs.export;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -335,6 +336,7 @@ public class DefaultGtfsExporter implements GtfsExporter {
       .stream()
       .filter(this::isValidServiceJourneyInterchange)
       .map(transferProducer::produce)
+      .filter(Objects::nonNull)
       .forEach(gtfsDatasetRepository::saveEntity);
   }
 

@@ -18,6 +18,7 @@
 
 package org.entur.netex.gtfs.export.producer;
 
+import java.util.Optional;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 import org.entur.netex.gtfs.export.util.StopUtil;
@@ -25,8 +26,14 @@ import org.onebusaway.gtfs.model.Stop;
 import org.onebusaway.gtfs.model.Transfer;
 import org.onebusaway.gtfs.model.Trip;
 import org.rutebanken.netex.model.ServiceJourneyInterchange;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DefaultTransferProducer implements TransferProducer {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(
+    DefaultTransferProducer.class
+  );
 
   private final NetexDatasetRepository netexDatasetRepository;
   private final GtfsDatasetRepository gtfsDatasetRepository;
@@ -51,19 +58,34 @@ public class DefaultTransferProducer implements TransferProducer {
 
   @Override
   public Transfer produce(ServiceJourneyInterchange serviceJourneyInterchange) {
-    Transfer transfer = new Transfer();
-
+    // Retrieve the source and destination GTFS trips
+    // They may not exist if the corresponding NeTEx journeys were filtered out (example: flexible service journey).
     String fromServiceJourneyId = serviceJourneyInterchange
       .getFromJourneyRef()
       .getRef();
-    Trip fromTrip = gtfsDatasetRepository.getTripById(fromServiceJourneyId);
-    transfer.setFromTrip(fromTrip);
-
+    Optional<Trip> fromTrip = gtfsDatasetRepository.findTripById(
+      fromServiceJourneyId
+    );
     String toServiceJourneyId = serviceJourneyInterchange
       .getToJourneyRef()
       .getRef();
-    Trip toTrip = gtfsDatasetRepository.getTripById(toServiceJourneyId);
-    transfer.setToTrip(toTrip);
+    Optional<Trip> toTrip = gtfsDatasetRepository.findTripById(
+      toServiceJourneyId
+    );
+
+    if (fromTrip.isEmpty() || toTrip.isEmpty()) {
+      LOGGER.info(
+        "Ignoring transfer {} from {} to {}: the source or destination trip is not valid",
+        serviceJourneyInterchange,
+        fromServiceJourneyId,
+        toServiceJourneyId
+      );
+      return null;
+    }
+
+    Transfer transfer = new Transfer();
+    transfer.setFromTrip(fromTrip.get());
+    transfer.setToTrip(toTrip.get());
 
     String fromScheduledStopPointId = serviceJourneyInterchange
       .getFromPointRef()

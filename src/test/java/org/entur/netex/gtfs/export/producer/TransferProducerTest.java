@@ -54,14 +54,18 @@
 
 package org.entur.netex.gtfs.export.producer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.math.BigInteger;
 import java.time.Duration;
+import java.util.Optional;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.onebusaway.gtfs.model.AgencyAndId;
 import org.onebusaway.gtfs.model.Stop;
@@ -87,12 +91,17 @@ class TransferProducerTest {
   private static final String TEST_QUAY_FROM_ID = "ENT:Quay:1";
   private static final String TEST_QUAY_TO_ID = "ENT:Quay:2";
 
-  @Test
-  void testTransferProducer() {
-    NetexDatasetRepository netexDatasetRepository = getNetexDatasetRepository();
-    GtfsDatasetRepository gtfsDatasetRepository = getGtfsDatasetRepository();
+  private NetexDatasetRepository netexDatasetRepository;
+  private GtfsDatasetRepository gtfsDatasetRepository;
+  private ServiceJourneyInterchange serviceJourneyInterchange;
+  private TransferProducer transferProducer;
 
-    ServiceJourneyInterchange serviceJourneyInterchange =
+  @BeforeEach
+  void setUp() {
+    netexDatasetRepository = getNetexDatasetRepository();
+    gtfsDatasetRepository = getGtfsDatasetRepository();
+
+    serviceJourneyInterchange =
       createTestServiceJourneyInterchange(
         TEST_SERVICE_JOURNEY_FROM_ID,
         TEST_SERVICE_JOURNEY_TO_ID,
@@ -100,14 +109,19 @@ class TransferProducerTest {
         TEST_SCHEDULED_STOP_POINT_TO_ID
       );
 
-    TransferProducer transferProducer = new DefaultTransferProducer(
-      netexDatasetRepository,
-      gtfsDatasetRepository
-    );
+    transferProducer =
+      new DefaultTransferProducer(
+        netexDatasetRepository,
+        gtfsDatasetRepository
+      );
+  }
+
+  @Test
+  void testTransferProducer() {
     Transfer transfer = transferProducer.produce(serviceJourneyInterchange);
 
     assertTransferFromTo(transfer);
-    Assertions.assertEquals(
+    assertEquals(
       TransferProducer.TRANSFER_RECOMMENDED,
       transfer.getTransferType()
     );
@@ -115,57 +129,31 @@ class TransferProducerTest {
   }
 
   @Test
-  void testTransferProducerWithGuaranteedTransfer() {
-    NetexDatasetRepository netexDatasetRepository = getNetexDatasetRepository();
-    GtfsDatasetRepository gtfsDatasetRepository = getGtfsDatasetRepository();
-
-    ServiceJourneyInterchange serviceJourneyInterchange =
-      createTestServiceJourneyInterchange(
-        TEST_SERVICE_JOURNEY_FROM_ID,
-        TEST_SERVICE_JOURNEY_TO_ID,
-        TEST_SCHEDULED_STOP_POINT_FROM_ID,
-        TEST_SCHEDULED_STOP_POINT_TO_ID
-      );
-
-    serviceJourneyInterchange.setGuaranteed(true);
-
-    TransferProducer transferProducer = new DefaultTransferProducer(
-      netexDatasetRepository,
-      gtfsDatasetRepository
+  void testTransferProducerWithInvalidTransfer() {
+    serviceJourneyInterchange.setFromJourneyRef(
+      new VehicleJourneyRefStructure().withRef("XXX")
     );
+    Transfer transfer = transferProducer.produce(serviceJourneyInterchange);
+    assertNull(transfer);
+  }
+
+  @Test
+  void testTransferProducerWithGuaranteedTransfer() {
+    serviceJourneyInterchange.setGuaranteed(true);
     Transfer transfer = transferProducer.produce(serviceJourneyInterchange);
 
     assertTransferFromTo(transfer);
-    Assertions.assertEquals(
-      TransferProducer.TRANSFER_TIMED,
-      transfer.getTransferType()
-    );
+    assertEquals(TransferProducer.TRANSFER_TIMED, transfer.getTransferType());
     Assertions.assertFalse(transfer.isMinTransferTimeSet());
   }
 
   @Test
   void testTransferProducerWithDisallowedTransfer() {
-    NetexDatasetRepository netexDatasetRepository = getNetexDatasetRepository();
-    GtfsDatasetRepository gtfsDatasetRepository = getGtfsDatasetRepository();
-
-    ServiceJourneyInterchange serviceJourneyInterchange =
-      createTestServiceJourneyInterchange(
-        TEST_SERVICE_JOURNEY_FROM_ID,
-        TEST_SERVICE_JOURNEY_TO_ID,
-        TEST_SCHEDULED_STOP_POINT_FROM_ID,
-        TEST_SCHEDULED_STOP_POINT_TO_ID
-      );
-
     serviceJourneyInterchange.setPriority(BigInteger.valueOf(-1));
-
-    TransferProducer transferProducer = new DefaultTransferProducer(
-      netexDatasetRepository,
-      gtfsDatasetRepository
-    );
     Transfer transfer = transferProducer.produce(serviceJourneyInterchange);
 
     assertTransferFromTo(transfer);
-    Assertions.assertEquals(
+    assertEquals(
       TransferProducer.TRANSFER_NOT_ALLOWED,
       transfer.getTransferType()
     );
@@ -174,33 +162,15 @@ class TransferProducerTest {
 
   @Test
   void testTransferProducerWithMinimumTimeTransfer() {
-    NetexDatasetRepository netexDatasetRepository = getNetexDatasetRepository();
-    GtfsDatasetRepository gtfsDatasetRepository = getGtfsDatasetRepository();
-
-    ServiceJourneyInterchange serviceJourneyInterchange =
-      createTestServiceJourneyInterchange(
-        TEST_SERVICE_JOURNEY_FROM_ID,
-        TEST_SERVICE_JOURNEY_TO_ID,
-        TEST_SCHEDULED_STOP_POINT_FROM_ID,
-        TEST_SCHEDULED_STOP_POINT_TO_ID
-      );
-
     Duration minimumTransferDuration = Duration.ofMinutes(5);
     serviceJourneyInterchange.setMinimumTransferTime(minimumTransferDuration);
 
-    TransferProducer transferProducer = new DefaultTransferProducer(
-      netexDatasetRepository,
-      gtfsDatasetRepository
-    );
     Transfer transfer = transferProducer.produce(serviceJourneyInterchange);
 
     assertTransferFromTo(transfer);
-    Assertions.assertEquals(
-      TransferProducer.TRANSFER_MINIMAL,
-      transfer.getTransferType()
-    );
+    assertEquals(TransferProducer.TRANSFER_MINIMAL, transfer.getTransferType());
     Assertions.assertTrue(transfer.isMinTransferTimeSet());
-    Assertions.assertEquals(
+    assertEquals(
       minimumTransferDuration.getSeconds(),
       transfer.getMinTransferTime()
     );
@@ -208,29 +178,20 @@ class TransferProducerTest {
 
   @Test
   void testTransferProducerWithStaySeatedTransfer() {
-    NetexDatasetRepository netexDatasetRepository = getNetexDatasetRepository();
-    GtfsDatasetRepository gtfsDatasetRepository = getGtfsDatasetRepository();
-
-    ServiceJourneyInterchange serviceJourneyInterchange =
-      createTestServiceJourneyInterchange(
-        TEST_SERVICE_JOURNEY_FROM_ID,
-        TEST_SERVICE_JOURNEY_TO_ID,
-        TEST_SCHEDULED_STOP_POINT_FROM_ID,
-        TEST_SCHEDULED_STOP_POINT_TO_ID
-      );
-
     serviceJourneyInterchange.setStaySeated(true);
     serviceJourneyInterchange.setGuaranteed(true);
 
-    TransferProducer transferProducer = new DefaultTransferProducer(
+    TransferProducer staySeatedTransferProducer = new DefaultTransferProducer(
       netexDatasetRepository,
       gtfsDatasetRepository,
       true
     );
-    Transfer transfer = transferProducer.produce(serviceJourneyInterchange);
+    Transfer transfer = staySeatedTransferProducer.produce(
+      serviceJourneyInterchange
+    );
 
     assertTransferFromTo(transfer);
-    Assertions.assertEquals(
+    assertEquals(
       TransferProducer.TRANSFER_STAY_SEATED,
       transfer.getTransferType()
     );
@@ -241,25 +202,19 @@ class TransferProducerTest {
     Assertions.assertNotNull(transfer);
     Assertions.assertNotNull(transfer.getId());
     Assertions.assertNotNull(transfer.getFromTrip());
-    Assertions.assertEquals(
+    assertEquals(
       TEST_SERVICE_JOURNEY_FROM_ID,
       transfer.getFromTrip().getId().getId()
     );
     Assertions.assertNotNull(transfer.getToTrip());
-    Assertions.assertEquals(
+    assertEquals(
       TEST_SERVICE_JOURNEY_TO_ID,
       transfer.getToTrip().getId().getId()
     );
     Assertions.assertNotNull(transfer.getFromStop());
-    Assertions.assertEquals(
-      TEST_QUAY_FROM_ID,
-      transfer.getFromStop().getId().getId()
-    );
+    assertEquals(TEST_QUAY_FROM_ID, transfer.getFromStop().getId().getId());
     Assertions.assertNotNull(transfer.getToStop());
-    Assertions.assertEquals(
-      TEST_QUAY_TO_ID,
-      transfer.getToStop().getId().getId()
-    );
+    assertEquals(TEST_QUAY_TO_ID, transfer.getToStop().getId().getId());
   }
 
   private GtfsDatasetRepository getGtfsDatasetRepository() {
@@ -275,10 +230,10 @@ class TransferProducerTest {
     GtfsDatasetRepository gtfsDatasetRepository = mock(
       GtfsDatasetRepository.class
     );
-    when(gtfsDatasetRepository.getTripById(TEST_SERVICE_JOURNEY_FROM_ID))
-      .thenReturn(fromTrip);
-    when(gtfsDatasetRepository.getTripById(TEST_SERVICE_JOURNEY_TO_ID))
-      .thenReturn(toTrip);
+    when(gtfsDatasetRepository.findTripById(TEST_SERVICE_JOURNEY_FROM_ID))
+      .thenReturn(Optional.of(fromTrip));
+    when(gtfsDatasetRepository.findTripById(TEST_SERVICE_JOURNEY_TO_ID))
+      .thenReturn(Optional.of(toTrip));
     when(gtfsDatasetRepository.getStopById(TEST_QUAY_FROM_ID))
       .thenReturn(fromStop);
     when(gtfsDatasetRepository.getStopById(TEST_QUAY_TO_ID)).thenReturn(toStop);

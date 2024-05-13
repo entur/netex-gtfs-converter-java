@@ -18,6 +18,7 @@
 
 package org.entur.netex.gtfs.export.producer;
 
+import jakarta.annotation.Nullable;
 import org.onebusaway.gtfs.model.Transfer;
 import org.rutebanken.netex.model.ServiceJourneyInterchange;
 
@@ -34,7 +35,8 @@ public interface TransferProducer {
   /**
    * Produce a GTFS Transfer from a NeTEx Service Journey Interchange.
    * @param serviceJourneyInterchange the NeTEx Service Journey Interchange.
-   * @return the GTFS Transfer.
+   * @return the GTFS Transfer or null if the transfer cannot be mapped to GTFS.
    */
+  @Nullable
   Transfer produce(ServiceJourneyInterchange serviceJourneyInterchange);
 }
