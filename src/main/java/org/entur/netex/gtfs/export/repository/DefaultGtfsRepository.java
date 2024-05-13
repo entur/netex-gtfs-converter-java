@@ -19,6 +19,7 @@
 package org.entur.netex.gtfs.export.repository;
 
 import java.io.InputStream;
+import java.util.Optional;
 import org.entur.netex.gtfs.export.serializer.DefaultGtfsSerializer;
 import org.entur.netex.gtfs.export.serializer.GtfsSerializer;
 import org.onebusaway.gtfs.impl.GtfsRelationalDaoImpl;
@@ -53,17 +54,16 @@ public class DefaultGtfsRepository implements GtfsDatasetRepository {
 
   @Override
   public Trip getTripById(String tripId) {
-    AgencyAndId agencyAndId = new AgencyAndId();
-    agencyAndId.setId(tripId);
-    agencyAndId.setAgencyId(defaultAgency.getId());
-
-    Trip tripForId = gtfsDao.getTripForId(agencyAndId);
-    if (tripForId == null) {
-      throw new GtfsDatasetRepositoryException(
-        "GTFS Trip not found: " + tripId
+    return findTripById(tripId)
+      .orElseThrow(() ->
+        new GtfsDatasetRepositoryException("GTFS Trip not found: " + tripId)
       );
-    }
-    return tripForId;
+  }
+
+  @Override
+  public Optional<Trip> findTripById(String tripId) {
+    AgencyAndId agencyAndId = new AgencyAndId(defaultAgency.getId(), tripId);
+    return Optional.ofNullable(gtfsDao.getTripForId(agencyAndId));
   }
 
   @Override

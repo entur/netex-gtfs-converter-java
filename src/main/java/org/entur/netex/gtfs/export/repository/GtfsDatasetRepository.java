@@ -19,6 +19,7 @@
 package org.entur.netex.gtfs.export.repository;
 
 import java.io.InputStream;
+import java.util.Optional;
 import org.onebusaway.gtfs.model.Agency;
 import org.onebusaway.gtfs.model.Stop;
 import org.onebusaway.gtfs.model.Trip;
@@ -34,6 +35,11 @@ public interface GtfsDatasetRepository {
    *  @throws GtfsDatasetRepositoryException if the agency cannot be found in the repository.
    */
   Agency getAgencyById(String agencyId);
+
+  /**
+   * Return an optional GTFS trip by id.
+   */
+  Optional<Trip> findTripById(String tripId);
 
   /**
    * Return a GTFS trip by id.
