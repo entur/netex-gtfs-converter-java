@@ -90,6 +90,11 @@ public class DefaultStopProducer implements StopProducer {
     }
 
     // latitude and longitude
+    if ((stopPlace.getCentroid() == null)) {
+      throw new GtfsExportException(
+        "The stop place '" + stopPlace.getId() + "' does not have a centroid"
+      );
+    }
     stop.setLon(
       stopPlace.getCentroid().getLocation().getLongitude().doubleValue()
     );
