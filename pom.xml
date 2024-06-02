@@ -86,7 +86,7 @@
         <wagon-ssh-external.version>3.5.3</wagon-ssh-external.version>
         <git-commit-id-maven-plugin.version>6.0.0</git-commit-id-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
-        <sonar-maven-plugin.version>3.9.1.2184</sonar-maven-plugin.version>
+        <sonar-maven-plugin.version>4.0.0.4121</sonar-maven-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
         <dependency-check-maven.version>8.4.3</dependency-check-maven.version>
         <gitflow-maven-plugin.version>1.20.0</gitflow-maven-plugin.version>
