@@ -54,7 +54,7 @@
         <jdk.version>17</jdk.version>
 
         <commons-io.version>2.16.1</commons-io.version>
-        <netex-parser-java.version>3.1.18</netex-parser-java.version>
+        <netex-parser-java.version>3.1.19</netex-parser-java.version>
         <netex-java-model.version>2.0.15</netex-java-model.version>
         <onebusaway.version>1.4.17</onebusaway.version>
         <jts.version>1.19.0</jts.version>
@@ -70,7 +70,7 @@
         <maven.compiler.target>17</maven.compiler.target>
 
         <maven-exec-plugin.version>1.6.0</maven-exec-plugin.version>
-        <maven-surefire-plugin.version>3.3.0</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.3.1</maven-surefire-plugin.version>
         <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <maven-javadoc-plugin.version>3.7.0</maven-javadoc-plugin.version>
