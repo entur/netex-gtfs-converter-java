@@ -64,7 +64,7 @@
         <zt-zip.version>1.17</zt-zip.version>
         <commons-csv.version>1.11.0</commons-csv.version>
         <logback-classic.version>1.5.6</logback-classic.version>
-        <geotools.version>31.2</geotools.version>
+        <geotools.version>31.3</geotools.version>
 
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
@@ -73,7 +73,7 @@
         <maven-surefire-plugin.version>3.3.1</maven-surefire-plugin.version>
         <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
-        <maven-javadoc-plugin.version>3.7.0</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>3.8.0</maven-javadoc-plugin.version>
         <maven-gpg-plugin.version>3.2.4</maven-gpg-plugin.version>
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
