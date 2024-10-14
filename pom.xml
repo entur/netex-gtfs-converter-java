@@ -54,7 +54,7 @@
         <jdk.version>17</jdk.version>
 
         <commons-io.version>2.17.0</commons-io.version>
-        <netex-parser-java.version>3.1.24</netex-parser-java.version>
+        <netex-parser-java.version>3.1.25</netex-parser-java.version>
         <netex-java-model.version>2.0.15</netex-java-model.version>
         <onebusaway.version>3.2.3</onebusaway.version>
         <jts.version>1.20.0</jts.version>
@@ -63,7 +63,7 @@
         <mockito-core.version>5.14.1</mockito-core.version>
         <zt-zip.version>1.17</zt-zip.version>
         <commons-csv.version>1.12.0</commons-csv.version>
-        <logback-classic.version>1.5.8</logback-classic.version>
+        <logback-classic.version>1.5.10</logback-classic.version>
         <geotools.version>31.3</geotools.version>
 
         <maven.compiler.source>17</maven.compiler.source>
