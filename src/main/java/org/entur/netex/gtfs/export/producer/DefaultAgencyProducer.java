@@ -80,7 +80,7 @@ public class DefaultAgencyProducer implements AgencyProducer {
 
   /**
    * Return true if the url is a valid GTFS URL, starting with either http:// or https://
-   * See https://developers.google.com/transit/gtfs/reference#field_types
+   * See <a href="https://gtfs.org/documentation/schedule/reference/#field-types">GTFS Field Types</a>
    *
    * @param url the agency URL to check
    * @return true if the url is a valid GTFS URL, starting with either http:// or https://

@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Produce a GTFS stop from a NeTEX StopPlace or a NeTEx Quay.
- * Supported GTFS extension: vehicle_type (see https://developers.google.com/transit/gtfs/reference/gtfs-extensions/#stops.txt)
+ * Supported GTFS extension: vehicle_type (see <a href="https://gtfs.org/documentation/schedule/reference/#stopstxt">stops.txt</a>)
  */
 public class DefaultStopProducer implements StopProducer {
 
