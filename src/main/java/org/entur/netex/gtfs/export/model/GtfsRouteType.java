@@ -20,7 +20,7 @@ package org.entur.netex.gtfs.export.model;
 
 /**
  * Enumeration of GTFS extended route types.
- * See https://developers.google.com/transit/gtfs/reference/extended-route-types
+ * See <a href="https://developers.google.com/transit/gtfs/reference/extended-route-types">Extended GTFS Route Types</a>
  */
 public enum GtfsRouteType {
   // Basic types
