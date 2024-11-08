@@ -18,6 +18,7 @@
 
 package org.entur.netex.gtfs.export.producer;
 
+import org.entur.netex.gtfs.export.exception.InvalidAuthorityUrlException;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 import org.onebusaway.gtfs.model.Agency;
 import org.rutebanken.netex.model.Authority;
@@ -55,20 +56,19 @@ public class DefaultAgencyProducer implements AgencyProducer {
         if (isValidGtfsUrl(url)) {
           agency.setUrl(url);
         } else {
-          LOGGER.warn(
-            "Invalid URL format {} for authority {}",
-            url,
-            authority.getId()
+          throw new InvalidAuthorityUrlException(
+            "Invalid URL for authority " + authority.getId()
           );
         }
       } else {
-        LOGGER.warn("Missing URL for authority {}", authority.getId());
+        throw new InvalidAuthorityUrlException(
+          "Missing URL for authority " + authority.getId()
+        );
       }
       agency.setPhone(contactDetails.getPhone());
     } else {
-      LOGGER.warn(
-        "Missing Contact details for authority {}",
-        authority.getId()
+      throw new InvalidAuthorityUrlException(
+        "Missing Contact details for authority " + authority.getId()
       );
     }
 

@@ -26,7 +26,9 @@ import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import org.entur.netex.gtfs.export.exception.GtfsExportException;
 import org.entur.netex.gtfs.export.exception.GtfsSerializationException;
+import org.onebusaway.csv_entities.exceptions.CsvException;
 import org.onebusaway.gtfs.model.Route;
 import org.onebusaway.gtfs.model.StopTime;
 import org.onebusaway.gtfs.model.Trip;
@@ -67,6 +69,11 @@ public class DefaultGtfsSerializer implements GtfsSerializer {
       writer.setOutputLocation(outputFile);
       writer.run(gtfsDao);
       return createDeleteOnCloseInputStream(outputFile);
+    } catch (CsvException csve) {
+      throw new GtfsExportException(
+        "Cannot produce a valid GTFS dataset",
+        csve
+      );
     } catch (IOException e) {
       throw new GtfsSerializationException(
         "Error while saving the GTFS dataset",
