@@ -20,10 +20,11 @@ package org.entur.netex.gtfs.export.exception;
 
 /**
  * Exception thrown when an Authority does not have a valid URL.
+ * The URL is a mandatory field of a GTFS Agency.
  */
-public class MissingAuthorityUrlException extends GtfsExportException {
+public class InvalidAuthorityUrlException extends GtfsExportException {
 
-  public MissingAuthorityUrlException(String message) {
+  public InvalidAuthorityUrlException(String message) {
     super(message);
   }
 }
