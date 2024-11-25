@@ -53,7 +53,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jdk.version>17</jdk.version>
 
-        <commons-io.version>2.17.0</commons-io.version>
+        <commons-io.version>2.18.0</commons-io.version>
         <netex-parser-java.version>3.1.29</netex-parser-java.version>
         <netex-java-model.version>2.0.15</netex-java-model.version>
         <onebusaway.version>3.2.3</onebusaway.version>
@@ -64,7 +64,7 @@
         <zt-zip.version>1.17</zt-zip.version>
         <commons-csv.version>1.12.0</commons-csv.version>
         <logback-classic.version>1.5.12</logback-classic.version>
-        <geotools.version>32.0</geotools.version>
+        <geotools.version>32.1</geotools.version>
 
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
