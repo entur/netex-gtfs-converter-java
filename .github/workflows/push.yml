@@ -76,6 +76,12 @@ jobs:
             ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
             ${{ runner.os }}-maven-
             ${{ runner.os }}-
+      - name: Test GPG Signing
+        run: |
+          echo "Test" > testfile.txt
+          gpg --batch --pinentry-mode=loopback --passphrase $GPG_PASSPHRASE -o testfile.sig --sign testfile.txt
+        env:
+          GPG_PASSPHRASE: ${{ secrets.SONATYPE_GPG_KEY_PASSWORD }}
 
       - name: Release to Maven Central
         run: |
