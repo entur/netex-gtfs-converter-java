@@ -2,10 +2,10 @@ name: Build and push
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
 env:
     JFROG_USER: ${{ secrets.ARTIFACTORY_AUTH_USER }}
     JFROG_PASS: ${{ secrets.ARTIFACTORY_AUTH_TOKEN }}
@@ -61,7 +61,7 @@ jobs:
         with:
           path: target/*.jar
   deploy-maven-central:
-    if: github.repository_owner == 'entur' && github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.repository_owner == 'entur' && github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [maven-package]
     runs-on: ubuntu-24.04
     permissions:
