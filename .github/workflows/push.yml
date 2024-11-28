@@ -87,15 +87,10 @@ jobs:
             ${{ runner.os }}-maven-
             ${{ runner.os }}-
 
-      - name: Configure GPG private key for signing project artifacts in OSS Sonatype
-        run: echo $SONATYPE_GPG_KEY_BASE64 | base64 --decode | gpg --batch --no-tty --import --yes
-
-      - name: Set GPG TTY
-        run: echo "GPG_TTY=/dev/null" >> $GITHUB_ENV
-
       - name: Release to Maven Central
         run: |
           echo "Start release"
+          echo $SONATYPE_GPG_KEY_BASE64 | base64 --decode | gpg --batch --no-tty --import --yes
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git checkout main
