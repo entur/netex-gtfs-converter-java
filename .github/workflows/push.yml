@@ -96,7 +96,7 @@ jobs:
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git checkout main
-          mvn gitflow:release-start gitflow:release-finish \
+          mvn -X -e gitflow:release-start gitflow:release-finish \
           -DskipTests=true \
           -Prelease \
           -DpostReleaseGoals=deploy \
