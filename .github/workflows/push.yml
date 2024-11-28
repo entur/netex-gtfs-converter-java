@@ -88,5 +88,5 @@ jobs:
           -DskipTests=true \
           -Prelease \
           -DpostReleaseGoals=deploy \
-          -DargLine='-X -e -Prelease -DskipTests -s .github/workflows/settings.xml' \
+          -DargLine='-Prelease -DskipTests -s .github/workflows/settings.xml' \
           -B -s .github/workflows/settings.xml
