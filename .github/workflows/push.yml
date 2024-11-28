@@ -12,7 +12,6 @@ env:
     SONATYPE_GPG_KEY_BASE64: ${{ secrets.SONATYPE_GPG_KEY_BASE64 }}
     SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
     SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-    GPG_TTY: /dev/null
 jobs:
   maven-package:
     runs-on: ubuntu-24.04
@@ -82,13 +81,7 @@ jobs:
         run: |
           echo "Start release"
           echo $SONATYPE_GPG_KEY_BASE64 | base64 --decode | gpg --batch --no-tty --import --yes
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git config --global user.email "circleci@entur.no"
+          git config --global user.name "circleci"
           git checkout main
-          mvn gitflow:release-start gitflow:release-finish \
-          -DskipTests=true \
-          -Prelease \
-          -Dgpg.options=--pinentry-mode=loopback \
-          -DpostReleaseGoals=deploy \
-          -DargLine='-Prelease -DskipTests -Dgpg.options=--pinentry-mode=loopback -s .github/workflows/settings.xml' \
-          -B -s .github/workflows/settings.xml
+          mvn gitflow:release-start gitflow:release-finish -DskipTests=true -Prelease -DpostReleaseGoals=deploy -DargLine='-Prelease -DskipTests -s .github/workflows/settings.xml' -B -s .github/workflows/settings.xml
