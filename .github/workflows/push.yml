@@ -12,6 +12,8 @@ env:
     SONATYPE_GPG_KEY_BASE64: ${{ secrets.SONATYPE_GPG_KEY_BASE64 }}
     SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
     SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+    GPG_TTY: /dev/null
+    GNUPGHOME: ~/.gnupg
 jobs:
   maven-package:
     runs-on: ubuntu-24.04
