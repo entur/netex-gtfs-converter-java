@@ -13,7 +13,6 @@ env:
     SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
     SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
     GPG_TTY: /dev/null
-    GNUPGHOME: ~/.gnupg
 jobs:
   maven-package:
     runs-on: ubuntu-24.04
@@ -89,6 +88,7 @@ jobs:
           mvn gitflow:release-start gitflow:release-finish \
           -DskipTests=true \
           -Prelease \
+          -Dgpg.options=--pinentry-mode=loopback \
           -DpostReleaseGoals=deploy \
-          -DargLine='-Prelease -DskipTests -s .github/workflows/settings.xml' \
+          -DargLine='-Prelease -DskipTests -Dgpg.options=--pinentry-mode=loopback -s .github/workflows/settings.xml' \
           -B -s .github/workflows/settings.xml
