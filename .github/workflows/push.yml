@@ -1,0 +1,92 @@
+name: Build and push
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+env:
+    JFROG_USER: ${{ secrets.ARTIFACTORY_AUTH_USER }}
+    JFROG_PASS: ${{ secrets.ARTIFACTORY_AUTH_TOKEN }}
+    SONATYPE_GPG_KEY_BASE64: ${{ secrets.SONATYPE_GPG_KEY_BASE64 }}
+    SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+    SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+jobs:
+  maven-package:
+    runs-on: ubuntu-24.04
+    container: cimg/openjdk:17.0.11-node
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Copy maven settings
+        run: |
+          wget https://raw.githubusercontent.com/entur/ror-maven-settings/master/.m2/settings.xml -O .github/workflows/settings.xml
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+            ${{ runner.os }}-maven-
+            ${{ runner.os }}-
+
+      - name: Run maven build
+        run: mvn package -s .github/workflows/settings.xml -PprettierCheck -Dprettier.nodePath=node -Dprettier.npmPath=npm
+      - name: Sonar Scan
+        env:
+          SONAR_TOKEN: ${{ secrets.ENTUR_SONAR_PASSWORD }}
+          SONAR_PROJECT_NAME: ${{ github.event.repository.name }}
+          SONAR_PROJECT_KEY: entur_${{ github.event.repository.name }}
+        run: |
+          mvn -s .github/workflows/settings.xml \
+                  org.jacoco:jacoco-maven-plugin:prepare-agent verify \
+                  org.jacoco:jacoco-maven-plugin:report sonar:sonar \
+                  -Dmaven.main.skip \
+                  -DskipTests \
+                  -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                  -Dsonar.organization=enturas-github \
+                  -Dsonar.projectName=${SONAR_PROJECT_NAME} \
+                  -Dsonar.host.url=https://sonarcloud.io \
+                  -Dsonar.token=${SONAR_TOKEN}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4.4.3
+        with:
+          path: target/*.jar
+  deploy-maven-central:
+    if: github.repository_owner == 'entur' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [maven-package]
+    runs-on: ubuntu-24.04
+    container: cimg/openjdk:17.0.11-node
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Copy maven settings
+        run: |
+          wget https://raw.githubusercontent.com/entur/ror-maven-settings/master/.m2/settings.xml -O .github/workflows/settings.xml
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+            ${{ runner.os }}-maven-
+            ${{ runner.os }}-
+
+      - name: Release to Maven Central
+        run: |
+          echo "Start release"
+          echo $SONATYPE_GPG_KEY_BASE64 | base64 --decode | gpg --batch --no-tty --import --yes
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git checkout main
+          mvn gitflow:release-start gitflow:release-finish \
+          -DskipTests=true \
+          -Prelease \
+          -DpostReleaseGoals=deploy \
+          -DargLine='-Prelease -DskipTests -s .github/workflows/settings.xml' \
+          -B -s .github/workflows/settings.xml
