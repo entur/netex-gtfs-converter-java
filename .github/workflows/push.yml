@@ -12,10 +12,11 @@ env:
     SONATYPE_GPG_KEY_BASE64: ${{ secrets.SONATYPE_GPG_KEY_BASE64 }}
     SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
     SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+    SONATYPE_GPG_KEY_PASSWORD: ${{ secrets.SONATYPE_GPG_KEY_PASSWORD }}
 jobs:
   maven-package:
-    runs-on: ubuntu-22.04
-    container: cimg/openjdk:17.0.11-node
+    if: "!contains(github.event.head_commit.message, 'ci skip')"
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
@@ -23,6 +24,10 @@ jobs:
       - name: Copy maven settings
         run: |
           wget https://raw.githubusercontent.com/entur/ror-maven-settings/master/.m2/settings.xml -O .github/workflows/settings.xml
+      - uses: actions/setup-java@v4
+        with:
+          java-version: 21.0.5+11
+          distribution: liberica
       - name: Cache Maven dependencies
         uses: actions/cache@v4
         with:
@@ -56,10 +61,9 @@ jobs:
         with:
           path: target/*.jar
   deploy-maven-central:
-    if: github.repository_owner == 'entur' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.repository_owner == 'entur' && github.event_name == 'push' && github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'ci skip')
     needs: [maven-package]
-    runs-on: ubuntu-22.04
-    container: cimg/openjdk:17.0.11-node
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
@@ -67,6 +71,10 @@ jobs:
       - name: Copy maven settings
         run: |
           wget https://raw.githubusercontent.com/entur/ror-maven-settings/master/.m2/settings.xml -O .github/workflows/settings.xml
+      - uses: actions/setup-java@v4
+        with:
+          java-version: 21.0.5+11
+          distribution: liberica
       - name: Cache Maven dependencies
         uses: actions/cache@v4
         with:
@@ -76,18 +84,17 @@ jobs:
             ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
             ${{ runner.os }}-maven-
             ${{ runner.os }}-
-      - name: Test GPG Signing
-        run: |
-          echo "Test" > testfile.txt
-          gpg --batch --pinentry-mode=loopback --passphrase $GPG_PASSPHRASE -o testfile.sig --sign testfile.txt
-        env:
-          GPG_PASSPHRASE: ${{ secrets.SONATYPE_GPG_KEY_PASSWORD }}
 
       - name: Release to Maven Central
         run: |
           echo "Start release"
           echo $SONATYPE_GPG_KEY_BASE64 | base64 --decode | gpg --batch --no-tty --import --yes
-          git config --global user.email "circleci@entur.no"
-          git config --global user.name "circleci"
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git checkout main
-          mvn gitflow:release-start gitflow:release-finish -DskipTests=true -Prelease -DpostReleaseGoals=deploy -DargLine='-Prelease -DskipTests -s .github/workflows/settings.xml' -B -s .github/workflows/settings.xml
+          mvn gitflow:release-start gitflow:release-finish \
+                  -DskipTests=true \
+                  -Prelease \
+                  -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
+                  -DpostReleaseGoals=deploy \
+                  -DargLine='-Prelease -DskipTests -s .github/workflows/settings.xml' -B -s .github/workflows/settings.xml
