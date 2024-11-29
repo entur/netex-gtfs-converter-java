@@ -13,6 +13,7 @@ env:
     SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
     SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
     SONATYPE_GPG_KEY_PASSWORD: ${{ secrets.SONATYPE_GPG_KEY_PASSWORD }}
+    NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
 jobs:
   maven-package:
     if: "!contains(github.event.head_commit.message, 'ci skip')"
