@@ -64,7 +64,7 @@
         <zt-zip.version>1.17</zt-zip.version>
         <commons-csv.version>1.13.0</commons-csv.version>
         <logback-classic.version>1.5.16</logback-classic.version>
-        <geotools.version>32.1</geotools.version>
+        <geotools.version>32.2</geotools.version>
 
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
