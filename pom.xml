@@ -62,7 +62,7 @@
         <junit.version>5.12.1</junit.version>
         <mockito-core.version>5.16.1</mockito-core.version>
         <zt-zip.version>1.17</zt-zip.version>
-        <commons-csv.version>1.13.0</commons-csv.version>
+        <commons-csv.version>1.14.0</commons-csv.version>
         <logback-classic.version>1.5.17</logback-classic.version>
         <geotools.version>32.2</geotools.version>
 
