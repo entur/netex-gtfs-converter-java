@@ -54,7 +54,7 @@
         <jdk.version>17</jdk.version>
 
         <commons-io.version>2.18.0</commons-io.version>
-        <netex-parser-java.version>3.1.42</netex-parser-java.version>
+        <netex-parser-java.version>3.1.43</netex-parser-java.version>
         <netex-java-model.version>2.0.15</netex-java-model.version>
         <onebusaway.version>3.2.3</onebusaway.version>
         <jts.version>1.20.0</jts.version>
@@ -84,7 +84,7 @@
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
         <wagon-ssh-external.version>3.5.3</wagon-ssh-external.version>
-        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
         <sonar-maven-plugin.version>5.1.0.4751</sonar-maven-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
         <dependency-check-maven.version>10.0.4</dependency-check-maven.version>
