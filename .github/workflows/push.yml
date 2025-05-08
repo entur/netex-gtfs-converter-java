@@ -24,7 +24,7 @@ jobs:
           fetch-depth: 0
       - name: Copy maven settings
         run: |
-          wget https://raw.githubusercontent.com/entur/ror-maven-settings/master/.m2/settings.xml -O .github/workflows/settings.xml
+          wget https://raw.githubusercontent.com/entur/ror-maven-settings/master/.m2/settings_release_maven_central.xml -O .github/workflows/settings.xml
       - uses: actions/setup-java@v4
         with:
           java-version: 21.0.5+11
@@ -71,7 +71,7 @@ jobs:
           fetch-depth: 0
       - name: Copy maven settings
         run: |
-          wget https://raw.githubusercontent.com/entur/ror-maven-settings/master/.m2/settings.xml -O .github/workflows/settings.xml
+          wget https://raw.githubusercontent.com/entur/ror-maven-settings/master/.m2/settings_release_maven_central.xml -O .github/workflows/settings.xml
       - uses: actions/setup-java@v4
         with:
           java-version: 21.0.5+11
