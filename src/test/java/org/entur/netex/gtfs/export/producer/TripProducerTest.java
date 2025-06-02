@@ -265,7 +265,7 @@ class TripProducerTest {
     JAXBElement<ServiceJourneyRefStructure> serviceJourneyRef =
       NETEX_FACTORY.createServiceJourneyRef(serviceJourneyRefStructure);
     serviceJourneyRef.setValue(serviceJourneyRefStructure);
-    datedServiceJourney.getJourneyRef().add(serviceJourneyRef);
+    datedServiceJourney.setJourneyRef(serviceJourneyRef);
 
     OperatingDayRefStructure operatingDayRef =
       NETEX_FACTORY.createOperatingDayRefStructure();
