@@ -38,7 +38,6 @@ jobs:
             ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
             ${{ runner.os }}-maven-
             ${{ runner.os }}-
-
       - name: Run maven build
         run: mvn package -s .github/workflows/settings.xml -PprettierCheck -Dprettier.nodePath=node -Dprettier.npmPath=npm
       - name: Sonar Scan
@@ -61,41 +60,12 @@ jobs:
         uses: actions/upload-artifact@v4.6.2
         with:
           path: target/*.jar
-  deploy-maven-central:
-    if: github.repository_owner == 'entur' && github.event_name == 'push' && github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'ci skip')
-    needs: [maven-package]
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Copy maven settings
-        run: |
-          wget https://raw.githubusercontent.com/entur/ror-maven-settings/master/.m2/settings_release_maven_central.xml -O .github/workflows/settings.xml
-      - uses: actions/setup-java@v4
-        with:
-          java-version: 21.0.5+11
-          distribution: liberica
-      - name: Cache Maven dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-            ${{ runner.os }}-maven-
-            ${{ runner.os }}-
-
-      - name: Release to Maven Central
-        run: |
-          echo "Start release"
-          echo $SONATYPE_GPG_KEY_BASE64 | base64 --decode | gpg --batch --no-tty --import --yes
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git checkout main
-          mvn gitflow:release-start gitflow:release-finish \
-                  -DskipTests=true \
-                  -Prelease \
-                  -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
-                  -DpostReleaseGoals=deploy \
-                  -DargLine='-Prelease -DskipTests -s .github/workflows/settings.xml' -B -s .github/workflows/settings.xml
+  publish-release:
+    if: github.repository_owner == 'entur' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [ maven-package ]
+    name: Publish release to maven central
+    uses: entur/gha-maven-central/.github/workflows/maven-publish.yml@v1
+    secrets: inherit
+    with:
+      push_to_repo: true
+      snapshot: false
