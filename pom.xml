@@ -85,8 +85,8 @@
         <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
         <wagon-ssh-external.version>3.5.3</wagon-ssh-external.version>
         <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
-        <sonar-maven-plugin.version>5.1.0.4751</sonar-maven-plugin.version>
-        <jreleaser-maven-plugin.version>1.19.0</jreleaser-maven-plugin.version>
+        <sonar-maven-plugin.version>5.2.0.4988</sonar-maven-plugin.version>
+        <jreleaser-maven-plugin.version>1.20.0</jreleaser-maven-plugin.version>
         <dependency-check-maven.version>12.1.3</dependency-check-maven.version>
         <gitflow-maven-plugin.version>1.21.0</gitflow-maven-plugin.version>
         <prettier-java.version>2.1.0</prettier-java.version>
