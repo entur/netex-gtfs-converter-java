@@ -54,7 +54,7 @@
         <jdk.version>17</jdk.version>
 
         <commons-io.version>2.20.0</commons-io.version>
-        <netex-parser-java.version>3.1.57</netex-parser-java.version>
+        <netex-parser-java.version>3.1.59</netex-parser-java.version>
         <netex-java-model.version>2.0.15</netex-java-model.version>
         <onebusaway.version>3.2.4</onebusaway.version>
         <jts.version>1.20.0</jts.version>
@@ -87,7 +87,7 @@
         <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
         <sonar-maven-plugin.version>5.2.0.4988</sonar-maven-plugin.version>
         <jreleaser-maven-plugin.version>1.20.0</jreleaser-maven-plugin.version>
-        <dependency-check-maven.version>12.1.5</dependency-check-maven.version>
+        <dependency-check-maven.version>12.1.6</dependency-check-maven.version>
         <gitflow-maven-plugin.version>1.21.0</gitflow-maven-plugin.version>
         <prettier-java.version>2.1.0</prettier-java.version>
         <prettier-maven-plugin.version>0.22</prettier-maven-plugin.version>
