@@ -59,7 +59,7 @@
         <onebusaway.version>3.2.4</onebusaway.version>
         <jts.version>1.20.0</jts.version>
         <slf4j.version>2.0.17</slf4j.version>
-        <junit.version>5.14.0</junit.version>
+        <junit.version>5.14.1</junit.version>
         <mockito-core.version>5.20.0</mockito-core.version>
         <zt-zip.version>1.17</zt-zip.version>
         <commons-csv.version>1.14.1</commons-csv.version>
