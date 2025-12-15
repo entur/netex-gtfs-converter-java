@@ -57,7 +57,7 @@ jobs:
                   -Dsonar.host.url=https://sonarcloud.io \
                   -Dsonar.token=${SONAR_TOKEN}
       - name: Upload artifact
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v6.0.0
         with:
           path: target/*.jar
   publish-release:
