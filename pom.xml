@@ -60,7 +60,7 @@
         <jts.version>1.20.0</jts.version>
         <slf4j.version>2.0.17</slf4j.version>
         <junit.version>5.14.3</junit.version>
-        <mockito-core.version>5.21.0</mockito-core.version>
+        <mockito-core.version>5.22.0</mockito-core.version>
         <zt-zip.version>1.17</zt-zip.version>
         <commons-csv.version>1.14.1</commons-csv.version>
         <logback-classic.version>1.5.32</logback-classic.version>
@@ -86,7 +86,7 @@
         <wagon-ssh-external.version>3.5.3</wagon-ssh-external.version>
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
         <sonar-maven-plugin.version>5.5.0.6356</sonar-maven-plugin.version>
-        <jreleaser-maven-plugin.version>1.22.0</jreleaser-maven-plugin.version>
+        <jreleaser-maven-plugin.version>1.23.0</jreleaser-maven-plugin.version>
         <dependency-check-maven.version>12.2.0</dependency-check-maven.version>
         <gitflow-maven-plugin.version>1.21.0</gitflow-maven-plugin.version>
         <prettier-java.version>2.1.0</prettier-java.version>
