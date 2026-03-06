@@ -133,8 +133,8 @@ class DestinationDisplayUtilTest {
   ) {
     DestinationDisplay destinationDisplay = new DestinationDisplay();
     destinationDisplay.setId(id);
-    MultilingualString frontTextMultilingualString = new MultilingualString();
-    frontTextMultilingualString.setValue(frontText);
+    MultilingualString frontTextMultilingualString = new MultilingualString()
+      .withContent(frontText);
     destinationDisplay.setFrontText(frontTextMultilingualString);
     return destinationDisplay;
   }

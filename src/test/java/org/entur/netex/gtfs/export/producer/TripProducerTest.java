@@ -210,8 +210,8 @@ class TripProducerTest {
       new org.onebusaway.gtfs.model.Route();
     AgencyAndId shapeId = new AgencyAndId();
     DestinationDisplay initialDestinationDisplay = new DestinationDisplay();
-    MultilingualString frontText = new MultilingualString();
-    frontText.setValue(FRONT_TEXT);
+    MultilingualString frontText = new MultilingualString()
+      .withContent(FRONT_TEXT);
     initialDestinationDisplay.setFrontText(frontText);
 
     TripProducer tripProducer = new DefaultTripProducer(
@@ -265,7 +265,7 @@ class TripProducerTest {
     JAXBElement<ServiceJourneyRefStructure> serviceJourneyRef =
       NETEX_FACTORY.createServiceJourneyRef(serviceJourneyRefStructure);
     serviceJourneyRef.setValue(serviceJourneyRefStructure);
-    datedServiceJourney.getJourneyRef().add(serviceJourneyRef);
+    datedServiceJourney.setJourneyRef(serviceJourneyRef);
 
     OperatingDayRefStructure operatingDayRef =
       NETEX_FACTORY.createOperatingDayRefStructure();
