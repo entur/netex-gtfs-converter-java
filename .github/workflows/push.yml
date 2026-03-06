@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - update_netex_2_0
   pull_request:
     branches:
       - main
@@ -69,3 +70,12 @@ jobs:
     with:
       push_to_repo: true
       snapshot: false
+  publish-snapshot:
+    if: github.repository_owner == 'entur' && github.event_name == 'push' && github.ref == 'refs/heads/update_netex_2_0'
+    needs: [ maven-package ]
+    name: Publish snapshot to maven central
+    uses: entur/gha-maven-central/.github/workflows/maven-publish.yml@v1
+    secrets: inherit
+    with:
+      push_to_repo: false
+      snapshot: true
