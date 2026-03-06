@@ -21,11 +21,11 @@ package org.entur.netex.gtfs.export.producer;
 import org.entur.netex.gtfs.export.exception.GtfsExportException;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.stop.StopAreaRepository;
+import org.entur.netex.gtfs.export.util.MultilingualStringUtil;
 import org.entur.netex.gtfs.export.util.TransportModeUtil;
 import org.onebusaway.gtfs.model.Agency;
 import org.onebusaway.gtfs.model.AgencyAndId;
 import org.onebusaway.gtfs.model.Stop;
-import org.rutebanken.netex.model.MultilingualString;
 import org.rutebanken.netex.model.Quay;
 import org.rutebanken.netex.model.StopPlace;
 import org.slf4j.Logger;
@@ -73,20 +73,22 @@ public class DefaultStopProducer implements StopProducer {
     stop.setLocationType(Stop.LOCATION_TYPE_STATION);
 
     // name, description and platform code
-    if (isBlankMultilingualString(stopPlace.getName())) {
+    if (MultilingualStringUtil.isBlank(stopPlace.getName())) {
       throw new GtfsExportException(
         "The stop place " + stopPlace.getId() + " does not have a name"
       );
     } else {
-      stop.setName(stopPlace.getName().getValue());
+      stop.setName(MultilingualStringUtil.getValue(stopPlace.getName()));
     }
     // the description is set only if it is different from the name
+    String stopPlaceDescription = MultilingualStringUtil.getValue(
+      stopPlace.getDescription()
+    );
     if (
-      stopPlace.getDescription() != null &&
-      stopPlace.getDescription().getValue() != null &&
-      !stopPlace.getDescription().getValue().equals(stop.getName())
+      stopPlaceDescription != null &&
+      !stopPlaceDescription.equals(stop.getName())
     ) {
-      stop.setDesc(stopPlace.getDescription().getValue());
+      stop.setDesc(stopPlaceDescription);
     }
 
     // latitude and longitude
@@ -158,7 +160,7 @@ public class DefaultStopProducer implements StopProducer {
 
     // name, description and platform code
     // the name of the quay is inherited from the parent stop place
-    if (isBlankMultilingualString(parentStopPlace.getName())) {
+    if (MultilingualStringUtil.isBlank(parentStopPlace.getName())) {
       throw new GtfsExportException(
         "The parent stop place " +
         parentStopPlace.getId() +
@@ -167,18 +169,17 @@ public class DefaultStopProducer implements StopProducer {
         " does not have a name"
       );
     } else {
-      stop.setName(parentStopPlace.getName().getValue());
+      stop.setName(MultilingualStringUtil.getValue(parentStopPlace.getName()));
     }
     // the description is set only if it is different from the name
-    if (
-      quay.getDescription() != null &&
-      quay.getDescription().getValue() != null &&
-      !quay.getDescription().getValue().equals(stop.getName())
-    ) {
-      stop.setDesc(quay.getDescription().getValue());
+    String quayDescription = MultilingualStringUtil.getValue(
+      quay.getDescription()
+    );
+    if (quayDescription != null && !quayDescription.equals(stop.getName())) {
+      stop.setDesc(quayDescription);
     }
     if (quay.getPublicCode() != null) {
-      stop.setPlatformCode(quay.getPublicCode());
+      stop.setPlatformCode(quay.getPublicCode().getValue());
     }
 
     // latitude and longitude
@@ -212,18 +213,5 @@ public class DefaultStopProducer implements StopProducer {
     }
 
     return stop;
-  }
-
-  /**
-   * Return true if the MultilingualString string is null or blank.
-   */
-  private static boolean isBlankMultilingualString(
-    MultilingualString multilingualString
-  ) {
-    return (
-      multilingualString == null ||
-      multilingualString.getValue() == null ||
-      multilingualString.getValue().isBlank()
-    );
   }
 }

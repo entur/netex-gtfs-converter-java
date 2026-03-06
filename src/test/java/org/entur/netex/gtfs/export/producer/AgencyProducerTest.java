@@ -96,8 +96,8 @@ class AgencyProducerTest {
   private Authority createTestAuthority() {
     Authority authority = new Authority();
     authority.setId(AUTHORITY_ID);
-    MultilingualString name = new MultilingualString();
-    name.setValue(AUTHORITY_NAME);
+    MultilingualString name = new MultilingualString()
+      .withContent(AUTHORITY_NAME);
     authority.setName(name);
     ContactStructure contactDetails = new ContactStructure();
     contactDetails.setUrl(AUTHORITY_URL);
