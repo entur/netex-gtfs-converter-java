@@ -21,6 +21,7 @@ package org.entur.netex.gtfs.export.producer;
 import jakarta.xml.bind.annotation.adapters.HexBinaryAdapter;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
+import org.entur.netex.gtfs.export.util.MultilingualStringUtil;
 import org.entur.netex.gtfs.export.util.TransportModeUtil;
 import org.onebusaway.gtfs.model.Agency;
 import org.onebusaway.gtfs.model.AgencyAndId;
@@ -66,13 +67,18 @@ public class DefaultRouteProducer implements RouteProducer {
     // The NeTEx name hierarchy is: public code < short name < name
     // The GTFS name hierarchy is: short name < long name
     // the NeTEx public code becomes the GTFS short name
-    route.setShortName(line.getPublicCode());
+    route.setShortName(
+      line.getPublicCode() != null ? line.getPublicCode().getValue() : null
+    );
     // The NeTEx short name becomes the GTFS long name
-    if (line.getShortName() != null && line.getShortName().getValue() != null) {
-      route.setLongName(line.getShortName().getValue());
+    String shortNameValue = MultilingualStringUtil.getValue(
+      line.getShortName()
+    );
+    if (shortNameValue != null) {
+      route.setLongName(shortNameValue);
     } else {
       // If the NeTEx short name is missing, the NeTEx name becomes the GTFS long name
-      route.setLongName(line.getName().getValue());
+      route.setLongName(MultilingualStringUtil.getValue(line.getName()));
     }
     // The long name is omitted if it is identical to the short name
     if (
@@ -84,7 +90,7 @@ public class DefaultRouteProducer implements RouteProducer {
 
     // route description
     if (line.getDescription() != null) {
-      route.setDesc(line.getDescription().getValue());
+      route.setDesc(MultilingualStringUtil.getValue(line.getDescription()));
     }
 
     // route URL

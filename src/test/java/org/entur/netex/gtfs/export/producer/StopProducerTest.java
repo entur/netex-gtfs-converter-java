@@ -119,7 +119,7 @@ class StopProducerTest {
   @Test
   void testStopProducerFromQuayWithBlankName() {
     MultilingualString name = new MultilingualString();
-    name.setValue(" ");
+    name.getContent().add(" ");
     testStopProducerFromQuayWithName(name);
   }
 
@@ -147,8 +147,8 @@ class StopProducerTest {
   private StopPlace createTestStopPlace(String stopPlaceId) {
     StopPlace stopPlace = new StopPlace();
     stopPlace.setId(stopPlaceId);
-    MultilingualString stopPlaceName = NETEX_FACTORY.createMultilingualString();
-    stopPlaceName.setValue(TEST_STOP_PLACE_NAME);
+    MultilingualString stopPlaceName = new MultilingualString()
+      .withContent(TEST_STOP_PLACE_NAME);
     stopPlace.setName(stopPlaceName);
 
     return stopPlace;
