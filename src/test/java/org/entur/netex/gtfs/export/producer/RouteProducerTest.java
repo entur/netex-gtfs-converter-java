@@ -64,7 +64,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.onebusaway.gtfs.model.Agency;
 import org.onebusaway.gtfs.model.Route;
-import org.rutebanken.netex.model.AllVehicleModesOfTransportEnumeration;
+import org.rutebanken.netex.model.AllPublicTransportModesEnumeration;
 import org.rutebanken.netex.model.BusSubmodeEnumeration;
 import org.rutebanken.netex.model.GroupOfLinesRefStructure;
 import org.rutebanken.netex.model.Line;
@@ -105,12 +105,14 @@ class RouteProducerTest {
     Assertions.assertNotNull(route.getId());
     Assertions.assertEquals(TEST_LINE_ID, route.getId().getId());
     Assertions.assertEquals(
-      line.getPublicCode(),
+      line.getPublicCode() != null ? line.getPublicCode().getValue() : null,
       route.getShortName(),
       "The GTFS route short name should be the NeTEx Line public code"
     );
     Assertions.assertEquals(
-      line.getShortName().getValue(),
+      org.entur.netex.gtfs.export.util.MultilingualStringUtil.getValue(
+        line.getShortName()
+      ),
       route.getLongName(),
       "The GTFS route long name should be the NeTEx Line short name"
     );
@@ -148,12 +150,14 @@ class RouteProducerTest {
     Route route = routeProducer.produce(line);
 
     Assertions.assertEquals(
-      line.getPublicCode(),
+      line.getPublicCode() != null ? line.getPublicCode().getValue() : null,
       route.getShortName(),
       "The GTFS route short name should be the NeTEx Line public code"
     );
     Assertions.assertEquals(
-      line.getName().getValue(),
+      org.entur.netex.gtfs.export.util.MultilingualStringUtil.getValue(
+        line.getName()
+      ),
       route.getLongName(),
       "The GTFS route long name should be the NeTEx Line name if the NeTEx Line short name is missing"
     );
@@ -162,7 +166,10 @@ class RouteProducerTest {
   @Test
   void testRouteProducerWithIdenticalPublicCodeAndShortName() {
     Line line = createTestLine();
-    line.setPublicCode(LINE_SHORT_NAME);
+    line.setPublicCode(
+      new org.rutebanken.netex.model.PublicCodeStructure()
+        .withValue(LINE_SHORT_NAME)
+    );
 
     NetexDatasetRepository netexDatasetRepository = mock(
       NetexDatasetRepository.class
@@ -186,7 +193,7 @@ class RouteProducerTest {
     Route route = routeProducer.produce(line);
 
     Assertions.assertEquals(
-      line.getPublicCode(),
+      LINE_SHORT_NAME,
       route.getShortName(),
       "The GTFS route short name should be the NeTEx Line public code"
     );
@@ -200,15 +207,15 @@ class RouteProducerTest {
     Line line = new Line();
     line.setId(TEST_LINE_ID);
 
-    MultilingualString lineName = new MultilingualString();
-    lineName.setValue(LINE_NAME);
+    MultilingualString lineName = new MultilingualString()
+      .withContent(LINE_NAME);
     line.setName(lineName);
 
-    MultilingualString lineShortName = new MultilingualString();
-    lineShortName.setValue(LINE_SHORT_NAME);
+    MultilingualString lineShortName = new MultilingualString()
+      .withContent(LINE_SHORT_NAME);
     line.setShortName(lineShortName);
 
-    line.setTransportMode(AllVehicleModesOfTransportEnumeration.BUS);
+    line.setTransportMode(AllPublicTransportModesEnumeration.BUS);
     TransportSubmodeStructure transportSubmode =
       new TransportSubmodeStructure();
     transportSubmode.setBusSubmode(BusSubmodeEnumeration.LOCAL_BUS);
