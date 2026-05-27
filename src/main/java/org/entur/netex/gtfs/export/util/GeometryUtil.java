@@ -21,6 +21,8 @@ package org.entur.netex.gtfs.export.util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import net.opengis.gml._3.DirectPositionListType;
 import net.opengis.gml._3.DirectPositionType;
 import net.opengis.gml._3.LineStringType;
@@ -54,8 +56,22 @@ public final class GeometryUtil {
    * SRID for WGS84 as string and code.
    */
   private static final String DEFAULT_SRID_NAME = "WGS84";
-  private static final String DEFAULT_SRID_AS_STRING = "4326";
   private static final int DEFAULT_SRID_AS_INT = 4326;
+
+  /**
+   * Matches EPSG-style srsName values and captures the numeric code:
+   * <ul>
+   *   <li>{@code EPSG:4326} (legacy short form)</li>
+   *   <li>{@code urn:ogc:def:crs:EPSG::4326} / {@code urn:ogc:def:crs:EPSG:<ver>:4326}
+   *       (GML 3.2 URN canonical form)</li>
+   *   <li>{@code http(s)://www.opengis.net/def/crs/EPSG/0/4326} (HTTP URI form)</li>
+   * </ul>
+   * Matched case-insensitively to tolerate non-conformant casing from producers.
+   */
+  private static final Pattern EPSG_PATTERN = Pattern.compile(
+    "^(?:EPSG:|urn:ogc:def:crs:EPSG:[^:]*:|https?://www\\.opengis\\.net/def/crs/EPSG/[^/]+/)(\\d+)$",
+    Pattern.CASE_INSENSITIVE
+  );
 
   /**
    * A geometry factory based on the WGS84 system.
@@ -168,31 +184,54 @@ public final class GeometryUtil {
    * Assign an SRID to the LineString based on the provided Spatial Reference System name.
    * The LineString is expected to be based on the WGS84 spatial reference system (SRID=4326).
    * If srsName is not set, the SRID defaults to 4326 (default value set by the {@link GeometryFactory}).
-   * If srsName is set to either "4326" or "WGS84", the SRID defaults to 4326.
-   * If srsName is set to another value, an attempt is made to parse it as a SRID.
-   * If srsName is not parseable as a SRID, then the SRID defaults to 4326.
+   * Recognized as WGS84 (no warning, SRID stays 4326):
+   * {@code "WGS84"}, {@code "4326"}, {@code "EPSG:4326"},
+   * {@code "urn:ogc:def:crs:EPSG::4326"} / {@code "urn:ogc:def:crs:EPSG:<ver>:4326"},
+   * {@code "http(s)://www.opengis.net/def/crs/EPSG/0/4326"}.
+   * If srsName encodes another EPSG code (bare integer or one of the EPSG-prefixed forms above),
+   * the SRID is set to that code and a warning is logged.
+   * If srsName is not parseable, the SRID is left at the factory default of 4326 and a warning is logged.
    **/
   private static void assignSRID(LineStringType gml, LineString jts) {
     String srsName = gml.getSrsName();
-    if (
-      !StringUtils.isEmpty(srsName) &&
-      !DEFAULT_SRID_NAME.equals(srsName) &&
-      !DEFAULT_SRID_AS_STRING.equals(srsName)
-    ) {
+    if (StringUtils.isEmpty(srsName)) {
+      return;
+    }
+    Integer srid = parseSrid(srsName);
+    if (srid == null) {
+      LOGGER.warn(
+        "Ignoring SRID on linestring {} for illegal value: {}",
+        gml.getId(),
+        srsName
+      );
+      return;
+    }
+    if (srid != DEFAULT_SRID_AS_INT) {
       LOGGER.warn(
         "The LineString {} is not based on the WGS84 Spatial Reference System. SRID in use: {}",
         gml.getId(),
         srsName
       );
+      jts.setSRID(srid);
+    }
+  }
+
+  private static Integer parseSrid(String srsName) {
+    if (DEFAULT_SRID_NAME.equals(srsName)) {
+      return DEFAULT_SRID_AS_INT;
+    }
+    Matcher epsgMatch = EPSG_PATTERN.matcher(srsName);
+    if (epsgMatch.matches()) {
       try {
-        jts.setSRID(Integer.parseInt(srsName));
-      } catch (NumberFormatException nfe) {
-        LOGGER.warn(
-          "Ignoring SRID on linestring {} for illegal value: {}",
-          gml.getId(),
-          srsName
-        );
+        return Integer.parseInt(epsgMatch.group(1));
+      } catch (NumberFormatException ignored) {
+        return null;
       }
+    }
+    try {
+      return Integer.parseInt(srsName);
+    } catch (NumberFormatException ignored) {
+      return null;
     }
   }
 
