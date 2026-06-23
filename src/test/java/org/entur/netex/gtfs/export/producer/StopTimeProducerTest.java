@@ -61,6 +61,7 @@ import jakarta.xml.bind.JAXBElement;
 import java.math.BigInteger;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Map;
 import org.entur.netex.gtfs.export.model.GtfsShape;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
@@ -124,11 +125,7 @@ class StopTimeProducerTest {
       TEST_STOP_POINT_IN_JOURNEY_PATTERN_ID_1
     );
     Trip trip = new Trip();
-    GtfsShape gtfsShape = new GtfsShape(
-      "id",
-      new ArrayList<>(),
-      new ArrayList<>()
-    );
+    GtfsShape gtfsShape = new GtfsShape("id", new ArrayList<>(), Map.of());
     StopTime stopTime = stopTimeProducer.produce(
       timetabledPassingTime,
       journeyPattern,
@@ -179,11 +176,7 @@ class StopTimeProducerTest {
       TEST_STOP_POINT_IN_JOURNEY_PATTERN_ID_1
     );
     Trip trip = new Trip();
-    GtfsShape gtfsShape = new GtfsShape(
-      "id",
-      new ArrayList<>(),
-      new ArrayList<>()
-    );
+    GtfsShape gtfsShape = new GtfsShape("id", new ArrayList<>(), Map.of());
     StopTime stopTime = stopTimeProducer.produce(
       timetabledPassingTime,
       journeyPattern,
@@ -234,11 +227,7 @@ class StopTimeProducerTest {
       null
     );
     Trip trip = new Trip();
-    GtfsShape gtfsShape = new GtfsShape(
-      "id",
-      new ArrayList<>(),
-      new ArrayList<>()
-    );
+    GtfsShape gtfsShape = new GtfsShape("id", new ArrayList<>(), Map.of());
     StopTime stopTime = stopTimeProducer.produce(
       timetabledPassingTime,
       journeyPattern,
@@ -291,11 +280,7 @@ class StopTimeProducerTest {
       Boolean.FALSE
     );
     Trip trip = new Trip();
-    GtfsShape gtfsShape = new GtfsShape(
-      "id",
-      new ArrayList<>(),
-      new ArrayList<>()
-    );
+    GtfsShape gtfsShape = new GtfsShape("id", new ArrayList<>(), Map.of());
     StopTime stopTime = stopTimeProducer.produce(
       timetabledPassingTime,
       journeyPattern,
