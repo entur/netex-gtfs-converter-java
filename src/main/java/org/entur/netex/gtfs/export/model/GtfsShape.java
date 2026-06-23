@@ -19,6 +19,8 @@
 package org.entur.netex.gtfs.export.model;
 
 import java.util.List;
+import java.util.Map;
+import org.entur.netex.gtfs.export.exception.GtfsExportException;
 import org.onebusaway.gtfs.model.ShapePoint;
 
 /**
@@ -29,16 +31,16 @@ public class GtfsShape {
 
   private final String id;
   private final List<ShapePoint> shapePoints;
-  private final List<Double> travelledDistanceToStop;
+  private final Map<Integer, Double> distanceTravelledByStopOrder;
 
   public GtfsShape(
     String id,
     List<ShapePoint> shapePoints,
-    List<Double> travelledDistanceToStop
+    Map<Integer, Double> distanceTravelledByStopOrder
   ) {
     this.id = id;
     this.shapePoints = shapePoints;
-    this.travelledDistanceToStop = travelledDistanceToStop;
+    this.distanceTravelledByStopOrder = distanceTravelledByStopOrder;
   }
 
   public String getId() {
@@ -50,12 +52,20 @@ public class GtfsShape {
   }
 
   /**
-   * Return the distance travelled on the shape from the start to the stop number i.
-   * The distance travelled to stop number 1 is 0 meters.
-   * @param i sequence number of the stop in the JourneyPattern, starting at 1.
-   * @return the distance travelled on the shape from the start to the stop number i, in meters.
+   * Return the distance travelled on the shape from the start to the stop with the given order.
+   * The distance travelled to the first stop in the JourneyPattern is 0 meters.
+   * The lookup is keyed by the NeTEx {@code order} value of the StopPointInJourneyPattern, which is
+   * not required to start at 1 or to be gap-free.
+   * @param order the NeTEx order of the stop in the JourneyPattern.
+   * @return the distance travelled on the shape from the start to this stop, in meters.
    */
-  public double getDistanceTravelledToStop(int i) {
-    return travelledDistanceToStop.get(i - 1);
+  public double getDistanceTravelledToStop(int order) {
+    Double distance = distanceTravelledByStopOrder.get(order);
+    if (distance == null) {
+      throw new GtfsExportException(
+        "No travelled distance for stop order " + order + " in shape " + id
+      );
+    }
+    return distance;
   }
 }

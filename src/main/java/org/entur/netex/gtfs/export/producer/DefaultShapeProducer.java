@@ -22,7 +22,9 @@ import jakarta.xml.bind.JAXBElement;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.entur.netex.gtfs.export.exception.GtfsExportException;
 import org.entur.netex.gtfs.export.model.GtfsShape;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
@@ -36,6 +38,7 @@ import org.onebusaway.gtfs.model.ShapePoint;
 import org.rutebanken.netex.model.JourneyPattern;
 import org.rutebanken.netex.model.LinkInLinkSequence_VersionedChildStructure;
 import org.rutebanken.netex.model.LinkSequenceProjection;
+import org.rutebanken.netex.model.PointInLinkSequence_VersionedChildStructure;
 import org.rutebanken.netex.model.Projections_RelStructure;
 import org.rutebanken.netex.model.ServiceLink;
 import org.rutebanken.netex.model.ServiceLinkInJourneyPattern_VersionedChildStructure;
@@ -156,7 +159,28 @@ public class DefaultShapeProducer implements ShapeProducer {
       }
       travelledDistanceToStop.add((double) Math.round(distanceFromStart));
     }
-    return new GtfsShape(shapeId, shapePoints, travelledDistanceToStop);
+
+    // The cumulative distances above are produced in ascending "order" of the service links, i.e. in
+    // the same order as the stops sorted ascending by their "order" property. Map each cumulative
+    // distance to the corresponding stop "order" value, which is not required to start at 1 or to be
+    // gap-free within a JourneyPattern.
+    List<Integer> sortedStopOrders = journeyPattern
+      .getPointsInSequence()
+      .getPointInJourneyPatternOrStopPointInJourneyPatternOrTimingPointInJourneyPattern()
+      .stream()
+      .map(PointInLinkSequence_VersionedChildStructure::getOrder)
+      .sorted()
+      .map(BigInteger::intValueExact)
+      .toList();
+    Map<Integer, Double> distanceTravelledByStopOrder = new HashMap<>();
+    for (int i = 0; i < sortedStopOrders.size(); i++) {
+      distanceTravelledByStopOrder.put(
+        sortedStopOrders.get(i),
+        travelledDistanceToStop.get(i)
+      );
+    }
+
+    return new GtfsShape(shapeId, shapePoints, distanceTravelledByStopOrder);
   }
 
   /**

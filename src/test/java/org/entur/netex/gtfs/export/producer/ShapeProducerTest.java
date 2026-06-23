@@ -76,7 +76,6 @@ import org.rutebanken.netex.model.JourneyPattern;
 import org.rutebanken.netex.model.LinkSequenceProjection;
 import org.rutebanken.netex.model.LinksInJourneyPattern_RelStructure;
 import org.rutebanken.netex.model.ObjectFactory;
-import org.rutebanken.netex.model.PointInLinkSequence_VersionedChildStructure;
 import org.rutebanken.netex.model.PointsInJourneyPattern_RelStructure;
 import org.rutebanken.netex.model.Projections_RelStructure;
 import org.rutebanken.netex.model.ScheduledStopPointRefStructure;
@@ -128,7 +127,7 @@ class ShapeProducerTest {
       netexDatasetRepository,
       gtfsDatasetRepository
     );
-    GtfsShape shape = shapeProducer.produce(createTestJourneyPattern());
+    GtfsShape shape = shapeProducer.produce(createTestJourneyPattern(1, 2, 3));
     Assertions.assertNotNull(shape);
     Assertions.assertEquals(4, shape.getShapePoints().size());
 
@@ -161,6 +160,86 @@ class ShapeProducerTest {
     );
   }
 
+  /**
+   * Regression test for issue #425: the StopPointInJourneyPattern "order" values do not start at 1.
+   * The distance lookup must be keyed by the "order" value, not by its position, so a pattern with
+   * stop orders [7, 8, 9] must convert without throwing and resolve distances per order.
+   */
+  @Test
+  void testShapeProducerWithNonOneStartingOrder() {
+    GtfsShape shape = produceShape(7, 8, 9);
+
+    double serviceLinkLength1 =
+      GeometryUtil.distance(A1, A2) + GeometryUtil.distance(A2, A3);
+    double serviceLinkLength2 = GeometryUtil.distance(A3, A4);
+
+    Assertions.assertEquals(0, shape.getDistanceTravelledToStop(7));
+    Assertions.assertEquals(
+      Math.round(serviceLinkLength1),
+      shape.getDistanceTravelledToStop(8)
+    );
+    Assertions.assertEquals(
+      Math.round(serviceLinkLength1 + serviceLinkLength2),
+      shape.getDistanceTravelledToStop(9)
+    );
+    // monotonically increasing
+    Assertions.assertTrue(
+      shape.getDistanceTravelledToStop(7) <= shape.getDistanceTravelledToStop(8)
+    );
+    Assertions.assertTrue(
+      shape.getDistanceTravelledToStop(8) <= shape.getDistanceTravelledToStop(9)
+    );
+  }
+
+  /**
+   * Regression test for issue #425: the StopPointInJourneyPattern "order" values contain gaps.
+   * A pattern with stop orders [1, 3, 5] must convert without throwing and resolve distances per
+   * order value.
+   */
+  @Test
+  void testShapeProducerWithGappedOrder() {
+    GtfsShape shape = produceShape(1, 3, 5);
+
+    double serviceLinkLength1 =
+      GeometryUtil.distance(A1, A2) + GeometryUtil.distance(A2, A3);
+    double serviceLinkLength2 = GeometryUtil.distance(A3, A4);
+
+    Assertions.assertEquals(0, shape.getDistanceTravelledToStop(1));
+    Assertions.assertEquals(
+      Math.round(serviceLinkLength1),
+      shape.getDistanceTravelledToStop(3)
+    );
+    Assertions.assertEquals(
+      Math.round(serviceLinkLength1 + serviceLinkLength2),
+      shape.getDistanceTravelledToStop(5)
+    );
+  }
+
+  private static GtfsShape produceShape(int... stopOrders) {
+    NetexDatasetRepository netexDatasetRepository = mock(
+      NetexDatasetRepository.class
+    );
+    when(netexDatasetRepository.getServiceLinkById(TEST_SERVICE_LINK_1))
+      .thenReturn(createServiceLink(A1.y, A1.x, A2.y, A2.x, A3.y, A3.x));
+    when(netexDatasetRepository.getServiceLinkById(TEST_SERVICE_LINK_2))
+      .thenReturn(createServiceLink(A3.y, A3.x, A4.y, A4.x));
+
+    GtfsDatasetRepository gtfsDatasetRepository = mock(
+      GtfsDatasetRepository.class
+    );
+    when(gtfsDatasetRepository.getDefaultAgency()).thenReturn(new Agency());
+
+    ShapeProducer shapeProducer = new DefaultShapeProducer(
+      netexDatasetRepository,
+      gtfsDatasetRepository
+    );
+    GtfsShape shape = shapeProducer.produce(
+      createTestJourneyPattern(stopOrders)
+    );
+    Assertions.assertNotNull(shape);
+    return shape;
+  }
+
   private static ServiceLink createServiceLink(double... coordinates) {
     List<Double> coordinateList = Arrays.asList(
       ArrayUtils.toObject(coordinates)
@@ -189,32 +268,26 @@ class ShapeProducerTest {
     return serviceLink;
   }
 
-  private static JourneyPattern createTestJourneyPattern() {
+  private static JourneyPattern createTestJourneyPattern(int... stopOrders) {
     JourneyPattern journeyPattern = new JourneyPattern();
 
     PointsInJourneyPattern_RelStructure pointInSequences =
       new PointsInJourneyPattern_RelStructure();
-    StopPointInJourneyPattern pointLinkInSequence1 =
-      new StopPointInJourneyPattern();
-    ScheduledStopPointRefStructure scheduledStopPointRefStructure =
-      NETEX_FACTORY.createScheduledStopPointRefStructure();
-
-    JAXBElement<ScheduledStopPointRefStructure> scheduledStopPointRef =
-      NETEX_FACTORY.createScheduledStopPointRef(scheduledStopPointRefStructure);
-    pointLinkInSequence1.setScheduledStopPointRef(scheduledStopPointRef);
-    pointInSequences
-      .getPointInJourneyPatternOrStopPointInJourneyPatternOrTimingPointInJourneyPattern()
-      .add(0, pointLinkInSequence1);
-    PointInLinkSequence_VersionedChildStructure pointLinkInSequence2 =
-      new StopPointInJourneyPattern();
-    pointInSequences
-      .getPointInJourneyPatternOrStopPointInJourneyPatternOrTimingPointInJourneyPattern()
-      .add(1, pointLinkInSequence2);
-    PointInLinkSequence_VersionedChildStructure pointLinkInSequence3 =
-      new StopPointInJourneyPattern();
-    pointInSequences
-      .getPointInJourneyPatternOrStopPointInJourneyPatternOrTimingPointInJourneyPattern()
-      .add(2, pointLinkInSequence3);
+    for (int i = 0; i < stopOrders.length; i++) {
+      StopPointInJourneyPattern stopPointInJourneyPattern =
+        new StopPointInJourneyPattern();
+      ScheduledStopPointRefStructure scheduledStopPointRefStructure =
+        NETEX_FACTORY.createScheduledStopPointRefStructure();
+      JAXBElement<ScheduledStopPointRefStructure> scheduledStopPointRef =
+        NETEX_FACTORY.createScheduledStopPointRef(
+          scheduledStopPointRefStructure
+        );
+      stopPointInJourneyPattern.setScheduledStopPointRef(scheduledStopPointRef);
+      stopPointInJourneyPattern.setOrder(BigInteger.valueOf(stopOrders[i]));
+      pointInSequences
+        .getPointInJourneyPatternOrStopPointInJourneyPatternOrTimingPointInJourneyPattern()
+        .add(i, stopPointInJourneyPattern);
+    }
     journeyPattern.setPointsInSequence(pointInSequences);
 
     LinksInJourneyPattern_RelStructure linksInJourneyPatternRelStructure =
