@@ -63,7 +63,7 @@
         <mockito-core.version>5.23.0</mockito-core.version>
         <zt-zip.version>1.18.2</zt-zip.version>
         <commons-csv.version>1.14.1</commons-csv.version>
-        <logback-classic.version>1.5.38</logback-classic.version>
+        <logback-classic.version>1.6.3</logback-classic.version>
         <geotools.version>33.0</geotools.version>
 
         <maven.compiler.source>17</maven.compiler.source>
