@@ -19,8 +19,8 @@
 package org.entur.netex.gtfs.export.producer;
 
 import jakarta.annotation.Nullable;
+import org.entur.netex2.model.ServiceJourneyInterchange;
 import org.onebusaway.gtfs.model.Transfer;
-import org.rutebanken.netex.model.ServiceJourneyInterchange;
 
 /**
  * Produce a GTFS Transfer

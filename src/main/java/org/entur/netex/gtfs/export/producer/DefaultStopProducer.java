@@ -23,11 +23,11 @@ import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.stop.StopAreaRepository;
 import org.entur.netex.gtfs.export.util.MultilingualStringUtil;
 import org.entur.netex.gtfs.export.util.TransportModeUtil;
+import org.entur.netex2.model.Quay;
+import org.entur.netex2.model.StopPlace;
 import org.onebusaway.gtfs.model.Agency;
 import org.onebusaway.gtfs.model.AgencyAndId;
 import org.onebusaway.gtfs.model.Stop;
-import org.rutebanken.netex.model.Quay;
-import org.rutebanken.netex.model.StopPlace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

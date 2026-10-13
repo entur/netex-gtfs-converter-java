@@ -55,7 +55,7 @@
 package org.entur.netex.gtfs.export.producer;
 
 import java.text.ParseException;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import org.entur.netex.gtfs.export.repository.DefaultGtfsRepository;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.junit.jupiter.api.Assertions;
@@ -73,7 +73,7 @@ class ServiceCalendarDateProducerTest {
 
     ServiceCalendarDateProducer serviceCalendarDateProducer =
       new DefaultServiceCalendarDateProducer(gtfsDatasetRepository);
-    LocalDateTime now = LocalDateTime.of(2021, 10, 15, 0, 0);
+    LocalDate now = LocalDate.of(2021, 10, 15);
     ServiceDate serviceDate = ServiceDate.parseString("20211015");
     ServiceCalendarDate serviceCalendarDate =
       serviceCalendarDateProducer.produce(SERVICE_ID, now, true);

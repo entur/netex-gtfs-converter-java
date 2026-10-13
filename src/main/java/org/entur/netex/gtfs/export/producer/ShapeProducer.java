@@ -19,7 +19,7 @@
 package org.entur.netex.gtfs.export.producer;
 
 import org.entur.netex.gtfs.export.model.GtfsShape;
-import org.rutebanken.netex.model.JourneyPattern;
+import org.entur.netex2.model.JourneyPattern;
 
 /**
  * Produce a GTFS Shape.
