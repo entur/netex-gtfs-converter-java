@@ -60,16 +60,16 @@ import static org.mockito.Mockito.when;
 import org.entur.netex.gtfs.export.model.GtfsRouteType;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
+import org.entur.netex2.model.AllPublicTransportModesEnumeration;
+import org.entur.netex2.model.BusSubmodeEnumeration;
+import org.entur.netex2.model.GroupOfLinesRefStructure;
+import org.entur.netex2.model.Line;
+import org.entur.netex2.model.MultilingualString;
+import org.entur.netex2.model.TransportSubmodeStructure;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.onebusaway.gtfs.model.Agency;
 import org.onebusaway.gtfs.model.Route;
-import org.rutebanken.netex.model.AllPublicTransportModesEnumeration;
-import org.rutebanken.netex.model.BusSubmodeEnumeration;
-import org.rutebanken.netex.model.GroupOfLinesRefStructure;
-import org.rutebanken.netex.model.Line;
-import org.rutebanken.netex.model.MultilingualString;
-import org.rutebanken.netex.model.TransportSubmodeStructure;
 
 class RouteProducerTest {
 
@@ -167,7 +167,7 @@ class RouteProducerTest {
   void testRouteProducerWithIdenticalPublicCodeAndShortName() {
     Line line = createTestLine();
     line.setPublicCode(
-      new org.rutebanken.netex.model.PublicCodeStructure()
+      new org.entur.netex2.model.PublicCodeStructure()
         .withValue(LINE_SHORT_NAME)
     );
 

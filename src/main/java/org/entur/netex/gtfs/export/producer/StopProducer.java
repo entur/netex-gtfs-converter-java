@@ -18,9 +18,9 @@
 
 package org.entur.netex.gtfs.export.producer;
 
+import org.entur.netex2.model.Quay;
+import org.entur.netex2.model.StopPlace;
 import org.onebusaway.gtfs.model.Stop;
-import org.rutebanken.netex.model.Quay;
-import org.rutebanken.netex.model.StopPlace;
 
 /**
  * Produce a GTFS Stop.

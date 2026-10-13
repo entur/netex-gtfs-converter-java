@@ -19,10 +19,10 @@
 package org.entur.netex.gtfs.export.producer;
 
 import org.entur.netex.gtfs.export.model.GtfsShape;
+import org.entur.netex2.model.JourneyPattern;
+import org.entur.netex2.model.TimetabledPassingTime;
 import org.onebusaway.gtfs.model.StopTime;
 import org.onebusaway.gtfs.model.Trip;
-import org.rutebanken.netex.model.JourneyPattern;
-import org.rutebanken.netex.model.TimetabledPassingTime;
 
 /**
  * Produce a GTFS Stop Time.

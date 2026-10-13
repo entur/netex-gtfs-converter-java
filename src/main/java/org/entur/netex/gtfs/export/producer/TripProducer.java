@@ -18,11 +18,11 @@
 
 package org.entur.netex.gtfs.export.producer;
 
+import org.entur.netex2.model.DestinationDisplay;
+import org.entur.netex2.model.Route;
+import org.entur.netex2.model.ServiceJourney;
 import org.onebusaway.gtfs.model.AgencyAndId;
 import org.onebusaway.gtfs.model.Trip;
-import org.rutebanken.netex.model.DestinationDisplay;
-import org.rutebanken.netex.model.Route;
-import org.rutebanken.netex.model.ServiceJourney;
 
 /**
  * Produce a GTFS Trip.
