@@ -58,12 +58,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
+import org.entur.netex2.model.Authority;
+import org.entur.netex2.model.ContactStructure;
+import org.entur.netex2.model.MultilingualString;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.onebusaway.gtfs.model.Agency;
-import org.rutebanken.netex.model.Authority;
-import org.rutebanken.netex.model.ContactStructure;
-import org.rutebanken.netex.model.MultilingualString;
 
 class AgencyProducerTest {
 
@@ -96,8 +96,8 @@ class AgencyProducerTest {
   private Authority createTestAuthority() {
     Authority authority = new Authority();
     authority.setId(AUTHORITY_ID);
-    MultilingualString name = new MultilingualString();
-    name.setValue(AUTHORITY_NAME);
+    MultilingualString name = new MultilingualString()
+      .withContent(AUTHORITY_NAME);
     authority.setName(name);
     ContactStructure contactDetails = new ContactStructure();
     contactDetails.setUrl(AUTHORITY_URL);

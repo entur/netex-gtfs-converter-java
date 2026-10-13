@@ -18,7 +18,7 @@
 
 package org.entur.netex.gtfs.export.producer;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import org.onebusaway.gtfs.model.ServiceCalendarDate;
 
 /**
@@ -37,7 +37,7 @@ public interface ServiceCalendarDateProducer {
    */
   ServiceCalendarDate produce(
     String serviceId,
-    LocalDateTime date,
+    LocalDate date,
     boolean isAvailable
   );
 }

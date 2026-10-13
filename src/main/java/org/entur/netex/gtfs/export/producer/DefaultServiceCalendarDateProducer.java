@@ -18,9 +18,7 @@
 
 package org.entur.netex.gtfs.export.producer;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
+import java.time.LocalDate;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.onebusaway.gtfs.model.Agency;
 import org.onebusaway.gtfs.model.AgencyAndId;
@@ -41,7 +39,7 @@ public class DefaultServiceCalendarDateProducer
   @Override
   public ServiceCalendarDate produce(
     String serviceId,
-    LocalDateTime date,
+    LocalDate date,
     boolean isAvailable
   ) {
     ServiceCalendarDate serviceCalendarDate = new ServiceCalendarDate();
@@ -49,7 +47,13 @@ public class DefaultServiceCalendarDateProducer
     serviceCalendarDateAgencyAndId.setId(serviceId);
     serviceCalendarDateAgencyAndId.setAgencyId(agency.getId());
     serviceCalendarDate.setServiceId(serviceCalendarDateAgencyAndId);
-    serviceCalendarDate.setDate(new ServiceDate(toGtfsDate(date)));
+    serviceCalendarDate.setDate(
+      new ServiceDate(
+        date.getYear(),
+        date.getMonthValue(),
+        date.getDayOfMonth()
+      )
+    );
     serviceCalendarDate.setExceptionType(
       isAvailable
         ? ServiceCalendarDateProducer.SERVICE_ADDED
@@ -57,9 +61,5 @@ public class DefaultServiceCalendarDateProducer
     );
 
     return serviceCalendarDate;
-  }
-
-  private static Date toGtfsDate(LocalDateTime netexDate) {
-    return Date.from(netexDate.atZone(ZoneId.systemDefault()).toInstant());
   }
 }

@@ -21,8 +21,8 @@ package org.entur.netex.gtfs.export.producer;
 import java.util.Collection;
 import java.util.Set;
 import org.entur.netex.gtfs.export.model.GtfsService;
-import org.rutebanken.netex.model.DayType;
-import org.rutebanken.netex.model.OperatingDay;
+import org.entur.netex2.model.DayType;
+import org.entur.netex2.model.OperatingDay;
 
 /**
  * Repository giving access to the list of GTFS service in the GTFS object model being built.

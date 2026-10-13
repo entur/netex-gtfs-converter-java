@@ -21,11 +21,10 @@ package org.entur.netex.gtfs.export.util;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
-import org.rutebanken.netex.model.DestinationDisplay;
-import org.rutebanken.netex.model.DestinationDisplay_VersionStructure;
-import org.rutebanken.netex.model.JourneyPattern;
-import org.rutebanken.netex.model.MultilingualString;
-import org.rutebanken.netex.model.StopPointInJourneyPattern;
+import org.entur.netex2.model.DestinationDisplay;
+import org.entur.netex2.model.DestinationDisplay_VersionStructure;
+import org.entur.netex2.model.JourneyPattern;
+import org.entur.netex2.model.StopPointInJourneyPattern;
 
 /**
  * Utility class for Destination Displays.
@@ -70,7 +69,9 @@ public final class DestinationDisplayUtil {
     if (destinationDisplay == null) {
       return null;
     }
-    String frontText = destinationDisplay.getFrontText().getValue();
+    String frontText = MultilingualStringUtil.getValue(
+      destinationDisplay.getFrontText()
+    );
     String via = "";
     if (destinationDisplay.getVias() != null) {
       via =
@@ -82,7 +83,8 @@ public final class DestinationDisplayUtil {
           .map(netexDatasetRepository::getDestinationDisplayById)
           .map(DestinationDisplay_VersionStructure::getFrontText)
           .filter(Objects::nonNull)
-          .map(MultilingualString::getValue)
+          .map(MultilingualStringUtil::getValue)
+          .filter(Objects::nonNull)
           .collect(Collectors.joining("/"));
     }
 

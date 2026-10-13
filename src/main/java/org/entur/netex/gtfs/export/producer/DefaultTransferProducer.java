@@ -22,10 +22,10 @@ import java.util.Optional;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 import org.entur.netex.gtfs.export.util.StopUtil;
+import org.entur.netex2.model.ServiceJourneyInterchange;
 import org.onebusaway.gtfs.model.Stop;
 import org.onebusaway.gtfs.model.Transfer;
 import org.onebusaway.gtfs.model.Trip;
-import org.rutebanken.netex.model.ServiceJourneyInterchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

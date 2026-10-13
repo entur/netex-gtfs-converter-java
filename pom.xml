@@ -4,7 +4,7 @@
 
     <groupId>org.entur</groupId>
     <artifactId>netex-gtfs-converter-java</artifactId>
-    <version>3.0.14-SNAPSHOT</version>
+    <version>4.0.0-SNAPSHOT</version>
 
     <name>netex-gtfs-converter-java</name>
     <description>Library for converting NeTEx datasets into GTFS datasets.</description>
@@ -51,11 +51,12 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jdk.version>17</jdk.version>
+        <jdk.version>21</jdk.version>
 
         <commons-io.version>2.22.0</commons-io.version>
-        <netex-parser-java.version>4.0.17</netex-parser-java.version>
-        <netex-java-model.version>2.0.16.2</netex-java-model.version>
+        <netex-parser-java.version>5.0.0-SNAPSHOT</netex-parser-java.version>
+        <netex2-java-model.version>3.0.0-SNAPSHOT</netex2-java-model.version>
+        <jakarta.annotation-api.version>3.0.0</jakarta.annotation-api.version>
         <onebusaway.version>3.2.4</onebusaway.version>
         <jts.version>1.20.0</jts.version>
         <slf4j.version>2.0.20</slf4j.version>
@@ -66,8 +67,8 @@
         <logback-classic.version>1.6.5</logback-classic.version>
         <geotools.version>33.0</geotools.version>
 
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
 
         <maven-exec-plugin.version>1.6.0</maven-exec-plugin.version>
         <maven-surefire-plugin.version>3.6.0</maven-surefire-plugin.version>
@@ -107,8 +108,13 @@
         </dependency>
         <dependency>
             <groupId>org.entur</groupId>
-            <artifactId>netex-java-model</artifactId>
-            <version>${netex-java-model.version}</version>
+            <artifactId>netex2-java-model</artifactId>
+            <version>${netex2-java-model.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <version>${jakarta.annotation-api.version}</version>
         </dependency>
 
         <!-- OneBusAway GTFS -->
@@ -421,6 +427,17 @@
             <id>osgeo</id>
             <name>Open Source Geospatial Foundation Repository</name>
             <url>https://repo.osgeo.org/repository/release/</url>
+        </repository>
+        <repository>
+            <id>central-snapshots</id>
+            <name>Maven Central Snapshots</name>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
     </repositories>
     <profiles>
