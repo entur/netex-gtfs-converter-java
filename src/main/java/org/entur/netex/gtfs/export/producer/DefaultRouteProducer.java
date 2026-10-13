@@ -23,11 +23,11 @@ import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 import org.entur.netex.gtfs.export.util.MultilingualStringUtil;
 import org.entur.netex.gtfs.export.util.TransportModeUtil;
+import org.entur.netex2.model.Line;
+import org.entur.netex2.model.PresentationStructure;
 import org.onebusaway.gtfs.model.Agency;
 import org.onebusaway.gtfs.model.AgencyAndId;
 import org.onebusaway.gtfs.model.Route;
-import org.rutebanken.netex.model.Line;
-import org.rutebanken.netex.model.PresentationStructure;
 
 /**
  * Produce a GTFS Route from a NeTEx Line.

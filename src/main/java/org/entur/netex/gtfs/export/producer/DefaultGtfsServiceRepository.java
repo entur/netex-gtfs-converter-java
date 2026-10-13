@@ -19,7 +19,7 @@
 package org.entur.netex.gtfs.export.producer;
 
 import java.time.DayOfWeek;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -33,7 +33,7 @@ import org.entur.netex.gtfs.export.exception.GtfsExportException;
 import org.entur.netex.gtfs.export.model.GtfsService;
 import org.entur.netex.gtfs.export.model.ServiceCalendarPeriod;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
-import org.rutebanken.netex.model.*;
+import org.entur.netex2.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -294,14 +294,14 @@ public class DefaultGtfsServiceRepository implements GtfsServiceRepository {
             netexDatasetRepository.getOperatingPeriodByDayTypeAssignment(
               dayTypeAssignment
             );
-          LocalDateTime operatingPeriodStartDate = getOperatingPeriodStartDate(
+          LocalDate operatingPeriodStartDate = getOperatingPeriodStartDate(
             operatingPeriod
           );
-          LocalDateTime operatingPeriodEndDate = getOperatingPeriodEndDate(
+          LocalDate operatingPeriodEndDate = getOperatingPeriodEndDate(
             operatingPeriod
           );
           for (
-            LocalDateTime date = operatingPeriodStartDate;
+            LocalDate date = operatingPeriodStartDate;
             date.isBefore(operatingPeriodEndDate) ||
             date.equals(operatingPeriodEndDate);
             date = date.plusDays(1)
@@ -336,7 +336,7 @@ public class DefaultGtfsServiceRepository implements GtfsServiceRepository {
     GtfsService gtfsService,
     DayTypeAssignment dayTypeAssignment
   ) {
-    LocalDateTime date;
+    LocalDate date;
     if (dayTypeAssignment.getOperatingDayRef() != null) {
       OperatingDay operatingDay =
         netexDatasetRepository.getOperatingDayByDayTypeAssignment(
@@ -431,7 +431,7 @@ public class DefaultGtfsServiceRepository implements GtfsServiceRepository {
   }
 
   private static boolean isActiveDate(
-    LocalDateTime date,
+    LocalDate date,
     Set<DayOfWeek> daysOfWeek
   ) {
     return daysOfWeek.contains(date.getDayOfWeek());
@@ -453,11 +453,11 @@ public class DefaultGtfsServiceRepository implements GtfsServiceRepository {
       .sum();
   }
 
-  private LocalDateTime getOperatingPeriodStartDate(
+  private LocalDate getOperatingPeriodStartDate(
     OperatingPeriod operatingPeriod
   ) {
     if (operatingPeriod.getFromDate() != null) {
-      return operatingPeriod.getFromDate();
+      return operatingPeriod.getFromDate().toLocalDate();
     }
     if (operatingPeriod.getFromOperatingDayRef() != null) {
       return lookupOperatingDay(operatingPeriod.getFromOperatingDayRef());
@@ -467,11 +467,9 @@ public class DefaultGtfsServiceRepository implements GtfsServiceRepository {
     );
   }
 
-  private LocalDateTime getOperatingPeriodEndDate(
-    OperatingPeriod operatingPeriod
-  ) {
+  private LocalDate getOperatingPeriodEndDate(OperatingPeriod operatingPeriod) {
     if (operatingPeriod.getToDate() != null) {
-      return operatingPeriod.getToDate();
+      return operatingPeriod.getToDate().toLocalDate();
     }
     if (operatingPeriod.getToOperatingDayRef() != null) {
       return lookupOperatingDay(operatingPeriod.getToOperatingDayRef());
@@ -481,7 +479,7 @@ public class DefaultGtfsServiceRepository implements GtfsServiceRepository {
     );
   }
 
-  private LocalDateTime lookupOperatingDay(
+  private LocalDate lookupOperatingDay(
     OperatingDayRefStructure operatingDayRef
   ) {
     return netexDatasetRepository

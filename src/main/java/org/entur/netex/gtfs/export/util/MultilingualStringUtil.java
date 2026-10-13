@@ -20,7 +20,7 @@ package org.entur.netex.gtfs.export.util;
 
 import java.io.Serializable;
 import java.util.List;
-import org.rutebanken.netex.model.MultilingualString;
+import org.entur.netex2.model.MultilingualString;
 
 /**
  * Utility class for extracting string values from MultilingualString.

@@ -21,9 +21,9 @@ package org.entur.netex.gtfs.export.producer;
 import org.entur.netex.gtfs.export.exception.InvalidAuthorityUrlException;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 import org.entur.netex.gtfs.export.util.MultilingualStringUtil;
+import org.entur.netex2.model.Authority;
+import org.entur.netex2.model.ContactStructure;
 import org.onebusaway.gtfs.model.Agency;
-import org.rutebanken.netex.model.Authority;
-import org.rutebanken.netex.model.ContactStructure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

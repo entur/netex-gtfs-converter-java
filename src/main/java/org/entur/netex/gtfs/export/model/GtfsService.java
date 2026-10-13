@@ -18,7 +18,7 @@
 
 package org.entur.netex.gtfs.export.model;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,8 +30,8 @@ public class GtfsService {
   private final String id;
 
   private ServiceCalendarPeriod serviceCalendarPeriod;
-  private final Set<LocalDateTime> includedDates = new HashSet<>();
-  private final Set<LocalDateTime> excludedDates = new HashSet<>();
+  private final Set<LocalDate> includedDates = new HashSet<>();
+  private final Set<LocalDate> excludedDates = new HashSet<>();
 
   public GtfsService(String id) {
     this.id = id;
@@ -41,19 +41,19 @@ public class GtfsService {
     return id;
   }
 
-  public void addExcludedDate(LocalDateTime date) {
+  public void addExcludedDate(LocalDate date) {
     excludedDates.add(date);
   }
 
-  public void addIncludedDate(LocalDateTime date) {
+  public void addIncludedDate(LocalDate date) {
     includedDates.add(date);
   }
 
-  public Set<LocalDateTime> getIncludedDates() {
+  public Set<LocalDate> getIncludedDates() {
     return new HashSet<>(includedDates);
   }
 
-  public Set<LocalDateTime> getExcludedDates() {
+  public Set<LocalDate> getExcludedDates() {
     return new HashSet<>(excludedDates);
   }
 
@@ -67,7 +67,7 @@ public class GtfsService {
     this.serviceCalendarPeriod = serviceCalendarPeriod;
   }
 
-  public void removeIncludedDates(Set<LocalDateTime> removedIncludedDates) {
+  public void removeIncludedDates(Set<LocalDate> removedIncludedDates) {
     includedDates.removeAll(removedIncludedDates);
   }
 

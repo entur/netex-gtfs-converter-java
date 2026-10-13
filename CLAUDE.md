@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Java library that converts NeTEx datasets (Nordic NeTEx Profile) into GTFS datasets. Published to Maven Central by Entur. Single-module Maven project, Java 17.
+Java library that converts NeTEx datasets (Nordic NeTEx Profile) into GTFS datasets. Published to Maven Central by Entur. Single-module Maven project, Java 21.
 
 ## Build Commands
 
@@ -53,7 +53,7 @@ Prettier runs automatically during the `validate` phase with the `write` goal. S
 Consumers extend `DefaultGtfsExporter` and override specific producers via setter methods (`setAgencyProducer()`, `setRouteProducer()`, etc.). The `NetexDatasetLoader` can also be replaced.
 
 ### Key Dependencies
-- **netex-java-model** / **netex-parser-java** — NeTEx XML parsing (Entur libraries)
+- **netex2-java-model** / **netex-parser-java** — NeTEx 2.0 XML parsing (Entur libraries)
 - **onebusaway-gtfs** — GTFS data model and serialization
 - **JTS / GeoTools** — geometry operations for shapes
 

@@ -26,13 +26,13 @@ import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 import org.entur.netex.gtfs.export.util.DestinationDisplayUtil;
 import org.entur.netex.gtfs.export.util.StopUtil;
+import org.entur.netex2.model.DestinationDisplay;
+import org.entur.netex2.model.JourneyPattern;
+import org.entur.netex2.model.StopPointInJourneyPattern;
+import org.entur.netex2.model.TimetabledPassingTime;
 import org.onebusaway.gtfs.model.Stop;
 import org.onebusaway.gtfs.model.StopTime;
 import org.onebusaway.gtfs.model.Trip;
-import org.rutebanken.netex.model.DestinationDisplay;
-import org.rutebanken.netex.model.JourneyPattern;
-import org.rutebanken.netex.model.StopPointInJourneyPattern;
-import org.rutebanken.netex.model.TimetabledPassingTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

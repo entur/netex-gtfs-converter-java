@@ -18,8 +18,8 @@
 
 package org.entur.netex.gtfs.export.producer;
 
+import org.entur.netex2.model.Authority;
 import org.onebusaway.gtfs.model.Agency;
-import org.rutebanken.netex.model.Authority;
 
 /**
  * Produce a GTFS Agency

@@ -18,8 +18,8 @@
 
 package org.entur.netex.gtfs.export.producer;
 
+import org.entur.netex2.model.Line;
 import org.onebusaway.gtfs.model.Route;
-import org.rutebanken.netex.model.Line;
 
 /**
  * Produce a GTFS Route.

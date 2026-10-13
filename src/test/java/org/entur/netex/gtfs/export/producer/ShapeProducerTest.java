@@ -68,21 +68,21 @@ import org.entur.netex.gtfs.export.model.GtfsShape;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 import org.entur.netex.gtfs.export.util.GeometryUtil;
+import org.entur.netex2.model.JourneyPattern;
+import org.entur.netex2.model.LinkSequenceProjection;
+import org.entur.netex2.model.LinksInJourneyPattern_RelStructure;
+import org.entur.netex2.model.ObjectFactory;
+import org.entur.netex2.model.PointsInJourneyPattern_RelStructure;
+import org.entur.netex2.model.Projections_RelStructure;
+import org.entur.netex2.model.ScheduledStopPointRefStructure;
+import org.entur.netex2.model.ServiceLink;
+import org.entur.netex2.model.ServiceLinkInJourneyPattern_VersionedChildStructure;
+import org.entur.netex2.model.ServiceLinkRefStructure;
+import org.entur.netex2.model.StopPointInJourneyPattern;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.onebusaway.gtfs.model.Agency;
-import org.rutebanken.netex.model.JourneyPattern;
-import org.rutebanken.netex.model.LinkSequenceProjection;
-import org.rutebanken.netex.model.LinksInJourneyPattern_RelStructure;
-import org.rutebanken.netex.model.ObjectFactory;
-import org.rutebanken.netex.model.PointsInJourneyPattern_RelStructure;
-import org.rutebanken.netex.model.Projections_RelStructure;
-import org.rutebanken.netex.model.ScheduledStopPointRefStructure;
-import org.rutebanken.netex.model.ServiceLink;
-import org.rutebanken.netex.model.ServiceLinkInJourneyPattern_VersionedChildStructure;
-import org.rutebanken.netex.model.ServiceLinkRefStructure;
-import org.rutebanken.netex.model.StopPointInJourneyPattern;
 
 class ShapeProducerTest {
 

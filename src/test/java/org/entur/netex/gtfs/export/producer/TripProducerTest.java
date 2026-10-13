@@ -60,17 +60,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import jakarta.xml.bind.JAXBElement;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Set;
 import org.entur.netex.gtfs.export.repository.DefaultGtfsRepository;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
+import org.entur.netex2.model.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.onebusaway.gtfs.model.AgencyAndId;
 import org.onebusaway.gtfs.model.Trip;
-import org.rutebanken.netex.model.*;
 
 class TripProducerTest {
 
@@ -84,14 +84,7 @@ class TripProducerTest {
   private static final String TEST_DATED_SERVICE_JOURNEY_ID =
     "ENT:DatedServiceJourney:1";
   private static final String TEST_OPERATING_DAY_ID = "ENT:OperatingDay:1";
-  private static final LocalDateTime TEST_DATE = LocalDateTime.of(
-    2024,
-    4,
-    3,
-    12,
-    0,
-    0
-  );
+  private static final LocalDate TEST_DATE = LocalDate.of(2024, 4, 3);
   private DefaultGtfsRepository gtfsDatasetRepository;
   private DefaultGtfsServiceRepository gtfsServiceRepository;
   private NetexDatasetRepository netexDatasetRepository;
@@ -281,7 +274,7 @@ class TripProducerTest {
 
   private static DayTypeAssignment createTestDayTypeAssignment(
     DayType dayType,
-    LocalDateTime date
+    LocalDate date
   ) {
     DayTypeRefStructure dayTypeRefStructure = NETEX_FACTORY
       .createDayTypeRefStructure()
@@ -296,7 +289,7 @@ class TripProducerTest {
 
   private static OperatingDay createTestOperatingDay(
     String operatingDayId,
-    LocalDateTime date
+    LocalDate date
   ) {
     return NETEX_FACTORY
       .createOperatingDay()

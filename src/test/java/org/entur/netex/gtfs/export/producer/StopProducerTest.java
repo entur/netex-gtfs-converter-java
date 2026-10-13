@@ -62,15 +62,15 @@ import org.entur.netex.gtfs.export.exception.GtfsExportException;
 import org.entur.netex.gtfs.export.repository.DefaultGtfsRepository;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.stop.StopAreaRepository;
+import org.entur.netex2.model.LocationStructure;
+import org.entur.netex2.model.MultilingualString;
+import org.entur.netex2.model.ObjectFactory;
+import org.entur.netex2.model.Quay;
+import org.entur.netex2.model.SimplePoint_VersionStructure;
+import org.entur.netex2.model.StopPlace;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.onebusaway.gtfs.model.Stop;
-import org.rutebanken.netex.model.LocationStructure;
-import org.rutebanken.netex.model.MultilingualString;
-import org.rutebanken.netex.model.ObjectFactory;
-import org.rutebanken.netex.model.Quay;
-import org.rutebanken.netex.model.SimplePoint_VersionStructure;
-import org.rutebanken.netex.model.StopPlace;
 
 class StopProducerTest {
 

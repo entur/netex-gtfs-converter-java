@@ -19,7 +19,7 @@
 package org.entur.netex.gtfs.export;
 
 import java.io.InputStream;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
@@ -58,20 +58,20 @@ import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 import org.entur.netex.gtfs.export.stop.StopAreaRepository;
 import org.entur.netex.gtfs.export.util.DestinationDisplayUtil;
 import org.entur.netex.gtfs.export.util.ServiceAlterationChecker;
+import org.entur.netex2.model.DestinationDisplay;
+import org.entur.netex2.model.JourneyPattern;
+import org.entur.netex2.model.Line;
+import org.entur.netex2.model.Quay;
+import org.entur.netex2.model.ServiceJourney;
+import org.entur.netex2.model.ServiceJourneyInterchange;
+import org.entur.netex2.model.StopPointInJourneyPattern;
+import org.entur.netex2.model.TimetabledPassingTime;
 import org.onebusaway.gtfs.model.AgencyAndId;
 import org.onebusaway.gtfs.model.FeedInfo;
 import org.onebusaway.gtfs.model.Route;
 import org.onebusaway.gtfs.model.ServiceCalendar;
 import org.onebusaway.gtfs.model.StopTime;
 import org.onebusaway.gtfs.model.Trip;
-import org.rutebanken.netex.model.DestinationDisplay;
-import org.rutebanken.netex.model.JourneyPattern;
-import org.rutebanken.netex.model.Line;
-import org.rutebanken.netex.model.Quay;
-import org.rutebanken.netex.model.ServiceJourney;
-import org.rutebanken.netex.model.ServiceJourneyInterchange;
-import org.rutebanken.netex.model.StopPointInJourneyPattern;
-import org.rutebanken.netex.model.TimetabledPassingTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -236,7 +236,7 @@ public class DefaultGtfsExporter implements GtfsExporter {
     for (Line netexLine : netexDatasetRepository.getLines()) {
       Route gtfsRoute = routeProducer.produce(netexLine);
       gtfsDatasetRepository.saveEntity(gtfsRoute);
-      for (org.rutebanken.netex.model.Route netexRoute : netexDatasetRepository.getRoutesByLine(
+      for (org.entur.netex2.model.Route netexRoute : netexDatasetRepository.getRoutesByLine(
         netexLine
       )) {
         for (JourneyPattern journeyPattern : netexDatasetRepository.getJourneyPatternsByRoute(
@@ -309,7 +309,7 @@ public class DefaultGtfsExporter implements GtfsExporter {
         );
         gtfsDatasetRepository.saveEntity(serviceCalendar);
       }
-      for (LocalDateTime includedDate : gtfsService.getIncludedDates()) {
+      for (LocalDate includedDate : gtfsService.getIncludedDates()) {
         gtfsDatasetRepository.saveEntity(
           serviceCalendarDateProducer.produce(
             gtfsService.getId(),
@@ -318,7 +318,7 @@ public class DefaultGtfsExporter implements GtfsExporter {
           )
         );
       }
-      for (LocalDateTime excludedDate : gtfsService.getExcludedDates()) {
+      for (LocalDate excludedDate : gtfsService.getExcludedDates()) {
         gtfsDatasetRepository.saveEntity(
           serviceCalendarDateProducer.produce(
             gtfsService.getId(),

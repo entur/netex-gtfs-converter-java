@@ -27,22 +27,22 @@ import org.entur.netex.gtfs.export.exception.GtfsExportException;
 import org.entur.netex.gtfs.export.exception.QuayNotFoundException;
 import org.entur.netex.index.api.NetexEntitiesIndex;
 import org.entur.netex.index.impl.NetexEntitiesIndexImpl;
-import org.rutebanken.netex.model.Authority;
-import org.rutebanken.netex.model.DatedServiceJourney;
-import org.rutebanken.netex.model.DayType;
-import org.rutebanken.netex.model.DayTypeAssignment;
-import org.rutebanken.netex.model.DestinationDisplay;
-import org.rutebanken.netex.model.JourneyPattern;
-import org.rutebanken.netex.model.Line;
-import org.rutebanken.netex.model.LocaleStructure;
-import org.rutebanken.netex.model.Network;
-import org.rutebanken.netex.model.OperatingDay;
-import org.rutebanken.netex.model.OperatingPeriod;
-import org.rutebanken.netex.model.ServiceJourney;
-import org.rutebanken.netex.model.ServiceJourneyInterchange;
-import org.rutebanken.netex.model.ServiceLink;
-import org.rutebanken.netex.model.VersionFrameDefaultsStructure;
-import org.rutebanken.netex.model.VersionFrame_VersionStructure;
+import org.entur.netex2.model.Authority;
+import org.entur.netex2.model.DatedServiceJourney;
+import org.entur.netex2.model.DayType;
+import org.entur.netex2.model.DayTypeAssignment;
+import org.entur.netex2.model.DestinationDisplay;
+import org.entur.netex2.model.JourneyPattern;
+import org.entur.netex2.model.Line;
+import org.entur.netex2.model.LocaleStructure;
+import org.entur.netex2.model.Network;
+import org.entur.netex2.model.OperatingDay;
+import org.entur.netex2.model.OperatingPeriod;
+import org.entur.netex2.model.ServiceJourney;
+import org.entur.netex2.model.ServiceJourneyInterchange;
+import org.entur.netex2.model.ServiceLink;
+import org.entur.netex2.model.VersionFrameDefaultsStructure;
+import org.entur.netex2.model.VersionFrame_VersionStructure;
 
 public class DefaultNetexDatasetRepository implements NetexDatasetRepository {
 
@@ -267,9 +267,7 @@ public class DefaultNetexDatasetRepository implements NetexDatasetRepository {
   }
 
   @Override
-  public Collection<org.rutebanken.netex.model.Route> getRoutesByLine(
-    Line line
-  ) {
+  public Collection<org.entur.netex2.model.Route> getRoutesByLine(Line line) {
     return netexEntitiesIndex
       .getRouteIndex()
       .getAll()
@@ -282,7 +280,7 @@ public class DefaultNetexDatasetRepository implements NetexDatasetRepository {
 
   @Override
   public Collection<JourneyPattern> getJourneyPatternsByRoute(
-    org.rutebanken.netex.model.Route route
+    org.entur.netex2.model.Route route
   ) {
     return netexEntitiesIndex
       .getJourneyPatternIndex()
