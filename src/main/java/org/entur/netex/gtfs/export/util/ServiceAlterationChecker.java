@@ -20,9 +20,9 @@ package org.entur.netex.gtfs.export.util;
 
 import java.util.Collection;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
-import org.rutebanken.netex.model.DatedServiceJourney;
-import org.rutebanken.netex.model.ServiceAlterationEnumeration;
-import org.rutebanken.netex.model.ServiceJourney;
+import org.entur.netex2.model.DatedServiceJourney;
+import org.entur.netex2.model.ServiceAlterationEnumeration;
+import org.entur.netex2.model.ServiceJourney;
 
 /**
  * Check the service alteration status for ServiceJourneys and DatedServiceJourneys.

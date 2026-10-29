@@ -4,14 +4,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
+import org.entur.netex2.model.DestinationDisplay;
+import org.entur.netex2.model.DestinationDisplayRefStructure;
+import org.entur.netex2.model.MultilingualString;
+import org.entur.netex2.model.ObjectFactory;
+import org.entur.netex2.model.Via_VersionedChildStructure;
+import org.entur.netex2.model.Vias_RelStructure;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.rutebanken.netex.model.DestinationDisplay;
-import org.rutebanken.netex.model.DestinationDisplayRefStructure;
-import org.rutebanken.netex.model.MultilingualString;
-import org.rutebanken.netex.model.ObjectFactory;
-import org.rutebanken.netex.model.Via_VersionedChildStructure;
-import org.rutebanken.netex.model.Vias_RelStructure;
 
 class DestinationDisplayUtilTest {
 
@@ -133,8 +133,8 @@ class DestinationDisplayUtilTest {
   ) {
     DestinationDisplay destinationDisplay = new DestinationDisplay();
     destinationDisplay.setId(id);
-    MultilingualString frontTextMultilingualString = new MultilingualString();
-    frontTextMultilingualString.setValue(frontText);
+    MultilingualString frontTextMultilingualString = new MultilingualString()
+      .withContent(frontText);
     destinationDisplay.setFrontText(frontTextMultilingualString);
     return destinationDisplay;
   }
