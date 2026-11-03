@@ -18,6 +18,7 @@
 
 package org.entur.netex.gtfs.export.producer;
 
+import org.entur.netex.gtfs.export.exception.GtfsExportException;
 import org.entur.netex.gtfs.export.exception.InvalidAuthorityUrlException;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 import org.entur.netex.gtfs.export.util.MultilingualStringUtil;
@@ -47,7 +48,13 @@ public class DefaultAgencyProducer implements AgencyProducer {
     agency.setId(authority.getId());
 
     // agency name
-    agency.setName(MultilingualStringUtil.getValue(authority.getName()));
+    String name = MultilingualStringUtil.getValue(authority.getName());
+    if (name == null || name.isBlank()) {
+      throw new GtfsExportException(
+        "The authority " + authority.getId() + " does not have a name"
+      );
+    }
+    agency.setName(name);
 
     // agency URL and phone
     ContactStructure contactDetails = authority.getContactDetails();

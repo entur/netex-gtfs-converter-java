@@ -73,13 +73,13 @@ public class DefaultStopProducer implements StopProducer {
     stop.setLocationType(Stop.LOCATION_TYPE_STATION);
 
     // name, description and platform code
-    if (MultilingualStringUtil.isBlank(stopPlace.getName())) {
+    String stopPlaceName = MultilingualStringUtil.getValue(stopPlace.getName());
+    if (stopPlaceName == null || stopPlaceName.isBlank()) {
       throw new GtfsExportException(
         "The stop place " + stopPlace.getId() + " does not have a name"
       );
-    } else {
-      stop.setName(MultilingualStringUtil.getValue(stopPlace.getName()));
     }
+    stop.setName(stopPlaceName);
     // the description is set only if it is different from the name
     String stopPlaceDescription = MultilingualStringUtil.getValue(
       stopPlace.getDescription()
@@ -160,7 +160,10 @@ public class DefaultStopProducer implements StopProducer {
 
     // name, description and platform code
     // the name of the quay is inherited from the parent stop place
-    if (MultilingualStringUtil.isBlank(parentStopPlace.getName())) {
+    String parentStopPlaceName = MultilingualStringUtil.getValue(
+      parentStopPlace.getName()
+    );
+    if (parentStopPlaceName == null || parentStopPlaceName.isBlank()) {
       throw new GtfsExportException(
         "The parent stop place " +
         parentStopPlace.getId() +
@@ -168,9 +171,8 @@ public class DefaultStopProducer implements StopProducer {
         quay.getId() +
         " does not have a name"
       );
-    } else {
-      stop.setName(MultilingualStringUtil.getValue(parentStopPlace.getName()));
     }
+    stop.setName(parentStopPlaceName);
     // the description is set only if it is different from the name
     String quayDescription = MultilingualStringUtil.getValue(
       quay.getDescription()

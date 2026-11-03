@@ -57,6 +57,7 @@ package org.entur.netex.gtfs.export.producer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import org.entur.netex.gtfs.export.exception.GtfsExportException;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 import org.entur.netex2.model.Authority;
 import org.entur.netex2.model.ContactStructure;
@@ -91,6 +92,27 @@ class AgencyProducerTest {
     Assertions.assertEquals(AUTHORITY_NAME, agency.getName());
     Assertions.assertEquals(AUTHORITY_URL, agency.getUrl());
     Assertions.assertEquals(TIMEZONE, agency.getTimezone());
+  }
+
+  @Test
+  void testAgencyProducerWithoutName() {
+    Authority authority = createTestAuthority();
+    authority.setName(null);
+
+    NetexDatasetRepository netexDatasetRepository = mock(
+      NetexDatasetRepository.class
+    );
+    when(netexDatasetRepository.getTimeZone()).thenReturn(TIMEZONE);
+
+    AgencyProducer agencyProducer = new DefaultAgencyProducer(
+      netexDatasetRepository
+    );
+
+    Assertions.assertThrows(
+      GtfsExportException.class,
+      () -> agencyProducer.produce(authority),
+      "An authority without a name cannot be exported"
+    );
   }
 
   private Authority createTestAuthority() {

@@ -21,6 +21,7 @@ package org.entur.netex.gtfs.export.model;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Set;
+import org.entur.netex.gtfs.export.util.ServiceDateUtil;
 import org.onebusaway.gtfs.model.calendar.ServiceDate;
 
 /**
@@ -38,8 +39,8 @@ public class ServiceCalendarPeriod {
     LocalDate endDate,
     Set<DayOfWeek> daysOfWeek
   ) {
-    this.startDate = toServiceDate(startDate);
-    this.endDate = toServiceDate(endDate);
+    this.startDate = ServiceDateUtil.toServiceDate(startDate);
+    this.endDate = ServiceDateUtil.toServiceDate(endDate);
     this.daysOfWeek = daysOfWeek;
   }
 
@@ -53,13 +54,5 @@ public class ServiceCalendarPeriod {
 
   public Set<DayOfWeek> getDaysOfWeek() {
     return daysOfWeek;
-  }
-
-  private static ServiceDate toServiceDate(LocalDate netexDate) {
-    return new ServiceDate(
-      netexDate.getYear(),
-      netexDate.getMonthValue(),
-      netexDate.getDayOfMonth()
-    );
   }
 }

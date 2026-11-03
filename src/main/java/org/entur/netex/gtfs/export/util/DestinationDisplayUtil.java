@@ -82,15 +82,17 @@ public final class DestinationDisplayUtil {
           .map(netexVia -> netexVia.getDestinationDisplayRef().getRef())
           .map(netexDatasetRepository::getDestinationDisplayById)
           .map(DestinationDisplay_VersionStructure::getFrontText)
-          .filter(Objects::nonNull)
           .map(MultilingualStringUtil::getValue)
           .filter(Objects::nonNull)
           .collect(Collectors.joining("/"));
     }
 
-    if (!via.isEmpty()) {
-      frontText = frontText + " via " + via;
+    if (via.isEmpty()) {
+      return frontText;
     }
-    return frontText;
+    if (frontText == null) {
+      return via;
+    }
+    return frontText + " via " + via;
   }
 }

@@ -19,6 +19,7 @@
 package org.entur.netex.gtfs.export.producer;
 
 import jakarta.xml.bind.annotation.adapters.HexBinaryAdapter;
+import org.entur.netex.gtfs.export.exception.GtfsExportException;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 import org.entur.netex.gtfs.export.util.MultilingualStringUtil;
@@ -67,9 +68,12 @@ public class DefaultRouteProducer implements RouteProducer {
     // The NeTEx name hierarchy is: public code < short name < name
     // The GTFS name hierarchy is: short name < long name
     // the NeTEx public code becomes the GTFS short name
-    route.setShortName(
-      line.getPublicCode() != null ? line.getPublicCode().getValue() : null
-    );
+    String publicCode = line.getPublicCode() != null
+      ? line.getPublicCode().getValue()
+      : null;
+    if (publicCode != null && !publicCode.isBlank()) {
+      route.setShortName(publicCode);
+    }
     // The NeTEx short name becomes the GTFS long name
     String shortNameValue = MultilingualStringUtil.getValue(
       line.getShortName()
@@ -86,6 +90,14 @@ public class DefaultRouteProducer implements RouteProducer {
       route.getLongName().equals(route.getShortName())
     ) {
       route.setLongName(null);
+    }
+    // GTFS requires at least one of route_short_name and route_long_name
+    if (route.getShortName() == null && route.getLongName() == null) {
+      throw new GtfsExportException(
+        "The line " +
+        lineId +
+        " does not have a public code, a short name or a name"
+      );
     }
 
     // route description

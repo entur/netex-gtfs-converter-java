@@ -127,15 +127,48 @@ class DestinationDisplayUtilTest {
     );
   }
 
+  @Test
+  void testDestinationDisplayWithoutFrontTextAndWithVia() {
+    DestinationDisplay mainDestinationDisplay = createTestDestinationDisplay(
+      MAIN_DESTINATION_DISPLAY_ID,
+      null
+    );
+    DestinationDisplay via1DestinationDisplay = createTestDestinationDisplay(
+      VIA1_DESTINATION_DISPLAY_ID,
+      VIA1_FRONT_TEXT
+    );
+    addVia(mainDestinationDisplay, via1DestinationDisplay);
+
+    NetexDatasetRepository netexDatasetRepository = mock(
+      NetexDatasetRepository.class
+    );
+    when(
+      netexDatasetRepository.getDestinationDisplayById(
+        VIA1_DESTINATION_DISPLAY_ID
+      )
+    )
+      .thenReturn(via1DestinationDisplay);
+
+    String frontTextWithComputedVias =
+      DestinationDisplayUtil.getHeadSignFromDestinationDisplay(
+        mainDestinationDisplay,
+        netexDatasetRepository
+      );
+
+    Assertions.assertEquals(VIA1_FRONT_TEXT, frontTextWithComputedVias);
+  }
+
   private DestinationDisplay createTestDestinationDisplay(
     String id,
     String frontText
   ) {
     DestinationDisplay destinationDisplay = new DestinationDisplay();
     destinationDisplay.setId(id);
-    MultilingualString frontTextMultilingualString = new MultilingualString()
-      .withContent(frontText);
-    destinationDisplay.setFrontText(frontTextMultilingualString);
+    if (frontText != null) {
+      MultilingualString frontTextMultilingualString = new MultilingualString()
+        .withContent(frontText);
+      destinationDisplay.setFrontText(frontTextMultilingualString);
+    }
     return destinationDisplay;
   }
 
