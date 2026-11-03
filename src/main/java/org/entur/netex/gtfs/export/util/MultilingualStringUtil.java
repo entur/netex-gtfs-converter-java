@@ -18,9 +18,11 @@
 
 package org.entur.netex.gtfs.export.util;
 
+import jakarta.xml.bind.JAXBElement;
 import java.io.Serializable;
 import java.util.List;
 import org.entur.netex2.model.MultilingualString;
+import org.entur.netex2.model.TextType;
 
 /**
  * Utility class for extracting string values from MultilingualString.
@@ -33,9 +35,15 @@ public final class MultilingualStringUtil {
 
   /**
    * Extract the string value from a MultilingualString.
+   * <p>
+   * The mixed content may hold raw text fragments (the NeTEx 1.x form,
+   * {@code <Name>Oslo S</Name>}) and/or {@code <Text>} child elements (the NeTEx 2.0 form,
+   * {@code <Name><Text lang="no">Oslo S</Text></Name>}). Raw text takes precedence; whitespace-only
+   * fragments (indentation around {@code <Text>} children) are ignored. When only {@code <Text>}
+   * children are present, the first non-blank one is returned since GTFS is single-language.
    *
    * @param multilingualString the multilingual string
-   * @return the string value, or null if the multilingual string is null or has no content
+   * @return the string value, or null if the multilingual string is null or has no non-blank content
    */
   public static String getValue(MultilingualString multilingualString) {
     if (multilingualString == null) {
@@ -45,14 +53,27 @@ public final class MultilingualStringUtil {
     if (content == null || content.isEmpty()) {
       return null;
     }
-    StringBuilder sb = new StringBuilder();
+    StringBuilder rawText = new StringBuilder();
+    String firstTextElement = null;
     for (Serializable item : content) {
       if (item instanceof String s) {
-        sb.append(s);
+        if (!s.isBlank()) {
+          rawText.append(s);
+        }
+      } else if (
+        item instanceof JAXBElement<?> jaxbElement &&
+        jaxbElement.getValue() instanceof TextType textType &&
+        firstTextElement == null &&
+        textType.getValue() != null &&
+        !textType.getValue().isBlank()
+      ) {
+        firstTextElement = textType.getValue();
       }
     }
-    String result = sb.toString();
-    return result.isEmpty() ? null : result;
+    if (!rawText.isEmpty()) {
+      return rawText.toString();
+    }
+    return firstTextElement;
   }
 
   /**
