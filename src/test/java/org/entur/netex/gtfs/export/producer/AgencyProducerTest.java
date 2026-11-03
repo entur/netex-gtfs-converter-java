@@ -16,54 +16,19 @@
  *
  */
 
-/*
- *
- *  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- *  * the European Commission - subsequent versions of the EUPL (the "Licence");
- *  * You may not use this work except in compliance with the Licence.
- *  * You may obtain a copy of the Licence at:
- *  *
- *  *   https://joinup.ec.europa.eu/software/page/eupl
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the Licence is distributed on an "AS IS" basis,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the Licence for the specific language governing permissions and
- *  * limitations under the Licence.
- *  *
- *
- */
-
-/*
- *
- *  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- *  * the European Commission - subsequent versions of the EUPL (the "Licence");
- *  * You may not use this work except in compliance with the Licence.
- *  * You may obtain a copy of the Licence at:
- *  *
- *  *   https://joinup.ec.europa.eu/software/page/eupl
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the Licence is distributed on an "AS IS" basis,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the Licence for the specific language governing permissions and
- *  * limitations under the Licence.
- *  *
- *
- */
-
 package org.entur.netex.gtfs.export.producer;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import org.entur.netex.gtfs.export.exception.GtfsExportException;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
+import org.entur.netex2.model.Authority;
+import org.entur.netex2.model.ContactStructure;
+import org.entur.netex2.model.MultilingualString;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.onebusaway.gtfs.model.Agency;
-import org.rutebanken.netex.model.Authority;
-import org.rutebanken.netex.model.ContactStructure;
-import org.rutebanken.netex.model.MultilingualString;
 
 class AgencyProducerTest {
 
@@ -93,11 +58,32 @@ class AgencyProducerTest {
     Assertions.assertEquals(TIMEZONE, agency.getTimezone());
   }
 
+  @Test
+  void testAgencyProducerWithoutName() {
+    Authority authority = createTestAuthority();
+    authority.setName(null);
+
+    NetexDatasetRepository netexDatasetRepository = mock(
+      NetexDatasetRepository.class
+    );
+    when(netexDatasetRepository.getTimeZone()).thenReturn(TIMEZONE);
+
+    AgencyProducer agencyProducer = new DefaultAgencyProducer(
+      netexDatasetRepository
+    );
+
+    Assertions.assertThrows(
+      GtfsExportException.class,
+      () -> agencyProducer.produce(authority),
+      "An authority without a name cannot be exported"
+    );
+  }
+
   private Authority createTestAuthority() {
     Authority authority = new Authority();
     authority.setId(AUTHORITY_ID);
-    MultilingualString name = new MultilingualString();
-    name.setValue(AUTHORITY_NAME);
+    MultilingualString name = new MultilingualString()
+      .withContent(AUTHORITY_NAME);
     authority.setName(name);
     ContactStructure contactDetails = new ContactStructure();
     contactDetails.setUrl(AUTHORITY_URL);

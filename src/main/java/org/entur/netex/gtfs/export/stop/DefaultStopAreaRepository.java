@@ -29,8 +29,8 @@ import org.entur.netex.gtfs.export.loader.NetexDatasetLoader;
 import org.entur.netex.gtfs.export.repository.DefaultNetexDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 import org.entur.netex.index.api.NetexEntitiesIndex;
-import org.rutebanken.netex.model.Quay;
-import org.rutebanken.netex.model.StopPlace;
+import org.entur.netex2.model.Quay;
+import org.entur.netex2.model.StopPlace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

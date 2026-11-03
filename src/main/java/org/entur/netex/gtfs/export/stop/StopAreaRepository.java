@@ -19,8 +19,8 @@
 package org.entur.netex.gtfs.export.stop;
 
 import java.util.Collection;
-import org.rutebanken.netex.model.Quay;
-import org.rutebanken.netex.model.StopPlace;
+import org.entur.netex2.model.Quay;
+import org.entur.netex2.model.StopPlace;
 
 /**
  * A repository containing NeTEx quays and stop places.

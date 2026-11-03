@@ -18,11 +18,13 @@
 
 package org.entur.netex.gtfs.export.producer;
 
+import org.entur.netex.gtfs.export.exception.GtfsExportException;
 import org.entur.netex.gtfs.export.exception.InvalidAuthorityUrlException;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
+import org.entur.netex.gtfs.export.util.MultilingualStringUtil;
+import org.entur.netex2.model.Authority;
+import org.entur.netex2.model.ContactStructure;
 import org.onebusaway.gtfs.model.Agency;
-import org.rutebanken.netex.model.Authority;
-import org.rutebanken.netex.model.ContactStructure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +48,13 @@ public class DefaultAgencyProducer implements AgencyProducer {
     agency.setId(authority.getId());
 
     // agency name
-    agency.setName(authority.getName().getValue());
+    String name = MultilingualStringUtil.getValue(authority.getName());
+    if (name == null || name.isBlank()) {
+      throw new GtfsExportException(
+        "The authority " + authority.getId() + " does not have a name"
+      );
+    }
+    agency.setName(name);
 
     // agency URL and phone
     ContactStructure contactDetails = authority.getContactDetails();

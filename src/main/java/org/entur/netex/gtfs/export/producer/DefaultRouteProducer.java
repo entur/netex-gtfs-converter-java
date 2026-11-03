@@ -19,14 +19,16 @@
 package org.entur.netex.gtfs.export.producer;
 
 import jakarta.xml.bind.annotation.adapters.HexBinaryAdapter;
+import org.entur.netex.gtfs.export.exception.GtfsExportException;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
+import org.entur.netex.gtfs.export.util.MultilingualStringUtil;
 import org.entur.netex.gtfs.export.util.TransportModeUtil;
+import org.entur.netex2.model.Line;
+import org.entur.netex2.model.PresentationStructure;
 import org.onebusaway.gtfs.model.Agency;
 import org.onebusaway.gtfs.model.AgencyAndId;
 import org.onebusaway.gtfs.model.Route;
-import org.rutebanken.netex.model.Line;
-import org.rutebanken.netex.model.PresentationStructure;
 
 /**
  * Produce a GTFS Route from a NeTEx Line.
@@ -66,13 +68,21 @@ public class DefaultRouteProducer implements RouteProducer {
     // The NeTEx name hierarchy is: public code < short name < name
     // The GTFS name hierarchy is: short name < long name
     // the NeTEx public code becomes the GTFS short name
-    route.setShortName(line.getPublicCode());
+    String publicCode = line.getPublicCode() != null
+      ? line.getPublicCode().getValue()
+      : null;
+    if (publicCode != null && !publicCode.isBlank()) {
+      route.setShortName(publicCode);
+    }
     // The NeTEx short name becomes the GTFS long name
-    if (line.getShortName() != null && line.getShortName().getValue() != null) {
-      route.setLongName(line.getShortName().getValue());
+    String shortNameValue = MultilingualStringUtil.getValue(
+      line.getShortName()
+    );
+    if (shortNameValue != null) {
+      route.setLongName(shortNameValue);
     } else {
       // If the NeTEx short name is missing, the NeTEx name becomes the GTFS long name
-      route.setLongName(line.getName().getValue());
+      route.setLongName(MultilingualStringUtil.getValue(line.getName()));
     }
     // The long name is omitted if it is identical to the short name
     if (
@@ -81,10 +91,18 @@ public class DefaultRouteProducer implements RouteProducer {
     ) {
       route.setLongName(null);
     }
+    // GTFS requires at least one of route_short_name and route_long_name
+    if (route.getShortName() == null && route.getLongName() == null) {
+      throw new GtfsExportException(
+        "The line " +
+        lineId +
+        " does not have a public code, a short name or a name"
+      );
+    }
 
     // route description
     if (line.getDescription() != null) {
-      route.setDesc(line.getDescription().getValue());
+      route.setDesc(MultilingualStringUtil.getValue(line.getDescription()));
     }
 
     // route URL

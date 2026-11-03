@@ -16,42 +16,6 @@
  *
  */
 
-/*
- *
- *  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- *  * the European Commission - subsequent versions of the EUPL (the "Licence");
- *  * You may not use this work except in compliance with the Licence.
- *  * You may obtain a copy of the Licence at:
- *  *
- *  *   https://joinup.ec.europa.eu/software/page/eupl
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the Licence is distributed on an "AS IS" basis,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the Licence for the specific language governing permissions and
- *  * limitations under the Licence.
- *  *
- *
- */
-
-/*
- *
- *  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- *  * the European Commission - subsequent versions of the EUPL (the "Licence");
- *  * You may not use this work except in compliance with the Licence.
- *  * You may obtain a copy of the Licence at:
- *  *
- *  *   https://joinup.ec.europa.eu/software/page/eupl
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the Licence is distributed on an "AS IS" basis,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the Licence for the specific language governing permissions and
- *  * limitations under the Licence.
- *  *
- *
- */
-
 package org.entur.netex.gtfs.export.producer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -60,17 +24,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import jakarta.xml.bind.JAXBElement;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Set;
 import org.entur.netex.gtfs.export.repository.DefaultGtfsRepository;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
+import org.entur.netex2.model.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.onebusaway.gtfs.model.AgencyAndId;
 import org.onebusaway.gtfs.model.Trip;
-import org.rutebanken.netex.model.*;
 
 class TripProducerTest {
 
@@ -84,14 +48,7 @@ class TripProducerTest {
   private static final String TEST_DATED_SERVICE_JOURNEY_ID =
     "ENT:DatedServiceJourney:1";
   private static final String TEST_OPERATING_DAY_ID = "ENT:OperatingDay:1";
-  private static final LocalDateTime TEST_DATE = LocalDateTime.of(
-    2024,
-    4,
-    3,
-    12,
-    0,
-    0
-  );
+  private static final LocalDate TEST_DATE = LocalDate.of(2024, 4, 3);
   private DefaultGtfsRepository gtfsDatasetRepository;
   private DefaultGtfsServiceRepository gtfsServiceRepository;
   private NetexDatasetRepository netexDatasetRepository;
@@ -210,8 +167,8 @@ class TripProducerTest {
       new org.onebusaway.gtfs.model.Route();
     AgencyAndId shapeId = new AgencyAndId();
     DestinationDisplay initialDestinationDisplay = new DestinationDisplay();
-    MultilingualString frontText = new MultilingualString();
-    frontText.setValue(FRONT_TEXT);
+    MultilingualString frontText = new MultilingualString()
+      .withContent(FRONT_TEXT);
     initialDestinationDisplay.setFrontText(frontText);
 
     TripProducer tripProducer = new DefaultTripProducer(
@@ -281,7 +238,7 @@ class TripProducerTest {
 
   private static DayTypeAssignment createTestDayTypeAssignment(
     DayType dayType,
-    LocalDateTime date
+    LocalDate date
   ) {
     DayTypeRefStructure dayTypeRefStructure = NETEX_FACTORY
       .createDayTypeRefStructure()
@@ -296,7 +253,7 @@ class TripProducerTest {
 
   private static OperatingDay createTestOperatingDay(
     String operatingDayId,
-    LocalDateTime date
+    LocalDate date
   ) {
     return NETEX_FACTORY
       .createOperatingDay()

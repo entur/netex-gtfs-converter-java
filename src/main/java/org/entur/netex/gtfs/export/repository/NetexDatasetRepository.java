@@ -20,19 +20,19 @@ package org.entur.netex.gtfs.export.repository;
 
 import java.util.Collection;
 import org.entur.netex.index.api.NetexEntitiesIndex;
-import org.rutebanken.netex.model.Authority;
-import org.rutebanken.netex.model.DatedServiceJourney;
-import org.rutebanken.netex.model.DayType;
-import org.rutebanken.netex.model.DayTypeAssignment;
-import org.rutebanken.netex.model.DestinationDisplay;
-import org.rutebanken.netex.model.JourneyPattern;
-import org.rutebanken.netex.model.Line;
-import org.rutebanken.netex.model.OperatingDay;
-import org.rutebanken.netex.model.OperatingPeriod;
-import org.rutebanken.netex.model.Route;
-import org.rutebanken.netex.model.ServiceJourney;
-import org.rutebanken.netex.model.ServiceJourneyInterchange;
-import org.rutebanken.netex.model.ServiceLink;
+import org.entur.netex2.model.Authority;
+import org.entur.netex2.model.DatedServiceJourney;
+import org.entur.netex2.model.DayType;
+import org.entur.netex2.model.DayTypeAssignment;
+import org.entur.netex2.model.DestinationDisplay;
+import org.entur.netex2.model.JourneyPattern;
+import org.entur.netex2.model.Line;
+import org.entur.netex2.model.OperatingDay;
+import org.entur.netex2.model.OperatingPeriod;
+import org.entur.netex2.model.Route;
+import org.entur.netex2.model.ServiceJourney;
+import org.entur.netex2.model.ServiceJourneyInterchange;
+import org.entur.netex2.model.ServiceLink;
 
 /**
  * Repository giving read access to the input NeTEx dataset.

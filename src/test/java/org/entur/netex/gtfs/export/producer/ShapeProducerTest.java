@@ -16,42 +16,6 @@
  *
  */
 
-/*
- *
- *  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- *  * the European Commission - subsequent versions of the EUPL (the "Licence");
- *  * You may not use this work except in compliance with the Licence.
- *  * You may obtain a copy of the Licence at:
- *  *
- *  *   https://joinup.ec.europa.eu/software/page/eupl
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the Licence is distributed on an "AS IS" basis,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the Licence for the specific language governing permissions and
- *  * limitations under the Licence.
- *  *
- *
- */
-
-/*
- *
- *  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- *  * the European Commission - subsequent versions of the EUPL (the "Licence");
- *  * You may not use this work except in compliance with the Licence.
- *  * You may obtain a copy of the Licence at:
- *  *
- *  *   https://joinup.ec.europa.eu/software/page/eupl
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the Licence is distributed on an "AS IS" basis,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the Licence for the specific language governing permissions and
- *  * limitations under the Licence.
- *  *
- *
- */
-
 package org.entur.netex.gtfs.export.producer;
 
 import static org.mockito.Mockito.mock;
@@ -68,21 +32,21 @@ import org.entur.netex.gtfs.export.model.GtfsShape;
 import org.entur.netex.gtfs.export.repository.GtfsDatasetRepository;
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
 import org.entur.netex.gtfs.export.util.GeometryUtil;
+import org.entur.netex2.model.JourneyPattern;
+import org.entur.netex2.model.LinkSequenceProjection;
+import org.entur.netex2.model.LinksInJourneyPattern_RelStructure;
+import org.entur.netex2.model.ObjectFactory;
+import org.entur.netex2.model.PointsInJourneyPattern_RelStructure;
+import org.entur.netex2.model.Projections_RelStructure;
+import org.entur.netex2.model.ScheduledStopPointRefStructure;
+import org.entur.netex2.model.ServiceLink;
+import org.entur.netex2.model.ServiceLinkInJourneyPattern_VersionedChildStructure;
+import org.entur.netex2.model.ServiceLinkRefStructure;
+import org.entur.netex2.model.StopPointInJourneyPattern;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.onebusaway.gtfs.model.Agency;
-import org.rutebanken.netex.model.JourneyPattern;
-import org.rutebanken.netex.model.LinkSequenceProjection;
-import org.rutebanken.netex.model.LinksInJourneyPattern_RelStructure;
-import org.rutebanken.netex.model.ObjectFactory;
-import org.rutebanken.netex.model.PointsInJourneyPattern_RelStructure;
-import org.rutebanken.netex.model.Projections_RelStructure;
-import org.rutebanken.netex.model.ScheduledStopPointRefStructure;
-import org.rutebanken.netex.model.ServiceLink;
-import org.rutebanken.netex.model.ServiceLinkInJourneyPattern_VersionedChildStructure;
-import org.rutebanken.netex.model.ServiceLinkRefStructure;
-import org.rutebanken.netex.model.StopPointInJourneyPattern;
 
 class ShapeProducerTest {
 

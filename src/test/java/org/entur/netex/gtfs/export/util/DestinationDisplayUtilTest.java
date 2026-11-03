@@ -1,17 +1,35 @@
+/*
+ *
+ *  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
+ *  * the European Commission - subsequent versions of the EUPL (the "Licence");
+ *  * You may not use this work except in compliance with the Licence.
+ *  * You may obtain a copy of the Licence at:
+ *  *
+ *  *   https://joinup.ec.europa.eu/software/page/eupl
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the Licence is distributed on an "AS IS" basis,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the Licence for the specific language governing permissions and
+ *  * limitations under the Licence.
+ *  *
+ *
+ */
+
 package org.entur.netex.gtfs.export.util;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.entur.netex.gtfs.export.repository.NetexDatasetRepository;
+import org.entur.netex2.model.DestinationDisplay;
+import org.entur.netex2.model.DestinationDisplayRefStructure;
+import org.entur.netex2.model.MultilingualString;
+import org.entur.netex2.model.ObjectFactory;
+import org.entur.netex2.model.Via_VersionedChildStructure;
+import org.entur.netex2.model.Vias_RelStructure;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.rutebanken.netex.model.DestinationDisplay;
-import org.rutebanken.netex.model.DestinationDisplayRefStructure;
-import org.rutebanken.netex.model.MultilingualString;
-import org.rutebanken.netex.model.ObjectFactory;
-import org.rutebanken.netex.model.Via_VersionedChildStructure;
-import org.rutebanken.netex.model.Vias_RelStructure;
 
 class DestinationDisplayUtilTest {
 
@@ -127,15 +145,48 @@ class DestinationDisplayUtilTest {
     );
   }
 
+  @Test
+  void testDestinationDisplayWithoutFrontTextAndWithVia() {
+    DestinationDisplay mainDestinationDisplay = createTestDestinationDisplay(
+      MAIN_DESTINATION_DISPLAY_ID,
+      null
+    );
+    DestinationDisplay via1DestinationDisplay = createTestDestinationDisplay(
+      VIA1_DESTINATION_DISPLAY_ID,
+      VIA1_FRONT_TEXT
+    );
+    addVia(mainDestinationDisplay, via1DestinationDisplay);
+
+    NetexDatasetRepository netexDatasetRepository = mock(
+      NetexDatasetRepository.class
+    );
+    when(
+      netexDatasetRepository.getDestinationDisplayById(
+        VIA1_DESTINATION_DISPLAY_ID
+      )
+    )
+      .thenReturn(via1DestinationDisplay);
+
+    String frontTextWithComputedVias =
+      DestinationDisplayUtil.getHeadSignFromDestinationDisplay(
+        mainDestinationDisplay,
+        netexDatasetRepository
+      );
+
+    Assertions.assertEquals(VIA1_FRONT_TEXT, frontTextWithComputedVias);
+  }
+
   private DestinationDisplay createTestDestinationDisplay(
     String id,
     String frontText
   ) {
     DestinationDisplay destinationDisplay = new DestinationDisplay();
     destinationDisplay.setId(id);
-    MultilingualString frontTextMultilingualString = new MultilingualString();
-    frontTextMultilingualString.setValue(frontText);
-    destinationDisplay.setFrontText(frontTextMultilingualString);
+    if (frontText != null) {
+      MultilingualString frontTextMultilingualString = new MultilingualString()
+        .withContent(frontText);
+      destinationDisplay.setFrontText(frontTextMultilingualString);
+    }
     return destinationDisplay;
   }
 

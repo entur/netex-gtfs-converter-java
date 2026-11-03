@@ -16,42 +16,6 @@
  *
  */
 
-/*
- *
- *  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- *  * the European Commission - subsequent versions of the EUPL (the "Licence");
- *  * You may not use this work except in compliance with the Licence.
- *  * You may obtain a copy of the Licence at:
- *  *
- *  *   https://joinup.ec.europa.eu/software/page/eupl
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the Licence is distributed on an "AS IS" basis,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the Licence for the specific language governing permissions and
- *  * limitations under the Licence.
- *  *
- *
- */
-
-/*
- *
- *  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- *  * the European Commission - subsequent versions of the EUPL (the "Licence");
- *  * You may not use this work except in compliance with the Licence.
- *  * You may obtain a copy of the Licence at:
- *  *
- *  *   https://joinup.ec.europa.eu/software/page/eupl
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the Licence is distributed on an "AS IS" basis,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the Licence for the specific language governing permissions and
- *  * limitations under the Licence.
- *  *
- *
- */
-
 package org.entur.netex.gtfs.export.repository;
 
 import static org.mockito.Mockito.mock;
@@ -69,19 +33,19 @@ import org.entur.netex.gtfs.export.model.GtfsService;
 import org.entur.netex.gtfs.export.model.ServiceCalendarPeriod;
 import org.entur.netex.gtfs.export.producer.DefaultGtfsServiceRepository;
 import org.entur.netex.gtfs.export.producer.GtfsServiceRepository;
+import org.entur.netex2.model.DayOfWeekEnumeration;
+import org.entur.netex2.model.DayType;
+import org.entur.netex2.model.DayTypeAssignment;
+import org.entur.netex2.model.DayTypeRefStructure;
+import org.entur.netex2.model.ObjectFactory;
+import org.entur.netex2.model.OperatingDay;
+import org.entur.netex2.model.OperatingDayRefStructure;
+import org.entur.netex2.model.OperatingPeriod;
+import org.entur.netex2.model.OperatingPeriodRefStructure;
+import org.entur.netex2.model.PropertiesOfDay_RelStructure;
+import org.entur.netex2.model.PropertyOfDay;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.rutebanken.netex.model.DayOfWeekEnumeration;
-import org.rutebanken.netex.model.DayType;
-import org.rutebanken.netex.model.DayTypeAssignment;
-import org.rutebanken.netex.model.DayTypeRefStructure;
-import org.rutebanken.netex.model.ObjectFactory;
-import org.rutebanken.netex.model.OperatingDay;
-import org.rutebanken.netex.model.OperatingDayRefStructure;
-import org.rutebanken.netex.model.OperatingPeriod;
-import org.rutebanken.netex.model.OperatingPeriodRefStructure;
-import org.rutebanken.netex.model.PropertiesOfDay_RelStructure;
-import org.rutebanken.netex.model.PropertyOfDay;
 
 class GtfsServiceRepositoryTest {
 
@@ -89,14 +53,7 @@ class GtfsServiceRepositoryTest {
   private static final String TEST_CODESPACE = "ENT";
   private static final String TEST_DAY_TYPE_1_ID = "ENT:DayType:1";
   private static final String TEST_DAY_TYPE_2_ID = "ENT:DayType:2";
-  private static final LocalDateTime TEST_DATE = LocalDateTime.of(
-    2021,
-    10,
-    20,
-    1,
-    1,
-    1
-  );
+  private static final LocalDate TEST_DATE = LocalDate.of(2021, 10, 20);
 
   private static final String TEST_OPERATING_PERIOD_1_ID =
     "TEST_OPERATING_PERIOD_1_ID";
@@ -145,7 +102,7 @@ class GtfsServiceRepositoryTest {
     Assertions.assertEquals(TEST_DAY_TYPE_1_ID, service.getId());
     Assertions.assertTrue(service.getExcludedDates().isEmpty());
     Assertions.assertEquals(1, service.getIncludedDates().size());
-    LocalDateTime actual = service
+    LocalDate actual = service
       .getIncludedDates()
       .stream()
       .findFirst()
@@ -402,7 +359,6 @@ class GtfsServiceRepositoryTest {
     Set<LocalDate> allIncludedDates = service
       .getIncludedDates()
       .stream()
-      .map(LocalDateTime::toLocalDate)
       .collect(Collectors.toSet());
     Set<LocalDate> allDatesInCombinedPeriods = TEST_OPERATING_PERIOD_2_START
       .toLocalDate()
@@ -494,7 +450,6 @@ class GtfsServiceRepositoryTest {
     Set<LocalDate> allIncludedDates = service
       .getIncludedDates()
       .stream()
-      .map(LocalDateTime::toLocalDate)
       .collect(Collectors.toSet());
     Set<LocalDate> allDatesInFirstPeriod = TEST_OPERATING_PERIOD_1_START
       .toLocalDate()
@@ -607,7 +562,6 @@ class GtfsServiceRepositoryTest {
     Set<LocalDate> allIncludedDates = service
       .getIncludedDates()
       .stream()
-      .map(LocalDateTime::toLocalDate)
       .collect(Collectors.toSet());
     Set<LocalDate> allDatesInCombinedPeriods = TEST_OPERATING_PERIOD_2_START
       .toLocalDate()
@@ -620,7 +574,7 @@ class GtfsServiceRepositoryTest {
     Set<LocalDate> allExcludedDates = new HashSet<>(allDatesInCombinedPeriods);
     allExcludedDates.removeAll(allIncludedDates);
     Assertions.assertEquals(
-      TEST_DATE.toLocalDate(),
+      TEST_DATE,
       allExcludedDates.stream().findFirst().orElseThrow()
     );
 
@@ -710,7 +664,6 @@ class GtfsServiceRepositoryTest {
     Set<LocalDate> allIncludedDates = service
       .getIncludedDates()
       .stream()
-      .map(LocalDateTime::toLocalDate)
       .collect(Collectors.toSet());
     Set<LocalDate> allDatesInCombinedPeriods = TEST_OPERATING_PERIOD_2_START
       .toLocalDate()
@@ -810,7 +763,6 @@ class GtfsServiceRepositoryTest {
     Set<LocalDate> allIncludedDates = service
       .getIncludedDates()
       .stream()
-      .map(LocalDateTime::toLocalDate)
       .collect(Collectors.toSet());
     Set<LocalDate> allDatesInFirstPeriod = TEST_OPERATING_PERIOD_1_START
       .toLocalDate()
@@ -869,7 +821,7 @@ class GtfsServiceRepositoryTest {
     Assertions.assertEquals(TEST_OPERATING_DAY_ID, service.getId());
     Assertions.assertTrue(service.getExcludedDates().isEmpty());
     Assertions.assertEquals(1, service.getIncludedDates().size());
-    LocalDateTime actual = service
+    LocalDate actual = service
       .getIncludedDates()
       .stream()
       .findFirst()
@@ -933,7 +885,7 @@ class GtfsServiceRepositoryTest {
     Assertions.assertEquals(TEST_DAY_TYPE_1_ID, service.getId());
     Assertions.assertTrue(service.getExcludedDates().isEmpty());
     Assertions.assertEquals(1, service.getIncludedDates().size());
-    LocalDateTime actual = service
+    LocalDate actual = service
       .getIncludedDates()
       .stream()
       .findFirst()
@@ -968,7 +920,7 @@ class GtfsServiceRepositoryTest {
 
   private DayTypeAssignment createTestDayTypeAssignment(
     String dayTypeId,
-    LocalDateTime date,
+    LocalDate date,
     Boolean isAvailable
   ) {
     DayTypeAssignment dayTypeAssignment =
