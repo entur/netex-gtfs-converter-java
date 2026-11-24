@@ -49,6 +49,7 @@ import static org.entur.netex.gtfs.export.model.GtfsRouteType.RAILWAY_SERVICE;
 import static org.entur.netex.gtfs.export.model.GtfsRouteType.RAIL_REPLACEMENT_BUS_SERVICE;
 import static org.entur.netex.gtfs.export.model.GtfsRouteType.REGIONAL_BUS_SERVICE;
 import static org.entur.netex.gtfs.export.model.GtfsRouteType.REGIONAL_RAIL_SERVICE;
+import static org.entur.netex.gtfs.export.model.GtfsRouteType.SCHOOL_AND_PUBLIC_SERVICE_BUS;
 import static org.entur.netex.gtfs.export.model.GtfsRouteType.SCHOOL_BUS;
 import static org.entur.netex.gtfs.export.model.GtfsRouteType.SHUTTLE_BUS;
 import static org.entur.netex.gtfs.export.model.GtfsRouteType.SIGHTSEEING_BOAT_SERVICE;
@@ -192,6 +193,13 @@ public final class TransportModeUtil {
         BusSubmodeEnumeration.SCHOOL_BUS.value()
       ),
       SCHOOL_BUS
+    );
+    ROUTE_TYPE_FOR_TRANSPORT_MODE_AND_SUB_MODE.put(
+      new TransportModeAndSubMode(
+        AllPublicTransportModesEnumeration.BUS.value(),
+        BusSubmodeEnumeration.SCHOOL_AND_PUBLIC_SERVICE_BUS.value()
+      ),
+      SCHOOL_AND_PUBLIC_SERVICE_BUS
     );
     ROUTE_TYPE_FOR_TRANSPORT_MODE_AND_SUB_MODE.put(
       new TransportModeAndSubMode(
